@@ -78,8 +78,9 @@ public class MatrixAddition {
     }
 
     public static float[][] addMatricies(
-            float[][] matrix_1,
-            float[][] matrix_2) {
+        float[][] matrix_1,
+        float[][] matrix_2
+    ) {
         float[][] result = new float[matrix_1.length][matrix_1.length];
         for (int i = 0; i < matrix_2.length; i++) {
             for (int j = 0; j < matrix_2.length; j++) {
@@ -105,10 +106,10 @@ public class MatrixAddition {
     public static void main(String[] args) {
         // Create a FastReader instance for input
         final int N = s.nextInt();
-        var inputMatrix_1 = readMatrix(N);
+        float[][] inputMatrix_1 = readMatrix(N);
         s.nextInt();
-        var inputMatrix_2 = readMatrix(N);
-        var result = addMatricies(inputMatrix_1, inputMatrix_2);
+        float[][] inputMatrix_2 = readMatrix(N);
+        float[][] result = addMatricies(inputMatrix_1, inputMatrix_2);
 
         printMatrix(result);
     }
