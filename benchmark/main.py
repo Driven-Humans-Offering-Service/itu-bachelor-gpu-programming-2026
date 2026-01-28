@@ -14,7 +14,7 @@ def main():
         print("generating matrices")
         rand.seed("Driven Humans Offering Service")
         i = 20
-        for _ in range(0,8):
+        for _ in range(0,9):
             generateMatrix(i)
             i*=2
     print("done!")
