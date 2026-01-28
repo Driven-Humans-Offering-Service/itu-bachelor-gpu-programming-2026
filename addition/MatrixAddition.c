@@ -9,7 +9,7 @@ void addMatrices(float* res, float* m1, float* m2, int size);
 void printMatrix(float* m, int size);
 
 struct timespec tid;
-long runtime;
+unsigned long runtime;
 
 int main(int argc, char** argv) {
     char* path1 = argv[argc - 2];
@@ -44,7 +44,7 @@ int main(int argc, char** argv) {
     free(matrix1);
     free(matrix2);
 
-    printf("The runtime was: %ld ns\n", runtime);
+    printf("The runtime was: %lu ns\n", runtime);
     return 0;
 }
 
@@ -68,11 +68,11 @@ void printMatrix(float* m, int size) {
 
 void addMatrices(float* res, float* m1, float* m2, int size) {
     clock_gettime(CLOCK_REALTIME,&tid);
-    long before = tid.tv_nsec;
+    unsigned long before = tid.tv_nsec;
     for (int i = 0; i < size; i++) {
         res[i] = m1[i] + m2[i];
     }
     clock_gettime(CLOCK_REALTIME,&tid);
-    long after = tid.tv_nsec;
+    unsigned long after = tid.tv_nsec;
     runtime = after - before;
 }
