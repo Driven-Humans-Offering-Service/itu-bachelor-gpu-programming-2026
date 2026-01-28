@@ -1,5 +1,6 @@
 import random as rand
 from pathlib import Path
+import argparse
 
 
 def generateMatrix(n, num):
@@ -10,12 +11,21 @@ def generateMatrix(n, num):
                 f.write(f"{rand.uniform(0,10)},")
             f.write("\n")
 
+def setupArguments():
+    parser = argparse.ArgumentParser(description='Benchmarking tool for bachelor')
+    _ = parser.add_argument("--genMatricies", "-gm", dest="amountOfMatricies", type=int, default=-1, help="Amount of matricies to create, every new one doubles in size")
+
+    return parser.parse_args()
+
 def main():
-    if not Path("../matrices/matrix_0_20x20.csv").exists():
+
+    args = setupArguments()
+    
+    if args.amountOfMatricies != -1:
         print("generating matrices")
         rand.seed("Driven Humans Offering Service")
         i = 20
-        for _ in range(0,9):
+        for _ in range(0, args.amountOfMatricies):
             generateMatrix(i, 0)
             generateMatrix(i, 1)
             i*=2
