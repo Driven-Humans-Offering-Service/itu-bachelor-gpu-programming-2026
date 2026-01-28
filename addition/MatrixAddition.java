@@ -1,6 +1,7 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Arrays;
 import java.util.StringTokenizer;
 
 public class MatrixAddition {
@@ -79,9 +80,8 @@ public class MatrixAddition {
     }
 
     public static float[][] addMatricies(
-        float[][] matrix_1,
-        float[][] matrix_2
-    ) {
+            float[][] matrix_1,
+            float[][] matrix_2) {
         float[][] result = new float[matrix_1.length][matrix_1.length];
         long before = System.nanoTime();
         for (int i = 0; i < matrix_2.length; i++) {
@@ -114,7 +114,10 @@ public class MatrixAddition {
         s.nextInt();
         float[][] inputMatrix_2 = readMatrix(N);
         float[][] result = addMatricies(inputMatrix_1, inputMatrix_2);
-        System.out.println("Time taken for matrix addition: " + runtime);
-        printMatrix(result);
+
+        if (Arrays.stream(args).anyMatch("--time"::equals))
+            System.out.println("Time taken for matrix addition: " + runtime);
+        if (Arrays.stream(args).anyMatch("--printResult"::equals))
+            printMatrix(result);
     }
 }
