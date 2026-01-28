@@ -65,6 +65,7 @@ public class MatrixAddition {
     }
 
     public static final FastReader s = new FastReader();
+    public static long runtime;
 
     public static float[][] readMatrix(int size) {
         float[][] matrix = new float[size][size];
@@ -82,11 +83,14 @@ public class MatrixAddition {
         float[][] matrix_2
     ) {
         float[][] result = new float[matrix_1.length][matrix_1.length];
+        long before = System.nanoTime();
         for (int i = 0; i < matrix_2.length; i++) {
             for (int j = 0; j < matrix_2.length; j++) {
                 result[i][j] = matrix_1[i][j] + matrix_2[i][j];
             }
         }
+        long after = System.nanoTime();
+        runtime = after - before;
         return result;
     }
 
@@ -110,7 +114,7 @@ public class MatrixAddition {
         s.nextInt();
         float[][] inputMatrix_2 = readMatrix(N);
         float[][] result = addMatricies(inputMatrix_1, inputMatrix_2);
-
+        System.out.println("Time taken for matrix addition: " + runtime);
         printMatrix(result);
     }
 }
