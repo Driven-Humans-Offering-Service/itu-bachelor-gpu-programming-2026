@@ -65,19 +65,53 @@ public class Main {
 		}
 	}
 
-	public static void main(String[] args) {
+	public static final FastReader s = new FastReader();
 
-		// Create a FastReader instance for input
-		FastReader s = new FastReader();
-		float[][] inputMatrix;
-		final int N = s.nextInt();
-		inputMatrix = new float[N][N];
-		for (int i = 0; i < N; i++) {
+	public static void readMatrix(float[][] matrix, int size) {
+		for (int i = 0; i < size; i++) {
 			String[] line = s.nextLine().split(",");
-			for (int j = 0; j < N; j++) {
-				inputMatrix[i][j] = Float.parseFloat(line[j]);
+			for (int j = 0; j < size; j++) {
+				matrix[i][j] = Float.parseFloat(line[j]);
 			}
 		}
+	}
 
+	public static void addMatricies(float[][] result, float[][] matrix_1, float[][] matrix_2) {
+		for (int i = 0; i < matrix_2.length; i++) {
+			for (int j = 0; j < matrix_2.length; j++) {
+				result[i][j] = matrix_1[i][j] + matrix_2[i][j];
+			}
+		}
+	}
+
+	public static void printMatrix(float[][] matrix) {
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < matrix.length; i++) {
+			sb.append("[ ");
+			for (int j = 0; j < matrix.length; j++) {
+				sb.append(matrix[i][j]);
+				sb.append(", ");
+			}
+			sb.append("]\n");
+		}
+		System.out.println(sb.toString());
+	}
+
+	public static void main(String[] args) {
+		// Create a FastReader instance for input
+		float[][] inputMatrix_1;
+		float[][] inputMatrix_2;
+		final int N = s.nextInt();
+		inputMatrix_1 = new float[N][N];
+		inputMatrix_2 = new float[N][N];
+		readMatrix(inputMatrix_1, N);
+		s.nextInt();
+		readMatrix(inputMatrix_2, N);
+
+		float[][] result = new float[N][N];
+
+		addMatricies(result, inputMatrix_1, inputMatrix_2);
+
+		printMatrix(result);
 	}
 }
