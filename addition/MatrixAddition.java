@@ -66,13 +66,15 @@ public class MatrixAddition {
 
     public static final FastReader s = new FastReader();
 
-    public static void readMatrix(float[][] matrix, int size) {
+    public static float[][] readMatrix(int size) {
+        float[][] matrix = new float[size][size];
         for (int i = 0; i < size; i++) {
             String[] line = s.nextLine().split(",");
             for (int j = 0; j < size; j++) {
                 matrix[i][j] = Float.parseFloat(line[j]);
             }
         }
+        return matrix;
     }
 
     public static float[][] addMatricies(
@@ -108,9 +110,9 @@ public class MatrixAddition {
         final int N = s.nextInt();
         inputMatrix_1 = new float[N][N];
         inputMatrix_2 = new float[N][N];
-        readMatrix(inputMatrix_1, N);
+        inputMatrix_1 = readMatrix(N);
         s.nextInt();
-        readMatrix(inputMatrix_2, N);
+        inputMatrix_2 = readMatrix(N);
 
         float[][] result = new float[N][N];
 
