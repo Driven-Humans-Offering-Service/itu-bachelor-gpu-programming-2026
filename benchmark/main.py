@@ -4,6 +4,7 @@ from pathlib import Path
 
 def generateMatrix(n):
     with open(f"../matrices/matrix_{n}x{n}.csv", "w") as f:
+        f.write(f"{n}\n")
         for i in range(0,n):
             for j in range(0,n):
                 f.write(f"{rand.uniform(0,10)},")

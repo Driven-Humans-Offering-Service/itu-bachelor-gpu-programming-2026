@@ -2,6 +2,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.StringTokenizer;
+import java.util.*;
 
 public class Main {
 
@@ -72,8 +73,9 @@ public class Main {
 		final int N = s.nextInt();
 		inputMatrix = new float[N][N];
 		for (int i = 0; i < N; i++) {
+			String[] line = s.nextLine().split(",");
 			for (int j = 0; j < N; j++) {
-				inputMatrix[i][j] = (float) s.nextDouble();
+				inputMatrix[i][j] = Float.parseFloat(line[j]);
 			}
 		}
 
