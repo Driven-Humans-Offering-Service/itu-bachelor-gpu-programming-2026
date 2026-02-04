@@ -98,12 +98,14 @@ __global__ void matrix_add(const float *m1, const float *m2, float *res,
 int run_cuda(Matrices *ma) {
 
   float *d_m1, *d_m2, *d_res;
-  gpuErrchk(cudaMalloc(&d_m1, ma->total_size));
-  gpuErrchk(cudaMalloc(&d_m2, ma->total_size));
-  gpuErrchk(cudaMalloc(&d_res, ma->total_size));
+  gpuErrchk(cudaMalloc(&d_m1, ma->total_size * sizeof(float)));
+  gpuErrchk(cudaMalloc(&d_m2, ma->total_size * sizeof(float)));
+  gpuErrchk(cudaMalloc(&d_res, ma->total_size * sizeof(float)));
 
-  gpuErrchk(cudaMemcpy(d_m1, ma->m1, ma->total_size, cudaMemcpyHostToDevice));
-  gpuErrchk(cudaMemcpy(d_m2, ma->m2, ma->total_size, cudaMemcpyHostToDevice));
+  gpuErrchk(cudaMemcpy(d_m1, ma->m1, ma->total_size * sizeof(float),
+                       cudaMemcpyHostToDevice));
+  gpuErrchk(cudaMemcpy(d_m2, ma->m2, ma->total_size * sizeof(float),
+                       cudaMemcpyHostToDevice));
 
   int threads = 256;
   int blocks = cuda::ceil_div(ma->total_size, threads);
@@ -114,8 +116,12 @@ int run_cuda(Matrices *ma) {
 
   matrix_add<<<blocks, threads>>>(d_m1, d_m2, d_res, ma->total_size);
 
-  gpuErrchk(
-      cudaMemcpy(ma->result, d_res, ma->total_size, cudaMemcpyDeviceToHost));
+  gpuErrchk(cudaMemcpy(ma->result, d_res, ma->total_size * sizeof(float),
+                       cudaMemcpyDeviceToHost));
+
+  cudaFree(d_m1);
+  cudaFree(d_m2);
+  cudaFree(d_res);
 
   return 0;
 }
