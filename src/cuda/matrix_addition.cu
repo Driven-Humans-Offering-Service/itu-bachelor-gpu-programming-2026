@@ -1,4 +1,5 @@
 #include "../utilities/matrix.h"
+#include "../utilities/utils.h"
 #include <cstdio>
 #include <cuda/cmath>
 #include <cuda/std/__cuda/cmath_nvfp16.h>
@@ -79,6 +80,7 @@ int main(int argc, char **argv) {
 
   char *path1 = argv[argc - 2];
   char *path2 = argv[argc - 1];
+  int displayRuntime = contains_argument(argc, argv, "--time");
 
   Matrices *ma = load_matrices(path1, path2);
 
@@ -92,6 +94,7 @@ int main(int argc, char **argv) {
   print_matrix(ma->result, cuda::std::sqrt(ma->total_size)); */
 
   free_matrices(ma);
-  printf("The runtime was: %lu ns\n", runtime);
+  if (displayRuntime)
+    printf("The runtime was: %lu ns\n", runtime);
   return 0;
 }

@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include "../utilities/matrix.h"
+#include "../utilities/utils.h"
 
 void add_matrices(float* res, float* m1, float* m2, int size);
 
@@ -11,6 +12,7 @@ unsigned long runtime;
 int main(int argc, char** argv) {
     char* path1 = argv[argc - 2];
     char* path2 = argv[argc - 1];
+    int displayRuntime = contains_argument(argc, argv, "--time");
 
     Matrices* ma = load_matrices(path1, path2);
 
@@ -23,7 +25,8 @@ int main(int argc, char** argv) {
     free_matrices(ma);
     free(result);
 
-    printf("%lu\n", runtime);
+    if(displayRuntime) 
+        printf("%lu\n", runtime);
     return 0;
 }
 
