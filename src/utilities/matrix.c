@@ -2,15 +2,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define ErrCheck(ans, msg)                                                         \
+#define checkScan(ans, msg)                                                         \
   {                                                                            \
-    assertError((ans), (msg), __FILE__, __LINE__);                                      \
+    assertScan((ans), (msg), __FILE__, __LINE__);                                      \
   }
-inline void assertError(int code, const char*
+inline void assertScan(int code, const char*
          msg, const char *file, int line){
 
-    if(code != 0) {
-        fprintf(stderr, "%s\nGot %d errors from %s %d\n", msg, code, file, line) ;
+    if(code == 0) {
+        fprintf(stderr, "%s\nDid not read anything, from: %s %d\n", msg, file, line) ;
         exit(code);
     }
 
@@ -40,11 +40,11 @@ Matrices* load_matrices(char *filename1, char* filename2) {
     checkPointer(file2, "No file2 provided");
 
     int size = 0;
-    ErrCheck(fscanf(file1, "%d", &size), "Failed to read size of first matrix");
+    checkScan(fscanf(file1, "%d", &size), "Failed to read size of first matrix");
     int totalsize = size*size;
     Matrices* ma = init_matrices(totalsize);
     read_matrix(file1, ma->m1, totalsize);
-    ErrCheck(fscanf(file2, "%d", &size), "Failed to read size of second matrix");
+    checkScan(fscanf(file2, "%d", &size), "Failed to read size of second matrix");
     read_matrix(file2, ma->m2, totalsize);
 
     return ma;
@@ -53,7 +53,7 @@ Matrices* load_matrices(char *filename1, char* filename2) {
 void read_matrix(FILE* file, float* m, int size) {
     for (int i = 0; i < size; i++) {
         float x = 2;
-        ErrCheck(fscanf(file, "%f ", &x), "Failed to read int");
+        checkScan(fscanf(file, "%f ", &x), "Failed to read int");
         m[i] = x;
     }
 }
