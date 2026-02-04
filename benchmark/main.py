@@ -22,12 +22,12 @@ def setupArguments():
         help="Amount of matricies to create, every new one doubles in size",
     )
     _ = parser.add_argument(
-            "--seed",
-            "-s",
-            dest="seed",
-            type=str,
-            default="Driven Humans Offering Service",
-            help="Seed to be used to generate random numbers for the matricies",
+        "--seed",
+        "-s",
+        dest="seed",
+        type=str,
+        default="Driven Humans Offering Service",
+        help="Seed to be used to generate random numbers for the matricies",
     )
 
     return parser.parse_args()
