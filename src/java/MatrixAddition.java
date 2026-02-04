@@ -5,10 +5,17 @@ public class MatrixAddition {
 
     public static long runtime;
 
+    public static int hasArgument(String[] args, String arg) {
+        for (int i = 0; i < args.length; i++) {
+            if (args[i].equals(arg))
+                return i;
+        }
+        return -1;
+    }
+
     public static float[][] addMatricies(
-        float[][] matrix_1,
-        float[][] matrix_2
-    ) {
+            float[][] matrix_1,
+            float[][] matrix_2) {
         float[][] result = new float[matrix_1.length][matrix_1.length];
         long before = System.nanoTime();
         for (int i = 0; i < matrix_2.length; i++) {
@@ -32,6 +39,10 @@ public class MatrixAddition {
         }
         if (Arrays.stream(args).anyMatch("--printResult"::equals)) {
             Matrix.printMatrix(result);
+        }
+        int outputResult = hasArgument(args, "--outputresult");
+        if (outputResult > -1) {
+            Matrix.outputMatrix(result, args[outputResult + 1]);
         }
     }
 }

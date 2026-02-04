@@ -1,6 +1,8 @@
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 
 public class Matrix {
@@ -38,5 +40,23 @@ public class Matrix {
             sb.append("]\n");
         }
         System.out.println(sb.toString());
+    }
+
+    public static void outputMatrix(float[][] matrix, String path) throws IOException {
+        File f = new File(path);
+        BufferedWriter writer = new BufferedWriter(new FileWriter(f));
+
+        for (int i = 0; i < matrix.length; i++) {
+            StringBuilder sb = new StringBuilder();
+            for (int j = 0; j < matrix.length; j++) {
+                sb.append(matrix[i][j]);
+                sb.append(" ");
+            }
+            sb.append("\n");
+            writer.write(sb.toString());
+        }
+
+        writer.close();
+
     }
 }
