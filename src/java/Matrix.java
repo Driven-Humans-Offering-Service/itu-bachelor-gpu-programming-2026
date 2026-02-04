@@ -16,10 +16,10 @@ public class Matrix {
     }
 
     private float[][] readMatrix(BufferedReader br, int size)
-        throws IOException {
+            throws IOException {
         float[][] matrix = new float[size][size];
         for (int i = 0; i < size; i++) {
-            String[] line = br.readLine().strip().split(",");
+            String[] line = br.readLine().strip().split(" ");
             for (int j = 0; j < size; j++) {
                 matrix[i][j] = Float.parseFloat(line[j]);
             }
