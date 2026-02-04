@@ -53,11 +53,13 @@ Matrices* init_matrices(int total_size) {
     ma->total_size = total_size;
     ma->m1 = malloc(sizeof(float)*total_size);
     ma->m2 = malloc(sizeof(float)*total_size);
+    ma->result = malloc(sizeof(float)*total_size);
     return ma;
 }
 
 void free_matrices(Matrices *ma) {
     free(ma->m1);
     free(ma->m2);
+    free(ma->result);
     free(ma);
 }
