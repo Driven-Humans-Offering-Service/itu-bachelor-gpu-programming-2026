@@ -28,7 +28,7 @@ public class MatrixAddition {
         float[][] result = addMatricies(m2.m, m1.m);
 
         if (Arrays.stream(args).anyMatch("--time"::equals)) {
-            System.out.println("Time taken for matrix addition: " + runtime);
+            System.out.println(runtime);
         }
         if (Arrays.stream(args).anyMatch("--printResult"::equals)) {
             Matrix.printMatrix(result);
