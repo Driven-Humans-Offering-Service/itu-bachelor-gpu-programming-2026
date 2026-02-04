@@ -3,7 +3,7 @@
 #include <time.h>
 #include "../utilities/matrix.h"
 
-void addMatrices(float* res, float* m1, float* m2, int size);
+void add_matrices(float* res, float* m1, float* m2, int size);
 
 struct timespec tid;
 unsigned long runtime;
@@ -18,7 +18,7 @@ int main(int argc, char** argv) {
     //printMatrix(matrix1, size);
     //printMatrix(matrix2, size);
     float* result = malloc(sizeof(float) * total_size);
-    addMatrices(result, ma->m1, ma->m2, total_size);
+    add_matrices(result, ma->m1, ma->m2, total_size);
     //printMatrix(result, size);
     free_matrices(ma);
     free(result);
