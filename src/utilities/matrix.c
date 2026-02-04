@@ -1,29 +1,50 @@
 #include "matrix.h"
+#include <stdio.h>
 #include <stdlib.h>
 
+#define ErrCheck(ans, msg)                                                         \
+  {                                                                            \
+    assertError((ans), (msg), __FILE__, __LINE__);                                      \
+  }
+inline void assertError(int code, const char*
+         msg, const char *file, int line){
+
+    if(code != 0) {
+        fprintf(stderr, "%s\nGot %d errors from %s %d\n", msg, code, file, line) ;
+        exit(code);
+    }
+
+}
+
+#define checkPointer(ans, msg)                                                         \
+  {                                                                            \
+    assertPointerNotNull((ans), (msg), __FILE__, __LINE__);                                      \
+  }
+inline void assertPointerNotNull(void* ptr, const char*
+         msg, const char *file, int line){
+
+    if(!ptr) {
+        fprintf(stderr, "%s\nfrom %s %d\n", msg, file, line) ;
+        exit(1);
+    }
+
+}
 
 Matrices* load_matrices(char *filename1, char* filename2) {
 
     FILE* file1 = fopen(filename1, "r");
     FILE* file2 = fopen(filename2, "r");
 
-    char* error_message = "";
-    if (!file1) {
-        sprintf(error_message, "No file with that name %s\n", filename1);
-        printf("%s",error_message);
-        exit(1);
-    } else if (!file2) {
-        sprintf(error_message, "No file with that name %s\n", filename2);
-        printf("%s",error_message);
-        exit(1);
-    }
+
+    checkPointer(file1, "No file1 provided");
+    checkPointer(file2, "No file2 provided");
 
     int size = 0;
-    fscanf(file1, "%d", &size);
+    ErrCheck(fscanf(file1, "%d", &size), "Failed to read size of first matrix");
     int totalsize = size*size;
     Matrices* ma = init_matrices(totalsize);
     read_matrix(file1, ma->m1, totalsize);
-    fscanf(file2, "%d", &size);
+    ErrCheck(fscanf(file2, "%d", &size), "Failed to read size of second matrix");
     read_matrix(file2, ma->m2, totalsize);
 
     return ma;
@@ -32,7 +53,7 @@ Matrices* load_matrices(char *filename1, char* filename2) {
 void read_matrix(FILE* file, float* m, int size) {
     for (int i = 0; i < size; i++) {
         float x = 2;
-        fscanf(file, "%f, ", &x);
+        ErrCheck(fscanf(file, "%f ", &x), "Failed to read int");
         m[i] = x;
     }
 }
