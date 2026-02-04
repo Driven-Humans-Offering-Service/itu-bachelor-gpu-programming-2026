@@ -1,3 +1,6 @@
+#ifdef __cplusplus
+extern "C" {
+#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -18,3 +21,7 @@ void read_matrix(FILE *file, float *m, int size);
 void print_matrix(float *m, int size);
 
 Matrices *load_matrices(char *filename1, char *filename2);
+
+#ifdef __cplusplus
+}
+#endif
