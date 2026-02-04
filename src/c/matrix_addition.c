@@ -23,7 +23,7 @@ int main(int argc, char** argv) {
     free_matrices(ma);
     free(result);
 
-    printf("The runtime was: %lu ns\n", runtime);
+    printf("%lu\n", runtime);
     return 0;
 }
 
