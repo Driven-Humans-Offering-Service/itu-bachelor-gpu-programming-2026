@@ -81,6 +81,7 @@ int main(int argc, char **argv) {
   char *path1 = argv[argc - 2];
   char *path2 = argv[argc - 1];
   int displayRuntime = contains_argument(argc, argv, "--time");
+  int print_to_file = contains_argument(argc, argv, "--outputresult");
 
   Matrices *ma = load_matrices(path1, path2);
 
@@ -93,8 +94,13 @@ int main(int argc, char **argv) {
   printf("\n\n\n");
   print_matrix(ma->result, cuda::std::sqrt(ma->total_size)); */
 
-  free_matrices(ma);
   if (displayRuntime)
     printf("The runtime was: %lu ns\n", runtime);
+
+  if (print_to_file) {
+    char *path = argv[print_to_file + 1];
+    output_matrix(ma, path);
+  }
+  free_matrices(ma);
   return 0;
 }

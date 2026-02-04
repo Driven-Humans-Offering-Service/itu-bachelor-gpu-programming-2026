@@ -1,4 +1,5 @@
 #include "matrix.h"
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -11,6 +12,20 @@ inline void assertScan(int code, const char*
 
     if(code == 0) {
         fprintf(stderr, "%s\nDid not read anything, from: %s %d\n", msg, file, line) ;
+        exit(code);
+    }
+
+}
+
+#define checkErr(ans, msg)                                                         \
+  {                                                                            \
+    assertError((ans), (msg), __FILE__, __LINE__);                                      \
+  }
+inline void assertError(int code, const char*
+         msg, const char *file, int line){
+
+    if(code) {
+        fprintf(stderr, "%s\nGot error, from: %s %d\n", msg, file, line) ;
         exit(code);
     }
 
@@ -66,6 +81,35 @@ void print_matrix(float* m, int size) {
         }
         printf("]\n");
     }
+}
+
+void output_matrix(Matrices *ma, const char *path){
+    FILE *file = fopen(path, "w");
+    if(!file) {
+        fprintf(stderr, "Failed to open file: %s\n", path);
+        exit(1);
+    }
+    
+    int size = sqrt(ma->total_size);
+
+    float* result = ma->result;
+    for(int i = 0; i < size; i++){
+        for (int j = 0; j < size; j++) {
+            int res = fprintf(file, "%f ", result[i * size + j]);
+            if(res < 1) {
+                fprintf(stderr, "Error trying to write to file");
+                exit(1);
+            }
+        }
+            int res = fprintf(file, "\n");
+            if(res < 1) {
+                fprintf(stderr, "Error trying to write to file");
+                exit(1);
+            }
+    }
+
+
+    checkErr(fclose(file), "Failed to close file, when outputting matrix");
 }
 
 

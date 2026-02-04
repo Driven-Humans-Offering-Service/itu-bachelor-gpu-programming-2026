@@ -20,6 +20,8 @@ void read_matrix(FILE *file, float *m, int size);
 
 void print_matrix(float *m, int size);
 
+void output_matrix(Matrices *ma, const char *file);
+
 Matrices *load_matrices(char *filename1, char *filename2);
 
 #ifdef __cplusplus
