@@ -1,22 +1,21 @@
 import argparse
-import random as rand
+import logging
 
+import matrix_generation as mg
 
-def generateMatrix(n, num):
-    with open(f"../matrices/matrix_{num}_{n}x{n}.csv", "w") as f:
-        f.write(f"{n}\n")
-        for i in range(0, n):
-            for j in range(0, n):
-                f.write(f"{rand.uniform(0, 10)},")
-            f.write("\n")
+logging.basicConfig(
+    level=logging.INFO,  # minimum level to display
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
 
 
 def setupArguments():
     parser = argparse.ArgumentParser(description="Benchmarking tool for bachelor")
     _ = parser.add_argument(
-        "--genMatricies",
+        "--genmatrices",
         "-gm",
-        dest="amountOfMatricies",
+        dest="amount_of_matrices",
         type=int,
         default=-1,
         help="Amount of matricies to create, every new one doubles in size",
@@ -30,21 +29,30 @@ def setupArguments():
         help="Seed to be used to generate random numbers for the matricies",
     )
 
+    _ = parser.add_argument(
+        "--debug",
+        "-d",
+        dest="debug",
+        help="Whether or not to print logging statements to stdout",
+        action="store_true",
+    )
+
     return parser.parse_args()
 
 
 def main():
     args = setupArguments()
 
-    if args.amountOfMatricies != -1:
-        print("generating matrices")
-        rand.seed(args.seed)
-        i = 20
-        for _ in range(0, args.amountOfMatricies):
-            generateMatrix(i, 0)
-            generateMatrix(i, 1)
-            i *= 2
-    print("done!")
+    if args.debug:
+        logging.getLogger().setLevel(logging.DEBUG)
+
+    logging.debug("entering main")
+
+    if args.amount_of_matrices != -1:
+        logging.debug("generating matrices")
+        mg.generate_matrices(args.amount_of_matrices, args.seed)
+
+    logging.debug("exiting main")
 
 
 if __name__ == "__main__":
