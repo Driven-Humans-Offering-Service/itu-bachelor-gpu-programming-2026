@@ -1,8 +1,9 @@
 import random as rand
 
+from utils import rootFolder
 
 def generate_matrix(n, num):
-    with open(f"../matrices/matrix_{num}_{n}x{n}", "w") as f:
+    with open(f"{rootFolder}/data/input/matrix_{num}_{n}", "w") as f:
         f.write(f"{n}\n")
         for _ in range(0, n):
             for _ in range(0, n):
