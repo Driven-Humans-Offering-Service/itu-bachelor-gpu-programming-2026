@@ -80,7 +80,9 @@ def main():
         logging.debug("done generation matrices")
 
     if args.compile != None:
+       logging.debug("Trying to compile")
        c.compile(args.compile) 
+       logging.debug("Done compiling")
     if args.verify and args.benchmark:
         logging.debug("verify and benchmark implementations")
         logging.debug("running benchmark")

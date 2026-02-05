@@ -1,3 +1,4 @@
+import logging
 import os
 import subprocess
 
@@ -23,15 +24,21 @@ def compile_lang_arg(files, arg2):
         case "java":
             java_files =  get_files_with_extention(files, ".java")
             for java_file in java_files:
+                logging.debug(f"Compiling {java_file}")
                 compile_java(java_file) 
+                logging.debug(f"Done compiling {java_file}")
         case "c":
             c_files = get_files_with_extention(files, ".c")
             for file in c_files:
+                logging.debug(f"Compiling {file}")
                 compile_c(file, c_util_files)
+                logging.debug(f"Done compiling {file}")
         case "cuda":
             cuda_files = get_files_with_extention(files, ".cu")
             for file in cuda_files:
+                logging.debug(f"Compiling {file}")
                 compile_cuda(file, c_util_files)
+                logging.debug(f"Done compiling {file}")
         case "all":
             compile_lang_arg(files, "java")
             compile_lang_arg(files, "c")
