@@ -4,7 +4,6 @@ import logging
 import compile as c
 import matrix_generation as mg
 import verify as v
-import utils as u
 
 logging.basicConfig(
     level=logging.INFO,  # minimum level to display
@@ -62,7 +61,6 @@ def setupArguments():
         dest="compile",
         help="Whether or not to compile all the files",
         nargs="*",
-        default=[],
     )
 
     return parser.parse_args()
@@ -70,7 +68,6 @@ def setupArguments():
 
 def main():
     args = setupArguments()
-    u.setup()
 
     if args.debug:
         logging.getLogger().setLevel(logging.DEBUG)
