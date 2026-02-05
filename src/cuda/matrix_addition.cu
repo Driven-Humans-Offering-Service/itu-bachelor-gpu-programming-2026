@@ -56,10 +56,6 @@ int run_cuda(Matrices *ma) {
   int threads = 256;
   int blocks = cuda::ceil_div(ma->total_size, threads);
 
-  printf("threads: %d\n", threads);
-  printf("blocks: %d\n", blocks);
-  printf("size: %d\n", ma->total_size);
-
   matrix_add<<<blocks, threads>>>(d_m1, d_m2, d_res, ma->total_size);
 
   gpuErrchk(cudaMemcpy(ma->result, d_res, ma->total_size * sizeof(float),
