@@ -2,6 +2,7 @@ import argparse
 import logging
 import os
 
+from compile import compile_java
 import matrix_generation as mg
 import verify as v
 
@@ -11,6 +12,7 @@ logging.basicConfig(
     datefmt="%Y-%m-%d %H:%M:%S",
 )
 
+rootFolder = ""
 
 def setupArguments():
     parser = argparse.ArgumentParser(description="Benchmarking tool for bachelor")
@@ -55,9 +57,41 @@ def setupArguments():
         action="store_true",
     )
 
+    _ = parser.add_argument(
+        "--compile",
+        "-c",
+        dest="compile",
+        help="Whether or not to compile all the files",
+        nargs="*",
+        default=[],
+    )
+
     return parser.parse_args()
 
-rootFolder = ""
+def get_files_containg(root, matchCase):
+    lst = []                
+    for dirpath, dirname, filenames in os.walk(root):
+        for filename in filenames:
+            if matchCase in filename.lower():
+                lst.append(os.path.join(dirpath, filename))
+    return lst
+
+def get_files_with_extention(files, extention):
+    return filter(lambda x : extention in x, files)
+
+
+def compile_lang_arg(files, arg2):
+    srcPath = os.path.join(rootFolder, "./src")
+    match arg2:
+        case "java":
+            raise NotImplementedError
+        case "j":
+            java_files =  get_files_with_extention(files, ".java")
+            for java_file in java_files:
+                compile_java(java_file) 
+        case _:
+            print(f"No such lang {arg2}")
+
 
 def main():
     args = setupArguments()
@@ -74,6 +108,28 @@ def main():
         logging.debug("generating matrices")
         mg.generate_matrices(args.amount_of_matrices, args.seed)
         logging.debug("done generation matrices")
+
+    if args.compile != None:
+        if len(args.compile) >= 3:
+            print("Please only provide at most two arguments to compile")
+            exit(1)
+        if args.compile == []:
+            args.compile = ["all"]
+
+        srcFolder = os.path.join(rootFolder, "./src")
+        match args.compile[0]:
+            case "all":
+                raise NotImplementedError
+            case "add":
+                files = get_files_containg(srcFolder, "addition")
+                compile_lang_arg(files, args.compile[1]) 
+            case "multiply":
+                raise NotImplementedError
+            case "inverse":
+                raise NotImplementedError
+            case _:
+                print("Please supply one of all, add, multiply, or inverse")
+                exit(1)
 
     if args.verify and args.benchmark:
         logging.debug("verify and benchmark implementations")
