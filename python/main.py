@@ -103,6 +103,9 @@ def compile_lang_arg(files, arg2):
         case _:
             print(f"No such lang {arg2}")
 
+def compile_type(srcFolder, type, args):
+    files = get_files_containg(srcFolder, type)
+    compile_lang_arg(files, args) 
 
 def main():
     args = setupArguments()
@@ -134,14 +137,15 @@ def main():
 
         match args.compile[0]:
             case "all":
-                raise NotImplementedError
+                compile_type(srcFolder, "addition", args.compile[1])
+                compile_type(srcFolder, "multiplication", args.compile[1])
+                compile_type(srcFolder, "inversion", args.compile[1])
             case "add":
-                files = get_files_containg(srcFolder, "addition")
-                compile_lang_arg(files, args.compile[1]) 
+                compile_type(srcFolder, "addition", args.compile[1])
             case "multiply":
-                raise NotImplementedError
+                compile_type(srcFolder, "multiplication", args.compile[1])
             case "inverse":
-                raise NotImplementedError
+                compile_type(srcFolder, "inversion", args.compile[1])
             case _:
                 print("Please supply one of all, add, multiply, or inverse")
                 exit(1)
