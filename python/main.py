@@ -2,7 +2,7 @@ import argparse
 import logging
 import os
 
-from compile import compile_java
+from compile import compile_c, compile_cuda, compile_java
 import matrix_generation as mg
 import verify as v
 
@@ -77,18 +77,29 @@ def get_files_containg(root, matchCase):
     return lst
 
 def get_files_with_extention(files, extention):
-    return filter(lambda x : extention in x, files)
+    return list(filter(lambda x :  x.endswith(extention), files))
 
 
 def compile_lang_arg(files, arg2):
     srcPath = os.path.join(rootFolder, "./src")
+    c_util_files = get_files_containg(os.path.join(srcPath, "utilities"), ".c")
     match arg2:
         case "java":
-            raise NotImplementedError
-        case "j":
             java_files =  get_files_with_extention(files, ".java")
             for java_file in java_files:
                 compile_java(java_file) 
+        case "c":
+            c_files = get_files_with_extention(files, ".c")
+            for file in c_files:
+                compile_c(file, c_util_files)
+        case "cuda":
+            cuda_files = get_files_with_extention(files, ".cu")
+            for file in cuda_files:
+                compile_cuda(file, c_util_files)
+        case "all":
+            compile_lang_arg(files, "java")
+            compile_lang_arg(files, "c")
+            compile_lang_arg(files, "cuda")
         case _:
             print(f"No such lang {arg2}")
 
@@ -117,6 +128,10 @@ def main():
             args.compile = ["all"]
 
         srcFolder = os.path.join(rootFolder, "./src")
+        
+        if len(args.compile) == 1:
+            args.compile.append("all")
+
         match args.compile[0]:
             case "all":
                 raise NotImplementedError
