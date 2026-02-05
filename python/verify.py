@@ -1,6 +1,6 @@
 import os
 
-from main import rootFolder
+from utils import rootFolder
 
 
 def read_matrix(filename):

@@ -1,8 +1,7 @@
 import argparse
 import logging
-import os
 
-from compile import compile_c, compile_cuda, compile_java
+import compile as c
 import matrix_generation as mg
 import verify as v
 
@@ -12,7 +11,6 @@ logging.basicConfig(
     datefmt="%Y-%m-%d %H:%M:%S",
 )
 
-rootFolder = ""
 
 def setupArguments():
     parser = argparse.ArgumentParser(description="Benchmarking tool for bachelor")
@@ -68,50 +66,9 @@ def setupArguments():
 
     return parser.parse_args()
 
-def get_files_containg(root, matchCase):
-    lst = []                
-    for dirpath, dirname, filenames in os.walk(root):
-        for filename in filenames:
-            if matchCase in filename.lower():
-                lst.append(os.path.join(dirpath, filename))
-    return lst
-
-def get_files_with_extention(files, extention):
-    return list(filter(lambda x :  x.endswith(extention), files))
-
-
-def compile_lang_arg(files, arg2):
-    srcPath = os.path.join(rootFolder, "./src")
-    c_util_files = get_files_containg(os.path.join(srcPath, "utilities"), ".c")
-    match arg2:
-        case "java":
-            java_files =  get_files_with_extention(files, ".java")
-            for java_file in java_files:
-                compile_java(java_file) 
-        case "c":
-            c_files = get_files_with_extention(files, ".c")
-            for file in c_files:
-                compile_c(file, c_util_files)
-        case "cuda":
-            cuda_files = get_files_with_extention(files, ".cu")
-            for file in cuda_files:
-                compile_cuda(file, c_util_files)
-        case "all":
-            compile_lang_arg(files, "java")
-            compile_lang_arg(files, "c")
-            compile_lang_arg(files, "cuda")
-        case _:
-            print(f"No such lang {arg2}")
-
-def compile_type(srcFolder, type, args):
-    files = get_files_containg(srcFolder, type)
-    compile_lang_arg(files, args) 
 
 def main():
     args = setupArguments()
-    global rootFolder
-    ownFolder = os.path.dirname(os.path.abspath(__file__)) 
-    rootFolder = os.path.abspath(os.path.join(ownFolder, "../"))
 
     if args.debug:
         logging.getLogger().setLevel(logging.DEBUG)
@@ -124,32 +81,7 @@ def main():
         logging.debug("done generation matrices")
 
     if args.compile != None:
-        if len(args.compile) >= 3:
-            print("Please only provide at most two arguments to compile")
-            exit(1)
-        if args.compile == []:
-            args.compile = ["all"]
-
-        srcFolder = os.path.join(rootFolder, "./src")
-        
-        if len(args.compile) == 1:
-            args.compile.append("all")
-
-        match args.compile[0]:
-            case "all":
-                compile_type(srcFolder, "addition", args.compile[1])
-                compile_type(srcFolder, "multiplication", args.compile[1])
-                compile_type(srcFolder, "inversion", args.compile[1])
-            case "add":
-                compile_type(srcFolder, "addition", args.compile[1])
-            case "multiply":
-                compile_type(srcFolder, "multiplication", args.compile[1])
-            case "inverse":
-                compile_type(srcFolder, "inversion", args.compile[1])
-            case _:
-                print("Please supply one of all, add, multiply, or inverse")
-                exit(1)
-
+       c.compile(args.compile) 
     if args.verify and args.benchmark:
         logging.debug("verify and benchmark implementations")
         logging.debug("running benchmark")
