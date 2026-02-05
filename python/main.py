@@ -1,5 +1,6 @@
 import argparse
 import logging
+import os
 
 import matrix_generation as mg
 import verify as v
@@ -56,9 +57,13 @@ def setupArguments():
 
     return parser.parse_args()
 
+rootFolder = ""
 
 def main():
     args = setupArguments()
+    global rootFolder
+    ownFolder = os.path.dirname(os.path.abspath(__file__)) 
+    rootFolder = os.path.abspath(os.path.join(ownFolder, "../"))
 
     if args.debug:
         logging.getLogger().setLevel(logging.DEBUG)

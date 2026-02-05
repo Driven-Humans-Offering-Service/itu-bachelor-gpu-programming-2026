@@ -1,5 +1,7 @@
 import os
 
+from main import rootFolder
+
 
 def read_matrix(filename):
     matrix = []
@@ -31,13 +33,14 @@ def verify(filename1, filename2):
 
 
 def verify_implementations():
-    verify_path = os.path.dirname(os.path.abspath(__file__))
-    matrices_path = os.path.abspath(os.path.join(verify_path, "../matrices"))
+    matrices_path = os.path.abspath(os.path.join(rootFolder, "./data/output"))
     for file in os.listdir(matrices_path):
         if file.startswith("res") and (file.endswith("cuda") or file.endswith("c")):
             parts = file.split("_")
             operation = parts[1]
             size = parts[2]
-            if not verify(file, f"res_{operation}_{size}_java"):
+            file = os.path.join(matrices_path, file)
+            javaPath = os.path.join(matrices_path, f"res_{operation}_{size}_java")
+            if not verify(file, javaPath):
                 return False
     return True
