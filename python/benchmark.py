@@ -79,6 +79,7 @@ def run_files(files):
             times.append(
                 (os.path.splitext(os.path.basename(file))[0], size, times_for_file)
             )
+    return times
 
 
 def benchmark(what):
