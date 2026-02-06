@@ -1,13 +1,9 @@
 #include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
 #include "../utilities/matrix.h"
 #include "../utilities/utils.h"
 
 void add_matrices(float* res, float* m1, float* m2, int size);
 
-struct timespec tid;
-unsigned long runtime;
 
 int main(int argc, char** argv) {
     char* path1 = argv[argc - 2];
@@ -20,7 +16,10 @@ int main(int argc, char** argv) {
     int total_size = ma->total_size;
     //printMatrix(matrix1, size);
     //printMatrix(matrix2, size);
+    unsigned long before = get_time_nanoseconds();
     add_matrices(ma->result, ma->m1, ma->m2, total_size);
+    unsigned long after = get_time_nanoseconds();
+    unsigned long runtime = after - before;
     //printMatrix(result, size);
 
     if(displayRuntime) 
@@ -35,12 +34,7 @@ int main(int argc, char** argv) {
 }
 
 void add_matrices(float* res, float* m1, float* m2, int size) {
-    clock_gettime(CLOCK_REALTIME,&tid);
-    unsigned long before = tid.tv_nsec;
     for (int i = 0; i < size; i++) {
         res[i] = m1[i] + m2[i];
     }
-    clock_gettime(CLOCK_REALTIME,&tid);
-    unsigned long after = tid.tv_nsec;
-    runtime = after - before;
 }

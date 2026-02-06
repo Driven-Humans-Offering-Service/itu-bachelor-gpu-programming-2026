@@ -25,9 +25,6 @@ inline void gpuAssert(cudaError_t code, const char *file, int line,
   }
 }
 
-struct timespec tid;
-unsigned long runtime;
-
 __global__ void matrix_add(const float *m1, const float *m2, float *res,
                            int size) {
 
@@ -39,9 +36,6 @@ __global__ void matrix_add(const float *m1, const float *m2, float *res,
 }
 
 int run_cuda(Matrices *ma) {
-
-  clock_gettime(CLOCK_REALTIME, &tid);
-  unsigned long before = tid.tv_nsec;
 
   float *d_m1, *d_m2, *d_res;
   gpuErrchk(cudaMalloc(&d_m1, ma->total_size * sizeof(float)));
@@ -65,10 +59,6 @@ int run_cuda(Matrices *ma) {
   cudaFree(d_m2);
   cudaFree(d_res);
 
-  clock_gettime(CLOCK_REALTIME, &tid);
-  unsigned long after = tid.tv_nsec;
-  runtime = after - before;
-
   return 0;
 }
 
@@ -81,7 +71,10 @@ int main(int argc, char **argv) {
 
   Matrices *ma = load_matrices(path1, path2);
 
+  unsigned long before = get_time_nanoseconds();
   run_cuda(ma);
+  unsigned long after = get_time_nanoseconds();
+  unsigned long runtime = after - before;
 
   /* printf("\n\n\n");
   print_matrix(ma->m1, cuda::std::sqrt(ma->total_size));
