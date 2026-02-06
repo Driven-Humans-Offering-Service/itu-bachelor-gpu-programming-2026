@@ -10,9 +10,9 @@ def analyse_data(times):
     for run in times:
         logging.debug(f"Creating time data file for: {run[0] + run[1]}")
         with open(f"{rootFolder}/data/time/bench_{run[0]}_{run[1]}", "w") as f:
-            timedata = map(int, run[2].split(" ").strip())
+            timedata = map(lambda x: int(x.strip()), run[2])
             avg = s.mean(timedata)
-            f.write(f"{avg} " + run[2])
+            f.write(f"{avg} " + " ".join(run[2]))
 
 
 def get_files(type):
@@ -65,11 +65,11 @@ def run_files(files):
     times = []
     for file in files:
         logging.debug(f"Running for file: {file}")
-        times_for_file = []
         lsinput = os.listdir(os.path.join(rootFolder, "./data/input"))
         different = filter(lambda s: "_0_" in s, lsinput)
         sizes = map(lambda d: d.split("_")[-1], different)
         for size in sizes:
+            times_for_file = []
             logging.debug(f"Running for size: {size}")
             for i in range(0, 50):
                 # logging.debug(f"Running {i}. iteration")
