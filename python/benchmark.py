@@ -9,8 +9,8 @@ from utils import rootFolder
 def analyse_data(type, size, times):
     logging.debug(f"Creating time data file for: {type + size}")
     with open(f"{rootFolder}/data/time/bench_{type}_{size}", "w") as f:
-        strippeddata = map(lambda x: x.strip(), times)
-        timedata = map(int, strippeddata)
+        strippeddata = list(map(lambda x: x.strip(), times))
+        timedata = list(map(int, strippeddata))
         avg = s.mean(timedata)
         f.write(f"{avg} " + " ".join(strippeddata))
 
