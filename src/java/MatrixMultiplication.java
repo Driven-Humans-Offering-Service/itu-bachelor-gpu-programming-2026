@@ -17,8 +17,8 @@ public class MatrixMultiplication {
         float[][] result = new float[matrix_1.length][matrix_1.length];
 
         for (int i = 0; i < matrix_2.length; i++) {
-            for (int k = 0; k < matrix_1.length; k++) {
-                for (int j = 0; j < matrix_2.length; j++) {
+            for (int j = 0; j < matrix_2.length; j++) {
+                for (int k = 0; k < matrix_1.length; k++) {
                     result[i][j] += matrix_1[i][k] * matrix_2[k][j];
                 }
             }
