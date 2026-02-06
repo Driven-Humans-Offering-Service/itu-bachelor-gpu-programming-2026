@@ -1,13 +1,18 @@
 import os
 import statistics as s
 
-from main import rootFolder
-from run import *
+from typing_extensions import TypeForm
+
+from run import run_file
+from utils import rootFolder
 
 
 def analyse_data(times):
-    avg = s.mean(times)
-    print(avg)
+    for run in times:
+        with open(f"{rootFolder}/data/time/bench_{run[0]}_{run[1]}", "w") as f:
+            timedata = map(int, run[2].split(" ").strip())
+            avg = s.mean(timedata)
+            f.write(f"{avg} " + run[2])
 
 
 def get_files(type):
@@ -32,21 +37,21 @@ def get_files(type):
         case "addition":
             files = filter(
                 lambda f: (
-                    "addition" == os.path.splitext(os.path.basename(f))[0].lower()
+                    "addition" in os.path.splitext(os.path.basename(f))[0].lower()
                 ),
                 get_files("all"),
             )
         case "multiplication":
             files = filter(
                 lambda f: (
-                    "multiplication" == os.path.splitext(os.path.basename(f))[0].lower()
+                    "multiplication" in os.path.splitext(os.path.basename(f))[0].lower()
                 ),
                 get_files("all"),
             )
         case "inversion":
             files = filter(
                 lambda f: (
-                    "inversion" == os.path.splitext(os.path.basename(f))[0].lower()
+                    "inversion" in os.path.splitext(os.path.basename(f))[0].lower()
                 ),
                 get_files("all"),
             )
@@ -60,9 +65,17 @@ def run_files(files):
     times = []
     for file in files:
         times_for_file = []
-        for _ in range(0, 50):
-            times_for_file.append(run_file(file, ""))
-        times.append((os.path.basename(file), times_for_file))
+        lsinput = os.listdir(os.path.join(rootFolder, "./data/input"))
+        different = filter(lambda s: "_0_" in s, lsinput)
+        sizes = map(lambda d: d.split("_")[-1], different)
+        for size in sizes:
+            for _ in range(0, 50):
+                input0 = rootFolder + f"./data/input/matrix_0_{size}"
+                input1 = rootFolder + f"./data/input/matrix_1_{size}"
+                times_for_file.append(run_file(file, ["--time", input0, input1]))
+            times.append(
+                (os.path.splitext(os.path.basename(file))[0], size, times_for_file)
+            )
 
 
 def benchmark(what):
