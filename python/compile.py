@@ -2,15 +2,8 @@ import logging
 import os
 import subprocess
 
-from utils import rootFolder
+from utils import get_files_containg, rootFolder
 
-def get_files_containg(root, matchCase):
-    lst = []                
-    for dirpath, dirname, filenames in os.walk(root):
-        for filename in filenames:
-            if matchCase in filename.lower():
-                lst.append(os.path.join(dirpath, filename))
-    return lst
 
 def get_files_with_extention(files, extention):
     return list(filter(lambda x :  x.endswith(extention), files))

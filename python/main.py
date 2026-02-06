@@ -4,6 +4,7 @@ import logging
 import compile as c
 import matrix_generation as mg
 import verify as v
+import run as r
 
 logging.basicConfig(
     level=logging.INFO,  # minimum level to display
@@ -63,6 +64,14 @@ def setupArguments():
         nargs="*",
     )
 
+    _ = parser.add_argument(
+        "--run",
+        "-r",
+        dest="run",
+        help="Whether or not to run all the files",
+        nargs=3,
+    )
+
     return parser.parse_args()
 
 
@@ -83,6 +92,12 @@ def main():
        logging.debug("Trying to compile")
        c.compile(args.compile) 
        logging.debug("Done compiling")
+
+    if args.run != None:
+       logging.debug("Trying to run")
+       r.run(args.run) 
+       logging.debug("Done running")
+
     if args.verify and args.benchmark:
         logging.debug("verify and benchmark implementations")
         logging.debug("running benchmark")
