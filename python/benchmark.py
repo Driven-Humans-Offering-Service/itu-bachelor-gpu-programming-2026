@@ -77,9 +77,10 @@ def run_files(files):
                 input1 = rootFolder + f"/data/input/matrix_1_{size}"
                 times.append(run_file(file, ["--time", input0, input1]))
 
-            logging.debug(f"Starting data analysis on: {file}_{size}")
-            analyse_data(os.path.splitext(os.path.basename(file))[0], size, times)
-            logging.debug(f"Finished data analysis on: {file}_{size}")
+            type = os.path.splitext(os.path.basename(file))[0]
+            logging.debug(f"Starting data analysis on: {type}_{size}")
+            analyse_data(type, size, times)
+            logging.debug(f"Finished data analysis on: {type}_{size}")
 
 
 def benchmark(what):
