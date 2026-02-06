@@ -5,6 +5,7 @@ import compile as c
 import matrix_generation as mg
 import verify as v
 import run as r
+import benchmark as b
 
 logging.basicConfig(
     level=logging.INFO,  # minimum level to display
@@ -53,7 +54,7 @@ def setupArguments():
         "-b",
         dest="benchmark",
         help="Whether or not to benchmark the different matrix operations",
-        action="store_true",
+        nargs=1,
     )
 
     _ = parser.add_argument(
@@ -117,7 +118,7 @@ def main():
 
     elif args.benchmark:
         logging.debug("running benchmark")
-        # run benchmrk with time
+        b.benchmark(args.benchmark[0])
         logging.debug("done running benchmark")
 
     logging.debug("exiting main")
