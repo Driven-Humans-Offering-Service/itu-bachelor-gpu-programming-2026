@@ -56,7 +56,7 @@ def get_files(type):
         case _:
             print("not a recognised benchmark argument")
             exit(1)
-    return files
+    return list(files)
 
 
 def run_files(files):
@@ -68,8 +68,8 @@ def run_files(files):
         sizes = map(lambda d: d.split("_")[-1], different)
         for size in sizes:
             for _ in range(0, 50):
-                input0 = rootFolder + f"./data/input/matrix_0_{size}"
-                input1 = rootFolder + f"./data/input/matrix_1_{size}"
+                input0 = rootFolder + f"/data/input/matrix_0_{size}"
+                input1 = rootFolder + f"/data/input/matrix_1_{size}"
                 times_for_file.append(run_file(file, ["--time", input0, input1]))
             times.append(
                 (os.path.splitext(os.path.basename(file))[0], size, times_for_file)
