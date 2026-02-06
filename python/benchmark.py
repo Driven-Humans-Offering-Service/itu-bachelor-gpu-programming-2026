@@ -6,14 +6,13 @@ from run import run_file
 from utils import rootFolder
 
 
-def analyse_data(times):
-    for run in times:
-        logging.debug(f"Creating time data file for: {run[0] + run[1]}")
-        with open(f"{rootFolder}/data/time/bench_{run[0]}_{run[1]}", "w") as f:
-            strippeddata = map(lambda x: x.strip(), run[2])
-            timedata = map(int, strippeddata)
-            avg = s.mean(timedata)
-            f.write(f"{avg} " + " ".join(strippeddata))
+def analyse_data(type, size, times):
+    logging.debug(f"Creating time data file for: {type + size}")
+    with open(f"{rootFolder}/data/time/bench_{type}_{size}", "w") as f:
+        strippeddata = map(lambda x: x.strip(), times)
+        timedata = map(int, strippeddata)
+        avg = s.mean(timedata)
+        f.write(f"{avg} " + " ".join(strippeddata))
 
 
 def get_files(type):
@@ -63,7 +62,6 @@ def get_files(type):
 
 
 def run_files(files):
-    times = []
     for file in files:
         logging.debug(f"Running for file: {file}")
         lsinput = os.listdir(os.path.join(rootFolder, "./data/input"))
@@ -71,23 +69,20 @@ def run_files(files):
         sizes = map(lambda d: d.split("_")[-1], different)
         sorted_sizes = sorted(sizes, key=lambda sz: int(sz))
         for size in sorted_sizes:
-            times_for_file = []
+            times = []
             logging.debug(f"Running for size: {size}")
             for i in range(0, 50):
                 # logging.debug(f"Running {i}. iteration")
                 input0 = rootFolder + f"/data/input/matrix_0_{size}"
                 input1 = rootFolder + f"/data/input/matrix_1_{size}"
-                times_for_file.append(run_file(file, ["--time", input0, input1]))
-            times.append(
-                (os.path.splitext(os.path.basename(file))[0], size, times_for_file)
-            )
-    return times
+                times.append(run_file(file, ["--time", input0, input1]))
+
+            logging.debug(f"Starting data analysis on: {file}_{size}")
+            analyse_data(os.path.splitext(os.path.basename(file))[0], size, times)
+            logging.debug(f"Finished data analysis on: {file}_{size}")
 
 
 def benchmark(what):
     logging.debug("Running files")
-    times = run_files(get_files(what))
+    run_files(get_files(what))
     logging.debug("Done running files")
-    logging.debug("Starting data analysis")
-    analyse_data(times)
-    logging.debug("Done with data analysis")
