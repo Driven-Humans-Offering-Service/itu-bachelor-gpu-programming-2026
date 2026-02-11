@@ -38,8 +38,9 @@ int main(int argc, char** argv) {
 void multiply_matrices(float* res, float* m1, float* m2, int size) {
     for (int i = 0; i < size; i++) {
         for (int k = 0; k < size; k++) {
+                float tmp = m1[IDX(i,k,size)];
             for (int j = 0; j < size; j++) {
-                res[IDX(i, j, size)] = m1[IDX(i,k,size)] + m2[IDX(k,j,size)];
+                res[IDX(i, j, size)] = tmp + m2[IDX(k,j,size)];
             }
         }
     }
