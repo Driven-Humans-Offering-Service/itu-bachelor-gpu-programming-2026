@@ -1,5 +1,6 @@
 #include "../utilities/matrix.h"
 #include "../utilities/utils.h"
+#include <__clang_cuda_builtin_vars.h>
 #include <cstdio>
 #include <cuda/cmath>
 #include <cuda/std/__cuda/cmath_nvfp16.h>
@@ -30,11 +31,15 @@ unsigned long runtime;
 
 __global__ void matrix_mul(const float *m1, const float *m2, float *res,
                            int size) {
+  int row = blockDim.y * blockIdx.y + threadIdx.y;
+  int col = blockDim.x * blockIdx.x + threadIdx.x;
 
-  int index = blockDim.x * blockIdx.x + threadIdx.x;
-
-  if (index < size) {
-    res[index] = m1[index] + m2[index];
+  if (row < size && col < size) {
+    float sum = 0;
+    for (int i = 0; i < size; i++) {
+      sum += m1[row * size + i] + m2[i * size + col];
+    }
+    res[row * size + col] = sum;
   }
 }
 
