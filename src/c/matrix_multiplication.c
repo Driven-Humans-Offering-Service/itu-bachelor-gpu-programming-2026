@@ -38,11 +38,12 @@ int main(int argc, char** argv) {
 void multiply_matrices(float* res, float* m1, float* m2, int size) {
     for (int i = 0; i < size; i++) {
             float* tmp3 = &(res[i*size]);
+            float* tmp = &(m1[i*size]);
         for (int k = 0; k < size; k++) {
-            float tmp = m1[IDX(i,k,size)];
+            float val = tmp[k];
             float* tmp2 = &(m2[k*size]);
             for (int j = 0; j < size; j++) {
-                tmp3[j] = tmp + tmp2[j];
+                tmp3[j] = val + tmp2[j];
             }
         }
     }
