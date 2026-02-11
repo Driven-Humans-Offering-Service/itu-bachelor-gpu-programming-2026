@@ -87,8 +87,8 @@ int main(int argc, char **argv) {
   gpuErrchk(cudaEventRecord(stop));
   gpuErrchk(cudaEventSynchronize(stop));
   float runtime_ms = 0.0f;
-  gpuErrchk(cudaEventElapsedTime_v2(&runtime_ms, start, stop)) unsigned long a =
-      get_time_nanoseconds();
+  gpuErrchk(cudaEventElapsedTime_v2(&runtime_ms, start, stop));
+  unsigned long a = get_time_nanoseconds();
 
   if (displayRuntime)
     printf("%lu\n", (unsigned long)(runtime_ms * 1e6));
