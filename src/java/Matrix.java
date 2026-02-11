@@ -50,8 +50,6 @@ public class Matrix {
             StringBuilder sb = new StringBuilder();
             for (int j = 0; j < matrix.length; j++) {
                 float num = matrix[i][j];
-                num *= 1000000;
-                num = Math.round(num) / 1000000.0f;
                 sb.append(num);
                 sb.append(" ");
             }
