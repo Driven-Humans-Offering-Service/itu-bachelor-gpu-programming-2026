@@ -53,11 +53,11 @@ int run_cuda(Matrices *ma) {
   gpuErrchk(cudaMemcpy(d_m2, ma->m2, ma->total_size * sizeof(float),
                        cudaMemcpyHostToDevice));
 
-  cudaDeviceProp *prop;
+  cudaDeviceProp prop;
 
-  gpuErrchk(cudaGetDeviceProperties_v2(prop, 0));
+  gpuErrchk(cudaGetDeviceProperties_v2(&prop, 0));
 
-  int threads = prop->maxThreadsPerBlock;
+  int threads = prop.maxThreadsPerBlock;
 
   int blocks = cuda::ceil_div(ma->total_size, threads);
 
