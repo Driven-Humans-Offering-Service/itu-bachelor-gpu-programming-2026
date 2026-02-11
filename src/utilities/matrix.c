@@ -47,19 +47,19 @@ inline void assertPointerNotNull(void* ptr, const char*
 
 Matrices* load_matrices(char *filename1, char* filename2) {
 
-    FILE* file1 = fopen(filename1, "r");
-    FILE* file2 = fopen(filename2, "r");
+    FILE* file1 = fopen(filename1, "rb");
+    FILE* file2 = fopen(filename2, "rb");
 
 
     checkPointer(file1, "No file1 provided");
     checkPointer(file2, "No file2 provided");
 
     int size = 0;
-    checkScan(fscanf(file1, "%d", &size), "Failed to read size of first matrix");
+    checkScan(fread(&size, sizeof(int), 1, file1), "Failed to read size of first matrix");
     int totalsize = size*size;
     Matrices* ma = init_matrices(size, totalsize);
     read_matrix(file1, ma->m1, totalsize);
-    checkScan(fscanf(file2, "%d", &size), "Failed to read size of second matrix");
+    checkScan(fread(&size, sizeof(int), 1, file2), "Failed to read size of second matrix");
     read_matrix(file2, ma->m2, totalsize);
 
     return ma;
@@ -68,7 +68,7 @@ Matrices* load_matrices(char *filename1, char* filename2) {
 void read_matrix(FILE* file, float* m, int size) {
     for (int i = 0; i < size; i++) {
         float x = 2;
-        checkScan(fscanf(file, "%f ", &x), "Failed to read int");
+        checkScan(fread(&x, sizeof(float), 1, file), "Failed to read int");
         m[i] = x;
     }
 }

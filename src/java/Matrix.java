@@ -1,29 +1,32 @@
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 public class Matrix {
 
     public float[][] m;
 
     public Matrix(String filename) throws IOException {
-        File f = new File(filename);
-        BufferedReader br = new BufferedReader(new FileReader(f));
+        byte[] bytes = Files.readAllBytes(Paths.get(filename));
 
-        int N = Integer.parseInt(br.readLine().strip());
-        m = readMatrix(br, N);
+        ByteBuffer buffer = ByteBuffer.wrap(bytes);
+        buffer.order(ByteOrder.LITTLE_ENDIAN);
+
+        int N = buffer.getInt();
+        m = readMatrix(buffer, N);
     }
 
-    private float[][] readMatrix(BufferedReader br, int size)
+    private float[][] readMatrix(ByteBuffer br, int size)
             throws IOException {
         float[][] matrix = new float[size][size];
         for (int i = 0; i < size; i++) {
-            String[] line = br.readLine().strip().split(" ");
             for (int j = 0; j < size; j++) {
-                matrix[i][j] = Float.parseFloat(line[j]);
+                matrix[i][j] = br.getFloat();
             }
         }
         return matrix;
