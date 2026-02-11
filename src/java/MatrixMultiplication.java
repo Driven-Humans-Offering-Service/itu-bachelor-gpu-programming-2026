@@ -5,15 +5,15 @@ public class MatrixMultiplication {
 
     public static int hasArgument(String[] args, String arg) {
         for (int i = 0; i < args.length; i++) {
-            if (args[i].equals(arg)) return i;
+            if (args[i].equals(arg))
+                return i;
         }
         return -1;
     }
 
     public static float[][] multiplyMatricies(
-        float[][] matrix_1,
-        float[][] matrix_2
-    ) {
+            float[][] matrix_1,
+            float[][] matrix_2) {
         float[][] result = new float[matrix_1.length][matrix_1.length];
 
         for (int i = 0; i < matrix_2.length; i++) {
@@ -31,7 +31,7 @@ public class MatrixMultiplication {
         Matrix m2 = new Matrix(args[args.length - 1]);
 
         long before = System.nanoTime();
-        float[][] result = multiplyMatricies(m2.m, m1.m);
+        float[][] result = multiplyMatricies(m1.m, m2.m);
         long after = System.nanoTime();
         long runtime = after - before;
 
