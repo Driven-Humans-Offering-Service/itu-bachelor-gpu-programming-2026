@@ -47,7 +47,11 @@ int run_cuda(Matrices *ma) {
   gpuErrchk(cudaMemcpy(d_m2, ma->m2, ma->total_size * sizeof(float),
                        cudaMemcpyHostToDevice));
 
-  int threads = 256;
+  cudaDeviceProp *prop;
+
+  gpuErrchk(cudaGetDeviceProperties_v2(prop, 0));
+
+  int threads = prop->maxThreadsPerBlock;
   int blocks = cuda::ceil_div(ma->total_size, threads);
 
   matrix_add<<<blocks, threads>>>(d_m1, d_m2, d_res, ma->total_size);
