@@ -1,3 +1,4 @@
+import logging
 import os
 
 from utils import rootFolder
@@ -36,11 +37,14 @@ def verify_implementations():
     matrices_path = os.path.abspath(os.path.join(rootFolder, "./data/output"))
     for file in os.listdir(matrices_path):
         if file.startswith("res") and (file.endswith("cuda") or file.endswith("c")):
+            logging.debug(f"Verifying file {file}")
             parts = file.split("_")
             operation = parts[1]
             size = parts[2]
             file = os.path.join(matrices_path, file)
             javaPath = os.path.join(matrices_path, f"res_{operation}_{size}_java")
-            if not verify(file, javaPath):
+            res = verify(file, javaPath)
+            logging.debug(f"Done verifying file {file} is correct {res}")
+            if not res:
                 return False
     return True
