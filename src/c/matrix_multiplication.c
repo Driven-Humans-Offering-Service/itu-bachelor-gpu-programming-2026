@@ -12,8 +12,11 @@ int main(int argc, char** argv) {
     char* path2 = argv[argc - 1];
     int displayRuntime = contains_argument(argc, argv, "--time");
     int print_to_file = contains_argument(argc, argv, "--outputresult");
+    int load_time = contains_argument(argc, argv, "--loadtime");
 
+    unsigned long before_load = get_time_nanoseconds();
     Matrices* ma = load_matrices(path1, path2);
+    unsigned long after_load = get_time_nanoseconds();
 
     int total_size = ma->total_size;
     //printMatrix(matrix1, size);
@@ -23,6 +26,9 @@ int main(int argc, char** argv) {
     unsigned long after = get_time_nanoseconds();
     unsigned long runtime = after - before;
     //printMatrix(result, size);
+
+    if(load_time) 
+        printf("load time: %lu\n", after_load - before_load);
 
     if(displayRuntime) 
         printf("%lu\n", runtime);

@@ -29,13 +29,18 @@ public class MatrixAddition {
     }
 
     public static void main(String[] args) throws IOException {
+        long before_load = System.nanoTime();
         Matrix m1 = new Matrix(args[args.length - 2]);
         Matrix m2 = new Matrix(args[args.length - 1]);
+        long after_load = System.nanoTime();
 
         float[][] result = addMatricies(m2.m, m1.m);
 
         if (Arrays.stream(args).anyMatch("--time"::equals)) {
             System.out.println(runtime);
+        }
+        if (Arrays.stream(args).anyMatch("--loadtime"::equals)) {
+            System.out.println(after_load - before_load);
         }
         if (Arrays.stream(args).anyMatch("--printResult"::equals)) {
             Matrix.printMatrix(result);
