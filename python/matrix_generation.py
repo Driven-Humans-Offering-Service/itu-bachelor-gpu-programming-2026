@@ -8,7 +8,7 @@ from utils import rootFolder
 def generate_matrix(n, num):
 
     buffer = BytesIO()
-    buffer.write(struct.pack("<f", n))
+    buffer.write(struct.pack("<i", n))
     for _ in range(0, n):
         for _ in range(0, n):
             buffer.write(struct.pack("<f", rand.uniform(0, 10)))
