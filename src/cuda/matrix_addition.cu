@@ -91,9 +91,9 @@ int main(int argc, char **argv) {
       get_time_nanoseconds();
 
   if (displayRuntime)
-    printf("%lu", (unsigned long)(runtime_ms * 1e6));
+    printf("%lu\n", (unsigned long)(runtime_ms * 1e6));
   if (displayRuntime)
-    printf("%lu", a - s);
+    printf("old timing: %lu\n", a - s);
 
   if (print_to_file) {
     char *path = argv[print_to_file + 1];
