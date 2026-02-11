@@ -6,9 +6,9 @@ from run import run_file
 from utils import rootFolder
 
 
-def analyse_data(type, size, times):
+def analyse_data(type, size, times, lang):
     logging.debug(f"Creating time data file for: {type}_{size}")
-    with open(f"{rootFolder}/data/time/bench_{type}_{size}", "w") as f:
+    with open(f"{rootFolder}/data/time/bench_{type}_{size}_{lang}", "w") as f:
         strippeddata = list(map(lambda x: x.strip(), times))
         timedata = list(map(int, strippeddata))
         avg = s.mean(timedata)
@@ -78,8 +78,9 @@ def run_files(files):
                 times.append(run_file(file, ["--time", input0, input1]))
 
             type = os.path.splitext(os.path.basename(file))[0]
+            lang = file.split("/")[-2]
             logging.debug(f"Starting data analysis on: {type}_{size}")
-            analyse_data(type, size, times)
+            analyse_data(type, size, times, lang)
             logging.debug(f"Finished data analysis on: {type}_{size}")
 
 
