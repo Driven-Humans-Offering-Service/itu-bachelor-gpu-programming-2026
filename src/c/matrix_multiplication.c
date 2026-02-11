@@ -43,7 +43,7 @@ void multiply_matrices(register float* res,register float* m1,register float* m2
             register float val = tmp[k];
             register float* tmp2 = &(m2[k*size]);
             for (int j = 0; j < size; j++) {
-                tmp3[j] = val + tmp2[j];
+                tmp3[j] += val * tmp2[j];
             }
         }
     }
