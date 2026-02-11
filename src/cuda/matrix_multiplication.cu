@@ -61,11 +61,11 @@ int run_cuda(Matrices *ma) {
 
   gpuErrchk(cudaGetDeviceProperties_v2(&prop, 0));
 
-  int threads = prop.maxThreadsPerBlock;
+  dim3 block(32, 32);
+  dim3 grid((ma->size + block.x - 1) / block.x,
+            (ma->size + block.y - 1) / block.y);
 
-  int blocks = cuda::ceil_div(ma->total_size, threads);
-
-  matrix_mul<<<blocks, threads>>>(d_m1, d_m2, d_res, ma->total_size);
+  matrix_mul<<<grid, block>>>(d_m1, d_m2, d_res, ma->size);
 
   gpuErrchk(cudaDeviceSynchronize());
 
