@@ -52,6 +52,8 @@ int run_cuda(Matrices *ma) {
 
   matrix_add<<<blocks, threads>>>(d_m1, d_m2, d_res, ma->total_size);
 
+  gpuErrchk(cudaDeviceSynchronize());
+
   gpuErrchk(cudaMemcpy(ma->result, d_res, ma->total_size * sizeof(float),
                        cudaMemcpyDeviceToHost));
 
