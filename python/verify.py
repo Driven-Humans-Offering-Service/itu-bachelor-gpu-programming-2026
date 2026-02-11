@@ -28,6 +28,7 @@ def verify(filename1, filename2):
     for i in range(0, size):
         for j in range(0, size):
             if abs(ma1[i][j] - ma2[i][j]) > 0.001:
+                logging.debug(f"{ma1[i][j]} != {ma2[i][j]}")
                 return False
 
     return True
