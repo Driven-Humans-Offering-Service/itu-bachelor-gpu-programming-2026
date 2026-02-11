@@ -57,7 +57,7 @@ Matrices* load_matrices(char *filename1, char* filename2) {
     int size = 0;
     checkScan(fscanf(file1, "%d", &size), "Failed to read size of first matrix");
     int totalsize = size*size;
-    Matrices* ma = init_matrices(totalsize);
+    Matrices* ma = init_matrices(size, totalsize);
     read_matrix(file1, ma->m1, totalsize);
     checkScan(fscanf(file2, "%d", &size), "Failed to read size of second matrix");
     read_matrix(file2, ma->m2, totalsize);
@@ -113,8 +113,9 @@ void output_matrix(Matrices *ma, const char *path){
 }
 
 
-Matrices* init_matrices(int total_size) {
+Matrices* init_matrices(int size, int total_size) {
     Matrices* ma = malloc(sizeof(Matrices));
+    ma->size = size;
     ma->total_size = total_size;
     ma->m1 = malloc(sizeof(float)*total_size);
     ma->m2 = malloc(sizeof(float)*total_size);

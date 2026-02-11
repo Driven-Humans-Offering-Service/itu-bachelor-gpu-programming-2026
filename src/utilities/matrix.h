@@ -6,6 +6,7 @@ extern "C" {
 #include <time.h>
 
 typedef struct Matrices {
+  int size;
   int total_size;
   float *m1;
   float *m2;
@@ -14,7 +15,7 @@ typedef struct Matrices {
 
 void free_matrices(Matrices *ma);
 
-Matrices *init_matrices(int size);
+Matrices *init_matrices(int size, int total_size);
 
 void read_matrix(FILE *file, float *m, int size);
 
