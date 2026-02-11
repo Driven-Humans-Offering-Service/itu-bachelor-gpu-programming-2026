@@ -88,7 +88,7 @@ int main(int argc, char **argv) {
   float runtime_ms = 0.0f;
   gpuErrchk(cudaEventElapsedTime_v2(&runtime_ms, start, stop))
 
-      if (displayRuntime) printf("%f", runtime_ms * 1e3);
+      if (displayRuntime) printf("%lu", (unsigned long)(runtime_ms * 1e6));
 
   if (print_to_file) {
     char *path = argv[print_to_file + 1];
