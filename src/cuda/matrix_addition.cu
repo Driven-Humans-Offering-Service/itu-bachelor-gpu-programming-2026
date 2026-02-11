@@ -77,6 +77,7 @@ int main(int argc, char **argv) {
 
   Matrices *ma = load_matrices(path1, path2);
 
+  unsigned long s = get_time_nanoseconds();
   cudaEvent_t start, stop;
   gpuErrchk(cudaEventCreate(&start));
   gpuErrchk(cudaEventCreate(&stop));
@@ -86,9 +87,13 @@ int main(int argc, char **argv) {
   gpuErrchk(cudaEventRecord(stop));
   gpuErrchk(cudaEventSynchronize(stop));
   float runtime_ms = 0.0f;
-  gpuErrchk(cudaEventElapsedTime_v2(&runtime_ms, start, stop))
+  gpuErrchk(cudaEventElapsedTime_v2(&runtime_ms, start, stop)) unsigned long a =
+      get_time_nanoseconds();
 
-      if (displayRuntime) printf("%lu", (unsigned long)(runtime_ms * 1e6));
+  if (displayRuntime)
+    printf("%lu", (unsigned long)(runtime_ms * 1e6));
+  if (displayRuntime)
+    printf("%lu", a - s);
 
   if (print_to_file) {
     char *path = argv[print_to_file + 1];
