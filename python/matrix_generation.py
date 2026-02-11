@@ -1,3 +1,4 @@
+import logging
 import random as rand
 import struct
 from io import BytesIO
@@ -6,7 +7,7 @@ from utils import rootFolder
 
 
 def generate_matrix(n, num):
-
+    logging.debug(f"Generating matrix: {0}_{n}")
     buffer = BytesIO()
     buffer.write(struct.pack("<i", n))
     for _ in range(0, n):
