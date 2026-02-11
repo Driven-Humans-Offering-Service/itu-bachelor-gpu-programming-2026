@@ -36,7 +36,7 @@ __global__ void matrix_mul(const float *m1, const float *m2, float *res,
   if (row < size && col < size) {
     float sum = 0;
     for (int i = 0; i < size; i++) {
-      sum += m1[row * size + i] + m2[i * size + col];
+      sum += m1[row * size + i] * m2[i * size + col];
     }
     res[row * size + col] = sum;
   }
