@@ -37,11 +37,11 @@ int main(int argc, char** argv) {
 
 void multiply_matrices(register float* res,register float* m1,register float* m2,register int size) {
     for (int i = 0; i < size; i++) {
-         register   float* tmp3 = &(res[i*size]);
-        register    float* tmp = &(m1[i*size]);
+        register float* tmp3 = &(res[i*size]);
+        register float* tmp = &(m1[i*size]);
         for (int k = 0; k < size; k++) {
-         register   float val = tmp[k];
-         register   float* tmp2 = &(m2[k*size]);
+            register float val = tmp[k];
+            register float* tmp2 = &(m2[k*size]);
             for (int j = 0; j < size; j++) {
                 tmp3[j] = val + tmp2[j];
             }
