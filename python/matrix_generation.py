@@ -1,14 +1,20 @@
 import random as rand
+import struct
+from io import BytesIO
 
 from utils import rootFolder
 
+
 def generate_matrix(n, num):
-    with open(f"{rootFolder}/data/input/matrix_{num}_{n}", "w") as f:
-        f.write(f"{n}\n")
+
+    buffer = BytesIO()
+    buffer.write(struct.pack("<f", n))
+    for _ in range(0, n):
         for _ in range(0, n):
-            for _ in range(0, n):
-                f.write(f"{rand.uniform(0, 10)} ")
-            f.write("\n")
+            buffer.write(struct.pack("<f", rand.uniform(0, 10)))
+
+    with open(f"{rootFolder}/data/input/matrix_{num}_{n}", "wb") as f:
+        f.write(buffer.getvalue())
 
 
 def generate_matrices(amount, seed):
