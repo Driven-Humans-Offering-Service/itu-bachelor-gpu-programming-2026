@@ -84,7 +84,7 @@ int main(int argc, char **argv) {
   gpuErrchk(cudaEventRecord(start));
   run_cuda(ma);
   gpuErrchk(cudaEventRecord(start));
-  float runtime_ms;
+  float runtime_ms = 0.0f;
   gpuErrchk(cudaEventElapsedTime_v2(&runtime_ms, start, stop))
 
       if (displayRuntime) printf("%f", runtime_ms * 1e3);
