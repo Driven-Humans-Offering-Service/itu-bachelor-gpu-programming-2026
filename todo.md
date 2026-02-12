@@ -30,3 +30,15 @@ Cache/Local
 ### Noter
 
 Bagground cuda og invertering
+
+---
+
+Relative difference to numbers
+add absolute
+
+difference / sum of absoulute
+< 10 -5
+
+singular value decompusition
+
+LU decomposition
