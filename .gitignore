@@ -338,3 +338,6 @@ $RECYCLE.BIN/
 
 .direnv
 data/
+src/java/out/production/itu-bachelor-gpu-programming-2026
+src/java/.idea
+src/java/itu-bachelor-gpu-programming-2026.iml
