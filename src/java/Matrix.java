@@ -11,6 +11,10 @@ public class Matrix {
 
     public float[][] m;
 
+    public Matrix(int size) {
+        m = new float[size][size];
+    }
+
     public Matrix(String filename) throws IOException {
         byte[] bytes = Files.readAllBytes(Paths.get(filename));
 
@@ -21,8 +25,7 @@ public class Matrix {
         m = readMatrix(buffer, N);
     }
 
-    private float[][] readMatrix(ByteBuffer br, int size)
-            throws IOException {
+    private float[][] readMatrix(ByteBuffer br, int size) throws IOException {
         float[][] matrix = new float[size][size];
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
@@ -45,7 +48,8 @@ public class Matrix {
         System.out.println(sb.toString());
     }
 
-    public static void outputMatrix(float[][] matrix, String path) throws IOException {
+    public static void outputMatrix(float[][] matrix, String path)
+        throws IOException {
         File f = new File(path);
         BufferedWriter writer = new BufferedWriter(new FileWriter(f));
 
@@ -61,6 +65,5 @@ public class Matrix {
         }
 
         writer.close();
-
     }
 }
