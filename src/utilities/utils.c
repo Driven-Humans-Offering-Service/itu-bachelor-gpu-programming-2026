@@ -9,5 +9,5 @@ int contains_argument(int argc, char** argv, const char* arg){
 struct timespec ts;
 unsigned long get_time_nanoseconds() {
     clock_gettime(CLOCK_MONOTONIC, &ts);
-    return ts.tv_sec * 1e9 + ts.tv_nsec;
+    return ts.tv_sec * 1000000000 + ts.tv_nsec;
 }
