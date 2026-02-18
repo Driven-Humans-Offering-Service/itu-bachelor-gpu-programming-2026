@@ -32,14 +32,14 @@ public class MatrixInversion {
                 }
                 beta[j][i] = a[i][j] - sum;
             }
-            for (int z = j + 1; z < N; z++) {
+            for (int i = j + 1; i < N; i++) {
                 float sum = 0;
-                var alpha_p = alpha[z];
+                var alpha_p = alpha[i];
                 var beta_p = beta[j];
                 for (int k = 0; k < j; k++) {
                     sum += alpha_p[k] * beta_p[k];
                 }
-                alpha[z][j] = (1 / beta[j][j]) * (a[z][j] - sum);
+                alpha[i][j] = (1 / beta[j][j]) * (a[i][j] - sum);
             }
 
         }
