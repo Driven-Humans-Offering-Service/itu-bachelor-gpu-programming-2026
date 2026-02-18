@@ -138,7 +138,7 @@ public class MatrixInversion {
         if (Arrays.stream(args).anyMatch("--time"::equals)) {
             System.out.println(runtime);
         }
-        if (Arrays.stream(args).anyMatch("--printResult"::equals)) {
+        if (Arrays.stream(args).anyMatch("--printresult"::equals)) {
             Matrix.printMatrix(l.m);
             Matrix.printMatrix(u.m);
             Matrix.printMatrix(X);
