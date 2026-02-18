@@ -6,6 +6,7 @@ import matrix_generation as mg
 import verify as v
 import run as r
 import benchmark as b
+import clean as cl
 
 logging.basicConfig(
     level=logging.INFO,  # minimum level to display
@@ -73,6 +74,14 @@ def setupArguments():
         nargs=3,
     )
 
+    _ = parser.add_argument(
+            "--clean",
+            "-cl",
+            dest="clean",
+            help="Whether to remove all generated files and directories",
+            action="store_true"
+            )
+
     return parser.parse_args()
 
 
@@ -83,6 +92,12 @@ def main():
         logging.getLogger().setLevel(logging.DEBUG)
 
     logging.debug("entering main")
+
+    if args.clean:
+        logging.debug("Cleaning up")
+        cl.clean()
+        logging.debug("Finished cleaning directories")
+
 
     if args.amount_of_matrices != -1:
         logging.debug("generating matrices")
