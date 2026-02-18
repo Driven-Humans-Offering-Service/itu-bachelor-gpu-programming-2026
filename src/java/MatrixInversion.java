@@ -31,17 +31,17 @@ public class MatrixInversion {
                     sum += alpha[i][k] * beta[j][k];
                 }
                 beta[j][i] = a[i][j] - sum;
-
-                for (int z = j + 1; z < N; z++) {
-                    sum = 0;
-                    var alpha_p = alpha[z];
-                    var beta_p = beta[j];
-                    for (int k = 0; k < j; k++) {
-                        sum += alpha_p[k] * beta_p[k];
-                    }
-                    alpha[z][j] = (1 / beta[j][j]) * (a[z][j] - sum);
-                }
             }
+            for (int z = j + 1; z < N; z++) {
+                float sum = 0;
+                var alpha_p = alpha[z];
+                var beta_p = beta[j];
+                for (int k = 0; k < j; k++) {
+                    sum += alpha_p[k] * beta_p[k];
+                }
+                alpha[z][j] = (1 / beta[j][j]) * (a[z][j] - sum);
+            }
+
         }
 
         transposeMatrix(beta);
