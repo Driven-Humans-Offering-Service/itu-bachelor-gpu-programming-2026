@@ -67,14 +67,14 @@ void LU_decompose(float* alpha, float* beta, float* a, int N){
                 }
                 beta[IDX(j,i,N)] = a[IDX(i,j,N)] - sum;
             }
-                for (int z = j + 1; z < N; z++) {
+                for (int i = j + 1; i < N; i++) {
                     float sum = 0;
-                    float* alpha_p = &alpha[IDX(z,0, N)];
+                    float* alpha_p = &alpha[IDX(i,0, N)];
                     float* beta_p = &beta[IDX(j,0,N)];
                     for (int k = 0; k < j; k++) {
                         sum += alpha_p[k] * beta_p[k];
                     }
-                    alpha[IDX(z,j,N)] = (1 / beta[IDX(j,j,N)]) * (a[IDX(z,j,N)] - sum);
+                    alpha[IDX(i,j,N)] = (1 / beta[IDX(j,j,N)]) * (a[IDX(i,j,N)] - sum);
                 }
             
         }
