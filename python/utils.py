@@ -1,5 +1,6 @@
 import os
 rootFolder = ""
+default_rand_seed = "Driven Humans Offering Service"
 
 def setup():
     global rootFolder

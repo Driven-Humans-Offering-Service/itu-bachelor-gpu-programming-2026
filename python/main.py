@@ -7,6 +7,9 @@ import verify as v
 import run as r
 import benchmark as b
 import clean as cl
+import setup as s
+
+from utils import default_rand_seed
 
 logging.basicConfig(
     level=logging.INFO,  # minimum level to display
@@ -30,7 +33,7 @@ def setupArguments():
         "-s",
         dest="seed",
         type=str,
-        default="Driven Humans Offering Service",
+        default=default_rand_seed,
         help="Seed to be used to generate random numbers for the matricies",
     )
 
@@ -82,6 +85,14 @@ def setupArguments():
             action="store_true"
             )
 
+    _ = parser.add_argument(
+            "--setup",
+            "-st",
+            dest="setup",
+            help="Whether to setup folder structure",
+            action="store_true"
+            )
+
     return parser.parse_args()
 
 
@@ -98,6 +109,10 @@ def main():
         cl.clean()
         logging.debug("Finished cleaning directories")
 
+    if args.setup:
+        logging.debug("Setting up directories")
+        s.setup()
+        logging.debug("Finished setting up directories")
 
     if args.amount_of_matrices != -1:
         logging.debug("generating matrices")
