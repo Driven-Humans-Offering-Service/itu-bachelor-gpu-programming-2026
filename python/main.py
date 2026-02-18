@@ -1,5 +1,7 @@
 import argparse
 import logging
+import os
+from pathlib import Path
 
 import compile as c
 import matrix_generation as mg
@@ -9,7 +11,7 @@ import benchmark as b
 import clean as cl
 import setup as s
 
-from utils import default_rand_seed
+from utils import default_rand_seed, rootFolder
 
 logging.basicConfig(
     level=logging.INFO,  # minimum level to display
@@ -102,12 +104,8 @@ def main():
     if args.debug:
         logging.getLogger().setLevel(logging.DEBUG)
 
-    logging.debug("entering main")
 
-    if args.clean:
-        logging.debug("Cleaning up")
-        cl.clean()
-        logging.debug("Finished cleaning directories")
+    logging.debug("entering main")
 
     if args.setup:
         logging.debug("Setting up directories")
@@ -118,6 +116,22 @@ def main():
         logging.debug("generating matrices")
         mg.generate_matrices(args.amount_of_matrices, args.seed)
         logging.debug("done generation matrices")
+
+    data_output_path = os.path.join(rootFolder, "./data/output")
+
+    if not Path.exists(Path(data_output_path)):
+        should_setup = input("It does not seem like the project it set up with input files, do you wish to setup folder structure?[Y/n]")
+        if should_setup != "n":
+            logging.debug("Setting up folder structure")
+            s.setup()
+            logging.debug("Finished up folder structure")
+
+    if args.clean:
+        logging.debug("Cleaning up")
+        cl.clean()
+        logging.debug("Finished cleaning directories")
+
+
 
     if args.compile != None:
        logging.debug("Trying to compile")
