@@ -13,24 +13,28 @@ def compile_lang_arg(files, arg2):
     global rootFolder
     srcPath = os.path.join(rootFolder, "./src")
     c_util_files = get_files_containg(os.path.join(srcPath, "utilities"), ".c")
+    processes = []
     match arg2:
         case "java":
             java_files =  get_files_with_extention(files, ".java")
             for java_file in java_files:
                 logging.debug(f"Compiling {java_file}")
-                compile_java(java_file) 
+                p = compile_java(java_file) 
+                processes.append(p)
                 logging.debug(f"Done compiling {java_file}")
         case "c":
             c_files = get_files_with_extention(files, ".c")
             for file in c_files:
                 logging.debug(f"Compiling {file}")
-                compile_c(file, c_util_files)
+                p = compile_c(file, c_util_files)
+                processes.append(p)
                 logging.debug(f"Done compiling {file}")
         case "cuda":
             cuda_files = get_files_with_extention(files, ".cu")
             for file in cuda_files:
                 logging.debug(f"Compiling {file}")
-                compile_cuda(file, c_util_files)
+                p = compile_cuda(file, c_util_files)
+                processes.append(p)
                 logging.debug(f"Done compiling {file}")
         case "all":
             compile_lang_arg(files, "java")
@@ -38,6 +42,8 @@ def compile_lang_arg(files, arg2):
             compile_lang_arg(files, "cuda")
         case _:
             print(f"No such lang {arg2}")
+    for p in processes:
+        p.wait()
 
 def compile_type(srcFolder, type, args):
     files = get_files_containg(srcFolder, type)
@@ -45,7 +51,7 @@ def compile_type(srcFolder, type, args):
 
 
 def compile_java(file):
-    subprocess.Popen(["javac", "-d", "./build/java", file, "./src/java/Matrix.java" ])
+    return subprocess.Popen(["javac", "-d", "./build/java", file, "./src/java/Matrix.java" ])
 
 def get_cuda_and_c_command(compiler, file, util_files, lang):
     outputName = os.path.splitext(os.path.basename(file))[0] + ".out"
@@ -59,11 +65,11 @@ def get_cuda_and_c_command(compiler, file, util_files, lang):
 
 def compile_c(file, util_files):
     cmd = get_cuda_and_c_command("gcc", file, util_files, "c")
-    subprocess.Popen(cmd)
+    return subprocess.Popen(cmd)
 
 def compile_cuda(file, util_files):
     cmd = get_cuda_and_c_command("nvcc", file, util_files, "cuda")
-    subprocess.Popen(cmd)
+    return subprocess.Popen(cmd)
 
 
 def compile(args):
