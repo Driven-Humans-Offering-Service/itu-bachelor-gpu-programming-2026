@@ -139,9 +139,9 @@ int run_cuda(Matrices *ma) {
   L = (float *)std::malloc(ma->total_size * sizeof(float));
   U = (float *)std::malloc(ma->total_size * sizeof(float));
 
-  gpuErrchk(cudaMemcpy(ma->result, L, ma->total_size * sizeof(float),
+  gpuErrchk(cudaMemcpy(L, alpha, ma->total_size * sizeof(float),
                        cudaMemcpyDeviceToHost));
-  gpuErrchk(cudaMemcpy(ma->result, U, ma->total_size * sizeof(float),
+  gpuErrchk(cudaMemcpy(U, beta, ma->total_size * sizeof(float),
                        cudaMemcpyDeviceToHost));
 
   printf("L:\n");
