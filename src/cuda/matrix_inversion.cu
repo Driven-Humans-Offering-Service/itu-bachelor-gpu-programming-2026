@@ -144,10 +144,10 @@ int run_cuda(Matrices *ma) {
   gpuErrchk(cudaMemcpy(U, beta, ma->total_size * sizeof(float),
                        cudaMemcpyDeviceToHost));
 
-  printf("L:\n");
-  print_matrix(L, ma->size);
-  printf("\nU:\n");
-  print_matrix(U, ma->size);
+  // printf("L:\n");
+  // print_matrix(L, ma->size);
+  // printf("\nU:\n");
+  // print_matrix(U, ma->size);
 
   cudaFree(d_m1);
   cudaFree(d_res);
