@@ -48,16 +48,13 @@ __global__ void transpose_matrix(const float *m, float *res, const int N) {
 
 __global__ void find_beta(float *alpha, float *beta, const float *a,
                           const int N, const int j) {
-  int i = blockDim.x * blockIdx.x + threadIdx.x;
-  // for (int i = 0; i <= j; i++) {
-  if (i < N && i <= j) {
+  for (int i = 0; i <= j; i++) {
     float sum = 0.0f;
     for (int k = 0; k < i; k++) {
       sum += alpha[IDX(i, k, N)] * beta[IDX(j, k, N)];
     }
     beta[IDX(j, i, N)] = a[IDX(i, j, N)] - sum;
   }
-  // }
 }
 
 __global__ void find_alpha(float *alpha, float *beta, const float *a,
@@ -90,7 +87,7 @@ void LU_decompose(float *alpha, float *beta, const float *a,
     //     }
     //     beta[IDX(j, i, N)] = a[IDX(i, j, N)] - sum;
     //   }
-    find_beta<<<grid, block>>>(alpha, beta_t, a, N, j);
+    find_beta<<<1, 1>>>(alpha, beta_t, a, N, j);
     cudaDeviceSynchronize();
     //   for (int i = j + 1; i < N; i++) {
     //     float sum = 0;
