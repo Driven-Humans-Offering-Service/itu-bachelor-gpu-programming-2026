@@ -1,6 +1,5 @@
 #include "../utilities/matrix.h"
 #include "../utilities/utils.h"
-#include <__clang_cuda_runtime_wrapper.h>
 #include <cstdio>
 #include <cuda/cmath>
 #include <cuda/std/__cuda/cmath_nvfp16.h>
