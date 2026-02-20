@@ -129,7 +129,7 @@ int run_cuda(Matrices *ma) {
 
   unsigned long before = get_time_nanoseconds();
 
-  float *d_m1, *d_res, *alpha, *beta, *E, *x, *y;
+  float *d_m1, *d_res, *alpha, *beta, *E, *y;
   gpuErrchk(cudaMalloc(&d_m1, ma->total_size * sizeof(float)));
   gpuErrchk(cudaMalloc(&d_res, ma->total_size * sizeof(float)));
   gpuErrchk(cudaMalloc(&alpha, ma->total_size * sizeof(float)));
