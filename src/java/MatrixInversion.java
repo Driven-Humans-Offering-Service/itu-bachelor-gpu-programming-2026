@@ -115,10 +115,6 @@ public class MatrixInversion {
 
         for (int i = 0; i < N; i++) {
             float[] y = findY(alpha, E[i]);
-            System.out.print("[");
-            for (int j = 0; j < N; j++)
-                System.out.print(y[j] + ", ");
-            System.out.println("]");
             X[i] = findX(beta, y);
         }
 
