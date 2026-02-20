@@ -59,7 +59,9 @@ __global__ void find_beta(float *alpha, float *beta, const float *a,
 __global__ void find_alpha(float *alpha, float *beta, const float *a,
                            const int N, const int j) {
 
-  for (int i = j + 1; i < N; i++) {
+  int i = blockDim.x * blockIdx.x + threadIdx.x;
+  // for (int i = j + 1; i < N; i++) {
+  if (i < N && i > j) {
     float sum = 0;
     float *alpha_p = &alpha[IDX(i, 0, N)];
     float *beta_p = &beta[IDX(j, 0, N)];
@@ -68,6 +70,7 @@ __global__ void find_alpha(float *alpha, float *beta, const float *a,
     }
     alpha[IDX(i, j, N)] = (1 / beta[IDX(j, j, N)]) * (a[IDX(i, j, N)] - sum);
   }
+  // }
 }
 
 void LU_decompose(float *alpha, float *beta, const float *a,
@@ -77,6 +80,9 @@ void LU_decompose(float *alpha, float *beta, const float *a,
   gpuErrchk(cudaMalloc(&beta_t, total_size * sizeof(float)));
 
   fill_diagonal<<<grid, block>>>(alpha, N);
+
+  int threads = 1024;
+  int thread_blocks = cuda::ceil_div(total_size, threads);
 
   for (int j = 0; j < N; j++) {
     //   for (int i = 0; i <= j; i++) {
@@ -98,7 +104,7 @@ void LU_decompose(float *alpha, float *beta, const float *a,
     //     alpha[IDX(i, j, N)] = (1 / beta[IDX(j, j, N)]) * (a[IDX(i, j, N)] -
     //     sum);
     //   }
-    find_alpha<<<1, 1>>>(alpha, beta_t, a, N, j);
+    find_alpha<<<thread_blocks, threads>>>(alpha, beta_t, a, N, j);
     cudaDeviceSynchronize();
   }
 
