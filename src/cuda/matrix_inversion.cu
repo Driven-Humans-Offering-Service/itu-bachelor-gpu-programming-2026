@@ -98,7 +98,7 @@ __global__ void findx(float *alpha, float *beta, float *b_full, float *x_full,
                       float *y_full, const int N) {
 
   int col = blockDim.x * blockIdx.x + threadIdx.x;
-  y_full[col] = 1;
+  y_full[col] = col;
   return;
 
   if (col >= N)
