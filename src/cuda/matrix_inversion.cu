@@ -161,9 +161,10 @@ int run_cuda(Matrices *ma) {
 
   gpuErrchk(cudaDeviceSynchronize());
 
-  float *L, *U;
+  float *L, *U, *y1;
   L = (float *)std::malloc(ma->total_size * sizeof(float));
   U = (float *)std::malloc(ma->total_size * sizeof(float));
+  y1 = (float *)std::malloc(ma->total_size * sizeof(float));
 
   gpuErrchk(cudaMemcpy(L, alpha, ma->total_size * sizeof(float),
                        cudaMemcpyDeviceToHost));
@@ -171,11 +172,15 @@ int run_cuda(Matrices *ma) {
                        cudaMemcpyDeviceToHost));
   gpuErrchk(cudaMemcpy(ma->result, d_res, ma->total_size * sizeof(float),
                        cudaMemcpyDeviceToHost));
+  gpuErrchk(cudaMemcpy(y1, y, ma->total_size * sizeof(float),
+                       cudaMemcpyDeviceToHost));
 
   printf("L:\n");
   print_matrix(L, ma->size);
   printf("\nU:\n");
   print_matrix(U, ma->size);
+  printf("\ny:\n");
+  print_matrix(y1, ma->size);
   printf("\nx:\n");
   print_matrix(ma->result, ma->size);
 
