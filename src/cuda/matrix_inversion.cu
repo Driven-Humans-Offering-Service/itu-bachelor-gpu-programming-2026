@@ -99,9 +99,6 @@ __global__ void findx(float *alpha, float *beta, float *b_full, float *x_full,
 
   int col = IDX(blockDim.x * blockIdx.x + threadIdx.x, 0, N);
 
-  if (col >= N)
-    return;
-
   float *y = &y_full[col];
   float *x = &x_full[col];
   float *b = &b_full[col];
