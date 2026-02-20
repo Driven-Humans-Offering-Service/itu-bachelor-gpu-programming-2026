@@ -134,12 +134,13 @@ int run_cuda(Matrices *ma) {
 
   unsigned long before = get_time_nanoseconds();
 
-  float *d_m1, *d_res, *alpha, *beta, *E, *y;
+  float *d_m1, *d_res, *alpha, *beta, *E, *y, *x;
   gpuErrchk(cudaMalloc(&d_m1, ma->total_size * sizeof(float)));
   gpuErrchk(cudaMalloc(&d_res, ma->total_size * sizeof(float)));
   gpuErrchk(cudaMalloc(&alpha, ma->total_size * sizeof(float)));
   gpuErrchk(cudaMalloc(&beta, ma->total_size * sizeof(float)));
   gpuErrchk(cudaMalloc(&y, ma->total_size * sizeof(float)));
+  gpuErrchk(cudaMalloc(&x, ma->total_size * sizeof(float)));
   gpuErrchk(cudaMalloc(&E, ma->total_size * sizeof(float)));
 
   gpuErrchk(cudaMemcpy(d_m1, ma->m1, ma->total_size * sizeof(float),
@@ -157,9 +158,11 @@ int run_cuda(Matrices *ma) {
 
   int threads = 1024;
   int thread_blocks = cuda::ceil_div(ma->total_size, threads);
-  findx<<<thread_blocks, threads>>>(alpha, beta, E, d_res, y, ma->size);
+  findx<<<thread_blocks, threads>>>(alpha, beta, E, x, y, ma->size);
 
   gpuErrchk(cudaDeviceSynchronize());
+
+  transpose_matrix<<<grid, block>>>(x, d_res, ma->size);
 
   float *L, *U;
   L = (float *)std::malloc(ma->total_size * sizeof(float));
