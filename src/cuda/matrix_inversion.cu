@@ -97,9 +97,7 @@ void LU_decompose(float *alpha, float *beta, const float *a,
 __global__ void findx(float *alpha, float *beta, float *b_full, float *x_full,
                       float *y_full, const int N) {
 
-  int col = blockDim.x * blockIdx.x + threadIdx.x;
-  y_full[IDX(col, 0, N)] = IDX(col, 0, N);
-  return;
+  int col = IDX(blockDim.x * blockIdx.x + threadIdx.x, 0, N);
 
   if (col >= N)
     return;
@@ -159,7 +157,7 @@ int run_cuda(Matrices *ma) {
   gpuErrchk(cudaDeviceSynchronize());
 
   int threads = 1024;
-  int thread_blocks = cuda::ceil_div(ma->total_size, threads);
+  int thread_blocks = cuda::ceil_div(ma->size, threads);
   findx<<<thread_blocks, threads>>>(alpha, beta, E, x, y, ma->size);
 
   gpuErrchk(cudaDeviceSynchronize());
