@@ -97,9 +97,14 @@ void LU_decompose(float *alpha, float *beta, const float *a,
 __global__ void findx(float *alpha, float *beta, float *b_full, float *x_full,
                       float *y_full, const int N) {
 
-  float *y = &y_full[blockDim.x * blockIdx.x + threadIdx.x];
-  float *x = &x_full[blockDim.x * blockIdx.x + threadIdx.x];
-  float *b = &b_full[blockDim.x * blockIdx.x + threadIdx.x];
+  int col = blockDim.x * blockIdx.x + threadIdx.x;
+
+  if (col >= N)
+    return;
+
+  float *y = &y_full[col];
+  float *x = &x_full[col];
+  float *b = &b_full[col];
 
   y[0] = b[0] / alpha[0];
 
