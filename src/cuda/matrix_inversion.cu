@@ -81,15 +81,18 @@ void LU_decompose(float *alpha, float *beta, const float *a,
 
   int threads = 1024;
   int thread_blocks = cuda::ceil_div(total_size, threads);
-
+  unsigned long betaTime = 0;
   for (int j = 0; j < N; j++) {
     cudaDeviceSynchronize();
+    unsigned long before = get_time_nanoseconds();
     find_beta<<<1, 1>>>(alpha, beta_t, a, N, j);
     cudaDeviceSynchronize();
+    betaTime += get_time_nanoseconds() - before;
     find_alpha<<<thread_blocks, threads>>>(alpha, beta_t, a, N, j);
   }
 
   cudaDeviceSynchronize();
+  printf("Beta time: %lu\n", betaTime);
   transpose_matrix<<<grid, block>>>(beta_t, beta, N);
   cudaFree(&beta_t);
 }
