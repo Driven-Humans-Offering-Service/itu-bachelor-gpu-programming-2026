@@ -140,6 +140,7 @@ void LU_decompose2(float *alpha, float *beta, const float *a,
   gpuErrchk(cudaDeviceSynchronize());
   // printf("Beta time: %lu\n", betaTime);
   transpose_matrix<<<grid, block>>>(beta_t, beta, N);
+  gpuErrchk(cudaDeviceSynchronize());
   gpuErrchk(cudaFree(&beta_t));
 }
 
