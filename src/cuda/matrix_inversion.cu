@@ -9,6 +9,7 @@
 #include <driver_types.h>
 #include <stdlib.h>
 
+#define PROFILE 0
 #define IDX(i, j, size) (((i) * (size)) + (j))
 // Taken from
 // https://stackoverflow.com/questions/14038589/what-is-the-canonical-way-to-check-for-errors-using-the-cuda-runtime-api
@@ -16,6 +17,30 @@
   {                                                                            \
     gpuAssert((ans), __FILE__, __LINE__);                                      \
   }
+
+#if PROFILE
+#include <stdio.h>
+
+#define PROFILE_CALL(name, ...)                                                \
+  do {                                                                         \
+    struct timespec _prof_start, _prof_end;                                    \
+    clock_gettime(CLOCK_MONOTONIC, &_prof_start);                              \
+    __VA_ARGS__;                                                               \
+    clock_gettime(CLOCK_MONOTONIC, &_prof_end);                                \
+    double _prof_elapsed = (_prof_end.tv_sec - _prof_start.tv_sec) +           \
+                           (_prof_end.tv_nsec - _prof_start.tv_nsec) / 1e9;    \
+    printf("[PROFILE] %s took %.6f seconds\n", name, _prof_elapsed);           \
+  } while (0)
+
+#else
+
+#define PROFILE_CALL(name, ...)                                                \
+  do {                                                                         \
+    __VA_ARGS__;                                                               \
+  } while (0)
+
+#endif
+
 inline void gpuAssert(cudaError_t code, const char *file, int line,
                       bool abort = true) {
   if (code != cudaSuccess) {
