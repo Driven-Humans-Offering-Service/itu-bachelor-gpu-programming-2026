@@ -26,8 +26,6 @@ inline void gpuAssert(cudaError_t code, const char *file, int line,
   }
 }
 
-__global__ void matrix_inverse(const float *m1, float *res, int size) {}
-
 __global__ void fill_diagonal(float *m, const int N) {
   int row = blockDim.y * blockIdx.y + threadIdx.y;
   int col = blockDim.x * blockIdx.x + threadIdx.x;
@@ -43,58 +41,6 @@ __global__ void transpose_matrix(const float *m, float *res, const int N) {
   if (row < N && col < N) {
     res[IDX(row, col, N)] = m[IDX(col, row, N)];
   }
-}
-
-__global__ void find_beta(float *alpha, float *beta, const float *a,
-                          const int N, const int j) {
-  for (int i = 0; i <= j; i++) {
-    float sum = 0.0f;
-    for (int k = 0; k < i; k++) {
-      sum += alpha[IDX(i, k, N)] * beta[IDX(j, k, N)];
-    }
-    beta[IDX(j, i, N)] = a[IDX(i, j, N)] - sum;
-  }
-}
-
-__global__ void find_alpha(float *alpha, float *beta, const float *a,
-                           const int N, const int j) {
-
-  int i = blockDim.x * blockIdx.x + threadIdx.x;
-  if (i < N && i > j) {
-    float sum = 0;
-    float *alpha_p = &alpha[IDX(i, 0, N)];
-    float *beta_p = &beta[IDX(j, 0, N)];
-    for (int k = 0; k < j; k++) {
-      sum += alpha_p[k] * beta_p[k];
-    }
-    alpha[IDX(i, j, N)] = (1 / beta[IDX(j, j, N)]) * (a[IDX(i, j, N)] - sum);
-  }
-}
-
-void LU_decompose(float *alpha, float *beta, const float *a,
-                  const int total_size, const int N, dim3 block, dim3 grid) {
-
-  float *beta_t;
-  gpuErrchk(cudaMalloc(&beta_t, total_size * sizeof(float)));
-
-  fill_diagonal<<<grid, block>>>(alpha, N);
-
-  int threads = 1024;
-  int thread_blocks = cuda::ceil_div(total_size, threads);
-  // unsigned long betaTime = 0;
-  for (int j = 0; j < N; j++) {
-    cudaDeviceSynchronize();
-    // unsigned long before = get_time_nanoseconds();
-    find_beta<<<1, 1>>>(alpha, beta_t, a, N, j);
-    cudaDeviceSynchronize();
-    // betaTime += get_time_nanoseconds() - before;
-    find_alpha<<<thread_blocks, threads>>>(alpha, beta_t, a, N, j);
-  }
-
-  cudaDeviceSynchronize();
-  // printf("Beta time: %lu\n", betaTime);
-  transpose_matrix<<<grid, block>>>(beta_t, beta, N);
-  cudaFree(beta_t);
 }
 
 __global__ void find_diag(float *alpha, float *beta, const float *a,
@@ -215,7 +161,7 @@ int run_cuda(Matrices *ma) {
 
   transpose_matrix<<<grid, block>>>(x, d_res, ma->size);
 
-  float *L, *U, *y1;
+  /* float *L, *U, *y1;
   L = (float *)std::malloc(ma->total_size * sizeof(float));
   U = (float *)std::malloc(ma->total_size * sizeof(float));
   y1 = (float *)std::malloc(ma->total_size * sizeof(float));
@@ -224,12 +170,12 @@ int run_cuda(Matrices *ma) {
                        cudaMemcpyDeviceToHost));
   gpuErrchk(cudaMemcpy(U, beta, ma->total_size * sizeof(float),
                        cudaMemcpyDeviceToHost));
+  gpuErrchk(cudaMemcpy(y1, y, ma->total_size * sizeof(float),
+                       cudaMemcpyDeviceToHost)); */
   gpuErrchk(cudaMemcpy(ma->result, d_res, ma->total_size * sizeof(float),
                        cudaMemcpyDeviceToHost));
-  gpuErrchk(cudaMemcpy(y1, y, ma->total_size * sizeof(float),
-                       cudaMemcpyDeviceToHost));
 
-  printf("L:\n");
+  /* printf("L:\n");
   print_matrix(L, ma->size);
   printf("\nU:\n");
   print_matrix(U, ma->size);
@@ -237,7 +183,7 @@ int run_cuda(Matrices *ma) {
   print_matrix(y1, ma->size);
   printf("\nx:\n");
   print_matrix(ma->result, ma->size);
-  printf("\n");
+  printf("\n"); */
 
   cudaFree(d_m1);
   cudaFree(y);
