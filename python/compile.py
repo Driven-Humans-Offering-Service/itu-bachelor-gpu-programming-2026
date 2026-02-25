@@ -68,7 +68,8 @@ def compile_c(file, util_files):
     return subprocess.Popen(cmd)
 
 def compile_cuda(file, util_files):
-    cmd = get_cuda_and_c_command("nvcc", file, util_files, "cuda")
+    cmd = get_cuda_and_c_command("nvcc", file, util_files, "cuda") 
+    cmd.append("-Xcompiler=-O3")
     return subprocess.Popen(cmd)
 
 
