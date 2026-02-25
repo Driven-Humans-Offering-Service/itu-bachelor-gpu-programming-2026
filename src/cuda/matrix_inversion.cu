@@ -97,6 +97,50 @@ void LU_decompose(float *alpha, float *beta, const float *a,
   cudaFree(&beta_t);
 }
 
+__global__ void find_diag(float *alpha, float *beta, const float *a,
+                          const int N, const int x) {
+  int y = blockDim.x * blockIdx.x + threadIdx.x;
+  int i = y;
+  int j = x - 1;
+  if (j >= i && j < N) {
+    float sum = 0.0f;
+    for (int k = 0; k < i; k++) {
+      sum += alpha[IDX(i, k, N)] * beta[IDX(j, k, N)];
+    }
+    beta[IDX(j, i, N)] = a[IDX(i, j, N)] - sum;
+  } else if (i < N) {
+    float sum = 0;
+    float *alpha_p = &alpha[IDX(i, 0, N)];
+    float *beta_p = &beta[IDX(j, 0, N)];
+    for (int k = 0; k < j; k++) {
+      sum += alpha_p[k] * beta_p[k];
+    }
+    alpha[IDX(i, j, N)] = (1 / beta[IDX(j, j, N)]) * (a[IDX(i, j, N)] - sum);
+  }
+}
+
+void LU_decompose2(float *alpha, float *beta, const float *a,
+                   const int total_size, const int N, dim3 block, dim3 grid) {
+  float *beta_t;
+  gpuErrchk(cudaMalloc(&beta_t, total_size * sizeof(float)));
+
+  fill_diagonal<<<grid, block>>>(alpha, N);
+
+  int threads = 1024;
+  int thread_blocks = cuda::ceil_div(total_size, threads);
+  // unsigned long betaTime = 0;
+  for (int j = 0; j < N; j++) {
+    cudaDeviceSynchronize();
+    // unsigned long before = get_time_nanoseconds();
+    find_diag<<<thread_blocks, threads>>>(alpha, beta, a, N, j);
+  }
+
+  cudaDeviceSynchronize();
+  // printf("Beta time: %lu\n", betaTime);
+  transpose_matrix<<<grid, block>>>(beta_t, beta, N);
+  cudaFree(&beta_t);
+}
+
 __global__ void findx(float *alpha, float *beta, float *b_full, float *x_full,
                       float *y_full, const int N) {
 
