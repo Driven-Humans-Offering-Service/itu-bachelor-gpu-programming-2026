@@ -101,14 +101,16 @@ __global__ void find_diag(float *alpha, float *beta, const float *a,
                           const int N, const int x) {
   int y = blockDim.x * blockIdx.x + threadIdx.x;
   int i = y;
-  int j = x - 1;
-  if (j >= i && j < N) {
+  int j = x - y;
+  if (i < 0 || j < 0 || i >= N || j >= N)
+    return;
+  if (j >= i) {
     float sum = 0.0f;
     for (int k = 0; k < i; k++) {
       sum += alpha[IDX(i, k, N)] * beta[IDX(j, k, N)];
     }
     beta[IDX(j, i, N)] = a[IDX(i, j, N)] - sum;
-  } else if (i < N) {
+  } else {
     float sum = 0;
     float *alpha_p = &alpha[IDX(i, 0, N)];
     float *beta_p = &beta[IDX(j, 0, N)];
@@ -127,7 +129,7 @@ void LU_decompose2(float *alpha, float *beta, const float *a,
   fill_diagonal<<<grid, block>>>(alpha, N);
 
   int threads = 1024;
-  int thread_blocks = cuda::ceil_div(total_size, threads);
+  int thread_blocks = cuda::ceil_div(N, threads);
   // unsigned long betaTime = 0;
   for (int j = 0; j < N; j++) {
     gpuErrchk(cudaDeviceSynchronize());
