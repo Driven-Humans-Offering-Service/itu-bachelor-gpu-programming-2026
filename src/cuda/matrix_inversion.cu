@@ -100,8 +100,8 @@ void LU_decompose(float *alpha, float *beta, const float *a,
 __global__ void find_diag(float *alpha, float *beta, const float *a,
                           const int N, const int x) {
   int y = blockDim.x * blockIdx.x + threadIdx.x;
-  int i = y;
-  int j = x - y;
+  int i = x < N ? y : x - (N - 1 - y);
+  int j = x < N ? x - y : N - 1 - y;
   if (i < 0 || j < 0 || i >= N || j >= N)
     return;
   if (j >= i) {
@@ -131,7 +131,7 @@ void LU_decompose2(float *alpha, float *beta, const float *a,
   int threads = 1024;
   int thread_blocks = cuda::ceil_div(N, threads);
   // unsigned long betaTime = 0;
-  for (int j = 0; j < N; j++) {
+  for (int j = 0; j < N * 2; j++) {
     gpuErrchk(cudaDeviceSynchronize());
     // unsigned long before = get_time_nanoseconds();
     find_diag<<<thread_blocks, threads>>>(alpha, beta_t, a, N, j);
@@ -215,27 +215,27 @@ int run_cuda(Matrices *ma) {
 
   transpose_matrix<<<grid, block>>>(x, d_res, ma->size);
 
-  /* float *L, *U, *y1;
+  float *L, *U, *y1;
   L = (float *)std::malloc(ma->total_size * sizeof(float));
   U = (float *)std::malloc(ma->total_size * sizeof(float));
-  y1 = (float *)std::malloc(ma->total_size * sizeof(float)); */
+  y1 = (float *)std::malloc(ma->total_size * sizeof(float));
 
-  /* gpuErrchk(cudaMemcpy(L, alpha, ma->total_size * sizeof(float),
+  gpuErrchk(cudaMemcpy(L, alpha, ma->total_size * sizeof(float),
                        cudaMemcpyDeviceToHost));
   gpuErrchk(cudaMemcpy(U, beta, ma->total_size * sizeof(float),
-                       cudaMemcpyDeviceToHost)); */
+                       cudaMemcpyDeviceToHost));
   gpuErrchk(cudaMemcpy(ma->result, d_res, ma->total_size * sizeof(float),
                        cudaMemcpyDeviceToHost));
-  /* gpuErrchk(cudaMemcpy(y1, y, ma->total_size * sizeof(float),
-                       cudaMemcpyDeviceToHost)); */
+  gpuErrchk(cudaMemcpy(y1, y, ma->total_size * sizeof(float),
+                       cudaMemcpyDeviceToHost));
 
-  /* printf("L:\n");
+  printf("L:\n");
   print_matrix(L, ma->size);
   printf("\nU:\n");
   print_matrix(U, ma->size);
   printf("\ny:\n");
   print_matrix(y1, ma->size);
-  printf("\nx:\n");*/
+  printf("\nx:\n");
   print_matrix(ma->result, ma->size);
   printf("\n");
 
