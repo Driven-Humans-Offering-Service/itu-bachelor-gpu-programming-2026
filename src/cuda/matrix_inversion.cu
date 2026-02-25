@@ -94,7 +94,8 @@ void LU_decompose(float *alpha, float *beta, const float *a,
   cudaDeviceSynchronize();
   // printf("Beta time: %lu\n", betaTime);
   transpose_matrix<<<grid, block>>>(beta_t, beta, N);
-  cudaFree(&beta_t);
+  gpuErrchk(cudaDeviceSynchronize());
+  gpuErrchk(cudaFree(&beta_t));
 }
 
 __global__ void find_diag(float *alpha, float *beta, const float *a,
