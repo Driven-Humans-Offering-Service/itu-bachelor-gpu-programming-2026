@@ -200,7 +200,7 @@ int run_cuda(Matrices *ma) {
 
   fill_diagonal<<<grid, block>>>(E, ma->size);
 
-  LU_decompose(alpha, beta, d_m1, ma->total_size, ma->size, block, grid);
+  LU_decompose2(alpha, beta, d_m1, ma->total_size, ma->size, block, grid);
 
   gpuErrchk(cudaDeviceSynchronize());
 
@@ -232,8 +232,9 @@ int run_cuda(Matrices *ma) {
   print_matrix(U, ma->size);
   printf("\ny:\n");
   print_matrix(y1, ma->size);
-  printf("\nx:\n");
-  print_matrix(ma->result, ma->size); */
+  printf("\nx:\n");*/
+  print_matrix(ma->result, ma->size);
+  printf("\n");
 
   cudaFree(d_m1);
   cudaFree(y);
