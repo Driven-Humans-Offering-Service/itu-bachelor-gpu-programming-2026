@@ -1,6 +1,5 @@
 #include "../utilities/matrix.h"
 #include "../utilities/utils.h"
-#include <algorithm>
 #include <cstdio>
 #include <cstdlib>
 #include <cuda/cmath>
@@ -67,7 +66,6 @@ __global__ void reduce6(float *g_idata, float *g_odata, unsigned int n) {
   sdata[tid] = 0;
   while (i < n) {
     sdata[tid] += g_idata[i] + g_idata[i + blockSize];
-    return;
     i += gridSize;
   }
   __syncthreads();
