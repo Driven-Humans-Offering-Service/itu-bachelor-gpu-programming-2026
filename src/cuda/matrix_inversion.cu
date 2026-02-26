@@ -11,7 +11,7 @@
 #include <stdlib.h>
 
 #define PROFILE 0
-#define DEBUG 1
+#define DEBUG 0
 #define IDX(i, j, size) (((i) * (size)) + (j))
 // Taken from
 // https://stackoverflow.com/questions/14038589/what-is-the-canonical-way-to-check-for-errors-using-the-cuda-runtime-api
