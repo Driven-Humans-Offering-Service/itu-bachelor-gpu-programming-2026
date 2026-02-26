@@ -199,6 +199,25 @@ void LU_decompose2(float *alpha, float *beta, const float *a,
   gpuErrchk(cudaDeviceSynchronize());
   printf("sum_matrix\n");
   print_matrix(sum_matrix_host, N);
+
+  /* float *tmp = (float *)malloc(1000 * sizeof(float));
+  for (int i = 1; i <= 1000; i++)
+    tmp[i - 1] = i;
+  float *tmp_d;
+  float *res_d;
+  float *res = (float *)malloc(sizeof(float));
+  gpuErrchk(cudaMalloc(&tmp_d, 1000 * sizeof(float)));
+  gpuErrchk(cudaMalloc(&res_d, sizeof(float)));
+  gpuErrchk(cudaDeviceSynchronize());
+  gpuErrchk(cudaMemcpy(tmp_d, tmp, 1000 * sizeof(float), cudaMemcpyDefault));
+  gpuErrchk(cudaDeviceSynchronize());
+  reduce6<1>
+      <<<thread_blocks, threads, threads * sizeof(float)>>>(tmp_d, res_d, 1000);
+  gpuErrchk(cudaDeviceSynchronize());
+  gpuErrchk(cudaMemcpy(res, res_d, sizeof(float), cudaMemcpyDeviceToHost));
+  gpuErrchk(cudaDeviceSynchronize());
+  printf("\nres:%f\n", *res); */
+
 #endif
 
   gpuErrchk(cudaDeviceSynchronize());
