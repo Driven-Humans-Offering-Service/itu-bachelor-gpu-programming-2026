@@ -79,11 +79,15 @@ __global__ void find_diag(float *alpha, float *beta, const float *a,
     return;
   if (j >= i) {
     float sum = sum_matrix[IDX(i, j, N)];
-    sum += alpha[IDX(i, i - 1, N)] * beta[IDX(j, i - 1, N)];
+    if (i >= 1) {
+      sum += alpha[IDX(i, i - 1, N)] * beta[IDX(j, i - 1, N)];
+    }
     beta[IDX(j, i, N)] = a[IDX(i, j, N)] - sum;
   } else {
     float sum = sum_matrix[IDX(i, j, N)];
-    sum += alpha[IDX(i, j - 1, N)] * beta[IDX(j, j - 1, N)];
+    if (j >= 1) {
+      sum += alpha[IDX(i, j - 1, N)] * beta[IDX(j, j - 1, N)];
+    }
     alpha[IDX(i, j, N)] = (1 / beta[IDX(j, j, N)]) * (a[IDX(i, j, N)] - sum);
   }
 }
