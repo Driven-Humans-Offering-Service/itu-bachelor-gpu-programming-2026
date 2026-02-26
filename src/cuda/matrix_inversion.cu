@@ -1,6 +1,7 @@
 #include "../utilities/matrix.h"
 #include "../utilities/utils.h"
 #include <cstdio>
+#include <cstdlib>
 #include <cuda/cmath>
 #include <cuda/std/__cuda/cmath_nvfp16.h>
 #include <cuda_device_runtime_api.h>
@@ -129,10 +130,12 @@ void LU_decompose2(float *alpha, float *beta, const float *a,
   }
 
 #if DEBUG
-  float *sum_matrix_host;
+  gpuErrchk(cudaDeviceSynchronize());
+  float *sum_matrix_host = (float *)std::malloc(total_size * sizeof(float));
   gpuErrchk(cudaMemcpy(sum_matrix_host, sum_matrix, total_size * sizeof(float),
                        cudaMemcpyDeviceToHost));
   gpuErrchk(cudaDeviceSynchronize());
+  printf("sum_matrix\n");
   print_matrix(sum_matrix_host, N);
 #endif
 
