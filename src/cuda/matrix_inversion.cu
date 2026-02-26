@@ -125,7 +125,7 @@ void LU_decompose2(float *alpha, float *beta, const float *a,
   for (int j = 0; j < N * 2; j++) {
     gpuErrchk(cudaDeviceSynchronize());
     // unsigned long before = get_time_nanoseconds();
-    multiply<<<thread_blocks, threads>>>(alpha, beta, sum_matrix, N, j);
+    multiply<<<thread_blocks, threads>>>(alpha, beta_t, sum_matrix, N, j);
     find_diag<<<thread_blocks, threads>>>(alpha, beta_t, a, N, j, sum_matrix);
   }
 
