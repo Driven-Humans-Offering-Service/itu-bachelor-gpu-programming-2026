@@ -133,6 +133,7 @@ void LU_decompose2(float *alpha, float *beta, const float *a,
   transpose_matrix<<<grid, block>>>(beta_t, beta, N);
   gpuErrchk(cudaDeviceSynchronize());
   gpuErrchk(cudaFree(beta_t));
+  gpuErrchk(cudaFree(sum_matrix));
 }
 
 __global__ void findx(float *alpha, float *beta, float *b_full, float *x_full,
