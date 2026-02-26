@@ -123,20 +123,20 @@ __global__ void transpose_matrix(const float *m, float *res, const int N) {
 }
 
 __global__ void find_diag(float *alpha, float *beta, const float *a,
-                          const int N, const int x, float *sum_matrix) {
+                          const int N, const int d, float *sum_array) {
   int y = blockDim.x * blockIdx.x + threadIdx.x;
-  int i = x < N ? y : x - (N - 1 - y);
-  int j = x < N ? x - y : N - 1 - y;
+  int i = d < N ? y : d - (N - 1 - y);
+  int j = d < N ? d - y : N - 1 - y;
   if (i < 0 || j < 0 || i >= N || j >= N)
     return;
   if (j >= i) {
-    float sum = sum_matrix[IDX(i, j, N)];
+    float sum = sum_array[IDX(i, 0, N)];
     if (i >= 1) {
       sum += alpha[IDX(i, i - 1, N)] * beta[IDX(j, i - 1, N)];
     }
     beta[IDX(j, i, N)] = a[IDX(i, j, N)] - sum;
   } else {
-    float sum = sum_matrix[IDX(i, j, N)];
+    float sum = sum_array[IDX(i, 0, N)];
     if (j >= 1) {
       sum += alpha[IDX(i, j - 1, N)] * beta[IDX(j, j - 1, N)];
     }
@@ -164,19 +164,30 @@ void LU_decompose2(float *alpha, float *beta, const float *a,
                    const int total_size, const int N, dim3 block, dim3 grid) {
   float *beta_t;
   float *sum_matrix;
+  float *sum_array;
   gpuErrchk(cudaMalloc(&beta_t, total_size * sizeof(float)));
   gpuErrchk(cudaMalloc(&sum_matrix, total_size * sizeof(float)));
+  gpuErrchk(cudaMalloc(&sum_array, N * sizeof(float)));
 
   fill_diagonal<<<grid, block>>>(alpha, N);
 
   int threads = 1024;
   int thread_blocks = cuda::ceil_div(N, threads);
   // unsigned long betaTime = 0;
-  for (int j = 0; j < N * 2; j++) {
+  for (int d = 0; d < N * 2; d++) {
     gpuErrchk(cudaDeviceSynchronize());
     // unsigned long before = get_time_nanoseconds();
-    multiply<<<thread_blocks, threads>>>(alpha, beta_t, sum_matrix, N, j);
-    find_diag<<<thread_blocks, threads>>>(alpha, beta_t, a, N, j, sum_matrix);
+    multiply<<<thread_blocks, threads>>>(alpha, beta_t, sum_matrix, N, d);
+    find_diag<<<thread_blocks, threads>>>(alpha, beta_t, a, N, d, sum_array);
+
+    gpuErrchk(cudaDeviceSynchronize());
+    for (int i = 0; i < N; i++) {
+      int j = d < N ? d - i : N - 1 - i;
+      reduce6<1024><<<thread_blocks, threads, threads * sizeof(float)>>>(
+          sum_matrix, &sum_array[i], i < j ? i - 2 : j - 2);
+      printf("%d\n", i);
+      gpuErrchk(cudaDeviceSynchronize());
+    }
   }
 
 #if DEBUG
