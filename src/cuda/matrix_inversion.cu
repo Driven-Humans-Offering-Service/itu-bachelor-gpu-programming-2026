@@ -1,6 +1,6 @@
 #include "../utilities/matrix.h"
 #include "../utilities/utils.h"
-#include <__clang_cuda_builtin_vars.h>
+#include <algorithm>
 #include <cstdio>
 #include <cstdlib>
 #include <cuda/cmath>
@@ -12,7 +12,7 @@
 #include <stdlib.h>
 
 #define PROFILE 0
-#define DEBUG 0
+#define DEBUG 1
 #define IDX(i, j, size) (((i) * (size)) + (j))
 // Taken from
 // https://stackoverflow.com/questions/14038589/what-is-the-canonical-way-to-check-for-errors-using-the-cuda-runtime-api
@@ -57,14 +57,17 @@ inline void gpuAssert(cudaError_t code, const char *file, int line,
 // Taken from
 // https://developer.download.nvidia.com/assets/cuda/files/reduction.pdf
 template <unsigned int blockSize>
-__global__ void reduce6(int *g_idata, int *g_odata, unsigned int n) {
-  extern __shared__ int sdata[];
+__global__ void reduce6(float *g_idata, float *g_odata, unsigned int n) {
+  if (n <= 0)
+    return;
+  extern __shared__ float sdata[];
   unsigned int tid = threadIdx.x;
   unsigned int i = blockIdx.x * (blockSize * 2) + tid;
   unsigned int gridSize = blockSize * 2 * gridDim.x;
   sdata[tid] = 0;
   while (i < n) {
     sdata[tid] += g_idata[i] + g_idata[i + blockSize];
+    return;
     i += gridSize;
   }
   __syncthreads();
