@@ -132,6 +132,7 @@ void LU_decompose2(float *alpha, float *beta, const float *a,
   float *sum_matrix_host;
   gpuErrchk(cudaMemcpy(sum_matrix_host, sum_matrix, total_size * sizeof(float),
                        cudaMemcpyDeviceToHost));
+  gpuErrchk(cudaDeviceSynchronize());
   print_matrix(sum_matrix_host, N);
 #endif
 
