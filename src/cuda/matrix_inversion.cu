@@ -128,6 +128,13 @@ void LU_decompose2(float *alpha, float *beta, const float *a,
     find_diag<<<thread_blocks, threads>>>(alpha, beta_t, a, N, j, sum_matrix);
   }
 
+#if DEBUG
+  float *sum_matrix_host;
+  gpuErrchk(cudaMemcpy(sum_matrix_host, sum_matrix, total_size * sizeof(float),
+                       cudaMemcpyDeviceToHost));
+  print_matrix(sum_matrix_host, N);
+#endif
+
   gpuErrchk(cudaDeviceSynchronize());
   // printf("Beta time: %lu\n", betaTime);
   transpose_matrix<<<grid, block>>>(beta_t, beta, N);
