@@ -10,6 +10,7 @@
 #include <stdlib.h>
 
 #define PROFILE 0
+#define DEBUG 1
 #define IDX(i, j, size) (((i) * (size)) + (j))
 // Taken from
 // https://stackoverflow.com/questions/14038589/what-is-the-canonical-way-to-check-for-errors-using-the-cuda-runtime-api
@@ -205,7 +206,8 @@ int run_cuda(Matrices *ma) {
 
   transpose_matrix<<<grid, block>>>(x, d_res, ma->size);
 
-  /* float *L, *U, *y1;
+#if DEBUG
+  float *L, *U, *y1;
   L = (float *)std::malloc(ma->total_size * sizeof(float));
   U = (float *)std::malloc(ma->total_size * sizeof(float));
   y1 = (float *)std::malloc(ma->total_size * sizeof(float));
@@ -215,11 +217,13 @@ int run_cuda(Matrices *ma) {
   gpuErrchk(cudaMemcpy(U, beta, ma->total_size * sizeof(float),
                        cudaMemcpyDeviceToHost));
   gpuErrchk(cudaMemcpy(y1, y, ma->total_size * sizeof(float),
-                       cudaMemcpyDeviceToHost)); */
+                       cudaMemcpyDeviceToHost));
+#endif
   gpuErrchk(cudaMemcpy(ma->result, d_res, ma->total_size * sizeof(float),
                        cudaMemcpyDeviceToHost));
 
-  /* printf("L:\n");
+#if DEBUG
+  printf("L:\n");
   print_matrix(L, ma->size);
   printf("\nU:\n");
   print_matrix(U, ma->size);
@@ -227,7 +231,8 @@ int run_cuda(Matrices *ma) {
   print_matrix(y1, ma->size);
   printf("\nx:\n");
   print_matrix(ma->result, ma->size);
-  printf("\n"); */
+  printf("\n");
+#endif
 
   cudaFree(d_m1);
   cudaFree(y);
