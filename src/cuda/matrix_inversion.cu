@@ -1,5 +1,6 @@
 #include "../utilities/matrix.h"
 #include "../utilities/utils.h"
+#include <__clang_cuda_builtin_vars.h>
 #include <cstdio>
 #include <cstdlib>
 #include <cuda/cmath>
@@ -144,25 +145,19 @@ __global__ void find_diag(float *alpha, float *beta, const float *a,
 }
 
 __global__ void multiply(float *alpha, float *beta, float *sum_matrix,
-                         const int N, const int x) {
-  int y = blockDim.x * blockIdx.x + threadIdx.x;
-  int i = x < N ? y : x - (N - 1 - y);
-  int j = x < N ? x - y : N - 1 - y;
+                         const int N, const int d) {
+  int x = blockDim.x * blockIdx.x + threadIdx.x;
+  int y = blockDim.y * blockIdx.y + threadIdx.y;
+
+  int i = d < N ? x : d - (N - 1 - x);
+  int j = d < N ? d - x : N - 1 - x;
   if (i < 0 || j < 0 || i >= N || j >= N)
     return;
-  float sum = 0.0f;
-  if (j >= i) {
-    for (int k = 0; k < i - 1; k++) {
-      sum += alpha[IDX(i, k, N)] * beta[IDX(j, k, N)];
-    }
-  } else {
-    float *alpha_p = &alpha[IDX(i, 0, N)];
-    float *beta_p = &beta[IDX(j, 0, N)];
-    for (int k = 0; k < j - 1; k++) {
-      sum += alpha_p[k] * beta_p[k];
-    }
+  if (j < i) {
+    if (x >= j - 1)
+      return;
+    sum_matrix[IDX(x, y, N)] = alpha[IDX(i, x, N)] * beta[IDX(j, x, N)];
   }
-  sum_matrix[IDX(i, j, N)] = sum;
 }
 
 void LU_decompose2(float *alpha, float *beta, const float *a,
