@@ -56,7 +56,7 @@ inline void gpuAssert(cudaError_t code, const char *file, int line,
 // Taken from
 // https://developer.download.nvidia.com/assets/cuda/files/reduction.pdf
 template <unsigned int blockSize>
-__global__ void reduce6(float *g_idata, float *g_odata, unsigned int n) {
+__global__ void reduce6(float *g_idata, float *g_odata, int n) {
   if (n <= 0)
     return;
   extern __shared__ float sdata[];
