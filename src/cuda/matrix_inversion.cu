@@ -69,33 +69,51 @@ __global__ void transpose_matrix(const float *m, float *res, const int N) {
 }
 
 __global__ void find_diag(float *alpha, float *beta, const float *a,
-                          const int N, const int x) {
+                          const int N, const int x, float *sum_matrix) {
   int y = blockDim.x * blockIdx.x + threadIdx.x;
   int i = x < N ? y : x - (N - 1 - y);
   int j = x < N ? x - y : N - 1 - y;
   if (i < 0 || j < 0 || i >= N || j >= N)
     return;
   if (j >= i) {
-    float sum = 0.0f;
-    for (int k = 0; k < i; k++) {
-      sum += alpha[IDX(i, k, N)] * beta[IDX(j, k, N)];
-    }
+    float sum = sum_matrix[IDX(i, j, N)];
+    sum += alpha[IDX(i, i - 1, N)] * beta[IDX(j, i - 1, N)];
     beta[IDX(j, i, N)] = a[IDX(i, j, N)] - sum;
   } else {
-    float sum = 0;
-    float *alpha_p = &alpha[IDX(i, 0, N)];
-    float *beta_p = &beta[IDX(j, 0, N)];
-    for (int k = 0; k < j; k++) {
-      sum += alpha_p[k] * beta_p[k];
-    }
+    float sum = sum_matrix[IDX(i, j, N)];
+    sum += alpha[IDX(i, j - 1, N)] * beta[IDX(j, j - 1, N)];
     alpha[IDX(i, j, N)] = (1 / beta[IDX(j, j, N)]) * (a[IDX(i, j, N)] - sum);
   }
+}
+
+__global__ void multiply(float *alpha, float *beta, float *sum_matrix,
+                         const int N, const int x) {
+  int y = blockDim.x * blockIdx.x + threadIdx.x;
+  int i = x < N ? y : x - (N - 1 - y);
+  int j = x < N ? x - y : N - 1 - y;
+  if (i < 0 || j < 0 || i >= N || j >= N)
+    return;
+  float sum = 0.0f;
+  if (j >= i) {
+    for (int k = 0; k < i - 1; k++) {
+      sum += alpha[IDX(i, k, N)] * beta[IDX(j, k, N)];
+    }
+  } else {
+    float *alpha_p = &alpha[IDX(i, 0, N)];
+    float *beta_p = &beta[IDX(j, 0, N)];
+    for (int k = 0; k < j - 1; k++) {
+      sum += alpha_p[k] * beta_p[k];
+    }
+  }
+  sum_matrix[IDX(i, j, N)] = sum;
 }
 
 void LU_decompose2(float *alpha, float *beta, const float *a,
                    const int total_size, const int N, dim3 block, dim3 grid) {
   float *beta_t;
+  float *sum_matrix;
   gpuErrchk(cudaMalloc(&beta_t, total_size * sizeof(float)));
+  gpuErrchk(cudaMalloc(&sum_matrix, total_size * sizeof(float)));
 
   fill_diagonal<<<grid, block>>>(alpha, N);
 
@@ -105,7 +123,8 @@ void LU_decompose2(float *alpha, float *beta, const float *a,
   for (int j = 0; j < N * 2; j++) {
     gpuErrchk(cudaDeviceSynchronize());
     // unsigned long before = get_time_nanoseconds();
-    find_diag<<<thread_blocks, threads>>>(alpha, beta_t, a, N, j);
+    multiply<<<thread_blocks, threads>>>(alpha, beta, sum_matrix, N, j);
+    find_diag<<<thread_blocks, threads>>>(alpha, beta_t, a, N, j, sum_matrix);
   }
 
   gpuErrchk(cudaDeviceSynchronize());
