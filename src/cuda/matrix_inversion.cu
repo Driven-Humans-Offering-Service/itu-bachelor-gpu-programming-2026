@@ -186,8 +186,6 @@ void LU_decompose2(float *alpha, float *beta, const float *a,
       int j = d < N ? d - i : N - 1 - i;
       reduce6<1><<<thread_blocks, threads, threads * sizeof(float)>>>(
           sum_matrix, &sum_array[i], i < j ? i - 2 : j - 2);
-      printf("%d\n", i);
-      gpuErrchk(cudaDeviceSynchronize());
     }
   }
 
