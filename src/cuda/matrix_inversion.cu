@@ -11,7 +11,7 @@
 #include <stdlib.h>
 
 #define PROFILE 0
-#define DEBUG 1
+#define DEBUG 0
 #define IDX(i, j, size) (((i) * (size)) + (j))
 // Taken from
 // https://stackoverflow.com/questions/14038589/what-is-the-canonical-way-to-check-for-errors-using-the-cuda-runtime-api
@@ -131,21 +131,16 @@ __global__ void find_diag(float *alpha, float *beta, const float *a,
   if (i < 0 || j < 0 || i >= N || j >= N)
     return;
   float sum = sum_array[IDX(i, 0, N)];
-  sum_array[IDX(i, N - 1, N)] = sum;
   if (j >= i) {
     if (i >= 1) {
       sum += alpha[IDX(i, i - 1, N)] * beta[IDX(j, i - 1, N)];
     }
     beta[IDX(j, i, N)] = a[IDX(i, j, N)] - sum;
-    sum_array[IDX(i, N - 2, N)] = alpha[IDX(i, i - 1, N)];
-    sum_array[IDX(i, N - 3, N)] = beta[IDX(j, i - 1, N)];
   } else {
     if (j >= 1) {
       sum += alpha[IDX(i, j - 1, N)] * beta[IDX(j, j - 1, N)];
     }
     alpha[IDX(i, j, N)] = (1 / beta[IDX(j, j, N)]) * (a[IDX(i, j, N)] - sum);
-    sum_array[IDX(i, N - 2, N)] = alpha[IDX(i, j - 1, N)];
-    sum_array[IDX(i, N - 3, N)] = beta[IDX(j, j - 1, N)];
   }
 }
 
@@ -212,17 +207,6 @@ void LU_decompose2(float *alpha, float *beta, const float *a,
           &sum_matrix[IDX(i, 0, N)], &sum_array[IDX(i, 0, N)],
           i < j ? i - 1 : j - 1);
     }
-    printf("sum_matrix: %d\n", d + 1);
-    print_cuda_matrix(sum_matrix, N, total_size);
-    printf("U: %d\n", d);
-    transpose_matrix<<<grid, block>>>(beta_t, beta, N);
-    gpuErrchk(cudaDeviceSynchronize());
-    print_cuda_matrix(beta, N, total_size);
-    printf("L: %d\n", d);
-    print_cuda_matrix(alpha, N, total_size);
-    printf("sum_array: %d\n", d + 1);
-    print_cuda_matrix(sum_array, N, total_size);
-    printf("\n\n\n");
   }
 
 #if DEBUG
