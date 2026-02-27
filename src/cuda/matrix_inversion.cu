@@ -155,7 +155,7 @@ __global__ void multiply(float *alpha, float *beta, float *sum_matrix,
   if (i < 0 || j < 0 || i >= N || j >= N)
     return;
   if (j < i) {
-    if (x >= j - 1)
+    if (y >= j - 1)
       return;
     sum_matrix[IDX(x, y, N)] = alpha[IDX(i, x, N)] * beta[IDX(j, x, N)];
   }
