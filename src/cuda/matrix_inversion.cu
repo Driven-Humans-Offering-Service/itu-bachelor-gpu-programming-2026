@@ -130,18 +130,22 @@ __global__ void find_diag(float *alpha, float *beta, const float *a,
   int j = d < N ? d - y : N - 1 - y;
   if (i < 0 || j < 0 || i >= N || j >= N)
     return;
+  float sum = sum_array[IDX(i, 0, N)];
+  sum_array[IDX(i, N - 1, N)] = sum;
   if (j >= i) {
-    float sum = sum_array[IDX(i, 0, N)];
     if (i >= 1) {
       sum += alpha[IDX(i, i - 1, N)] * beta[IDX(j, i - 1, N)];
     }
     beta[IDX(j, i, N)] = a[IDX(i, j, N)] - sum;
+    sum_array[IDX(i, N - 2, N)] = alpha[IDX(i, i - 1, N)];
+    sum_array[IDX(i, N - 3, N)] = beta[IDX(j, i - 1, N)];
   } else {
-    float sum = sum_array[IDX(i, 0, N)];
     if (j >= 1) {
       sum += alpha[IDX(i, j - 1, N)] * beta[IDX(j, j - 1, N)];
     }
     alpha[IDX(i, j, N)] = (1 / beta[IDX(j, j, N)]) * (a[IDX(i, j, N)] - sum);
+    sum_array[IDX(i, N - 2, N)] = alpha[IDX(i, j - 1, N)];
+    sum_array[IDX(i, N - 3, N)] = beta[IDX(j, j - 1, N)];
   }
 }
 
@@ -201,6 +205,8 @@ void LU_decompose2(float *alpha, float *beta, const float *a,
     find_diag<<<thread_blocks, threads>>>(alpha, beta_t, a, N, d, sum_array);
 
     gpuErrchk(cudaDeviceSynchronize());
+    printf("sum_matrix before reduce: %d\n", d + 1);
+    print_cuda_matrix(sum_matrix, N, total_size);
     for (int i = 0; i < N; i++) {
       // int j = d < N ? d - i : N - 1 - i;
       int j = d + 1 - i;
@@ -208,6 +214,8 @@ void LU_decompose2(float *alpha, float *beta, const float *a,
           &sum_matrix[IDX(i, 0, N)], &sum_array[IDX(i, 0, N)],
           i > j ? i - 2 : j - 2);
     }
+    printf("sum_array after: %d\n", d + 1);
+    print_cuda_matrix(sum_array, N, total_size);
     printf("sum_matrix: %d\n", d + 1);
     print_cuda_matrix(sum_matrix, N, total_size);
     printf("U: %d\n", d);
@@ -216,7 +224,7 @@ void LU_decompose2(float *alpha, float *beta, const float *a,
     print_cuda_matrix(beta, N, total_size);
     printf("L: %d\n", d);
     print_cuda_matrix(alpha, N, total_size);
-    printf("sum_array: %d\n", d);
+    printf("sum_array: %d\n", d + 1);
     print_cuda_matrix(sum_array, N, total_size);
     printf("\n\n\n");
   }
