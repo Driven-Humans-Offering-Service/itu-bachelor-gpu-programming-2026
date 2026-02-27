@@ -163,7 +163,7 @@ __global__ void multiply(float *alpha, float *beta, float *sum_matrix,
     if (x >= j - 1 || x >= i - 1) { // Skip the diag before this one
       return;
     }
-    sum_matrix[IDX(y, x, N)] = alpha[IDX(y, x, N)] * beta[IDX(y, x, N)];
+    sum_matrix[IDX(y, x, N)] = alpha[IDX(i, x, N)] * beta[IDX(j, x, N)];
   }
 }
 
@@ -205,17 +205,13 @@ void LU_decompose2(float *alpha, float *beta, const float *a,
     find_diag<<<thread_blocks, threads>>>(alpha, beta_t, a, N, d, sum_array);
 
     gpuErrchk(cudaDeviceSynchronize());
-    printf("sum_matrix before reduce: %d\n", d + 1);
-    print_cuda_matrix(sum_matrix, N, total_size);
     for (int i = 0; i < N; i++) {
       // int j = d < N ? d - i : N - 1 - i;
       int j = d + 1 - i;
       reduce6<1><<<thread_blocks, threads, threads * sizeof(float)>>>(
           &sum_matrix[IDX(i, 0, N)], &sum_array[IDX(i, 0, N)],
-          i > j ? i - 2 : j - 2);
+          i < j ? i - 1 : j - 1);
     }
-    printf("sum_array after: %d\n", d + 1);
-    print_cuda_matrix(sum_array, N, total_size);
     printf("sum_matrix: %d\n", d + 1);
     print_cuda_matrix(sum_matrix, N, total_size);
     printf("U: %d\n", d);
