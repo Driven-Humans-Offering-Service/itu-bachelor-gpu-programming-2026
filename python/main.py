@@ -76,7 +76,7 @@ def setupArguments():
         "-r",
         dest="run",
         help="Whether or not to run all the files",
-        nargs=3,
+        nargs="*",
     )
 
     _ = parser.add_argument(

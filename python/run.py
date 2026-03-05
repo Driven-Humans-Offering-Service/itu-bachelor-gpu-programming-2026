@@ -25,45 +25,47 @@ def run_file(file, args):
     return res.stdout
 
 
-def run_lang_arg(files, test_file):
+def run_lang_arg(files, test_file, arguments):
     global rootFolder
     input_folder = os.path.join(rootFolder, "./data/input")
     input_files = get_files_containg(input_folder, test_file) 
     for file in files:
         args = []
         args.append("--time")
+        for arg in arguments:
+            args.append(f"--{arg}")
         args.append(input_files[0])
         args.append(input_files[1])
         res = run_file(file, args)
         print(f"Ran {file} with result:\n{res}")
 
 
-def run_type(type, lang, size):
+def run_type(type, lang, size, args):
     global rootFolder
     build_folder = ""
     if lang == "all":
         for tp in ["java","cuda","c"]:
             build_folder = os.path.join(rootFolder, f"./build/{tp}")
             files = get_files_containg(build_folder, type)
-            run_lang_arg(files, size) 
+            run_lang_arg(files, size, args) 
     else:
         build_folder = os.path.join(rootFolder, f"./build/{lang}")
         files = get_files_containg(build_folder, type)
-        run_lang_arg(files, size) 
+        run_lang_arg(files, size, args) 
 
 def run(args):
 
     match args[0]:
         case "all":
-            run_type("addition", args[1], args[2])
-            run_type("multiplication", args[1], args[2])
-            run_type("inversion", args[1], args[2])
+            run_type("addition", args[1], args[2], args[3:])
+            run_type("multiplication", args[1], args[2], args[3:])
+            run_type("inversion", args[1], args[2], args[3:])
         case "add":
-            run_type("addition", args[1], args[2])
+            run_type("addition", args[1], args[2], args[3:])
         case "multiply":
-            run_type("multiplication", args[1], args[2])
+            run_type("multiplication", args[1], args[2], args[3:])
         case "inverse":
-            run_type("inversion", args[1], args[2])
+            run_type("inversion", args[1], args[2], args[3:])
         case _:
             print("Please supply one of all, add, multiply, or inverse")
             exit(1)
