@@ -18,4 +18,12 @@ def get_files_containg(root, matchCase):
                 lst.append(os.path.join(dirpath, filename))
     return lst
 
+def get_testfile_of_size(root, size: int):
+    lst = []                
+    for dirpath, dirname, filenames in os.walk(root):
+        for filename in filenames:
+            found_size = int(filename.split("_")[2])
+            if found_size == size:
+                lst.append(os.path.join(dirpath, filename))
+    return lst
 setup()

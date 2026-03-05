@@ -1,6 +1,6 @@
 import os
 import subprocess
-from utils import get_filename, get_files_containg, rootFolder
+from utils import get_filename, get_files_containg, get_testfile_of_size, rootFolder
 
 
 def is_java_program(file: str):
@@ -25,10 +25,10 @@ def run_file(file, args):
     return res.stdout
 
 
-def run_lang_arg(files, test_file, arguments):
+def run_lang_arg(files, test_file: str, arguments):
     global rootFolder
     input_folder = os.path.join(rootFolder, "./data/input")
-    input_files = get_files_containg(input_folder, test_file) 
+    input_files = get_testfile_of_size(input_folder, int(test_file)) 
     for file in files:
         args = []
         args.append("--time")
