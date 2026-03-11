@@ -170,7 +170,7 @@ def main():
                 continue
             for lang in langs:
                 for type in types:
-                    args = ["outputresult", f"./data/output/res_{size}_{lang}"]
+                    args = ["outputresult", f"./data/output/res_{type}_{size}_{lang}"]
                     r.run_type(type, lang, size, args)
 
         logging.debug("finished running implementations")
