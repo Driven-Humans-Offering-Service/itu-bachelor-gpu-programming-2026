@@ -53,57 +53,95 @@ inline void gpuAssert(cudaError_t code, const char *file, int line,
   }
 }
 
-// Taken from
-// https://developer.download.nvidia.com/assets/cuda/files/reduction.pdf
-template <unsigned int blockSize>
-__global__ void reduce6(float *g_idata, float *g_odata, int n) {
-  if (n <= 0)
-    return;
-  extern __shared__ float sdata[];
-  unsigned int tid = threadIdx.x;
-  unsigned int i = blockIdx.x * (blockSize * 2) + tid;
-  unsigned int gridSize = blockSize * 2 * gridDim.x;
-  sdata[tid] = 0;
-  while (i < n) {
-    sdata[tid] += g_idata[i] + g_idata[i + blockSize];
-    i += gridSize;
-  }
-  __syncthreads();
-  if (blockSize >= 512) {
-    if (tid < 256) {
-      sdata[tid] += sdata[tid + 256];
-    }
-    __syncthreads();
-  }
-  if (blockSize >= 256) {
-    if (tid < 128) {
-      sdata[tid] += sdata[tid + 128];
-    }
-    __syncthreads();
-  }
-  if (blockSize >= 128) {
-    if (tid < 64) {
-      sdata[tid] += sdata[tid + 64];
-    }
-    __syncthreads();
-  }
-  if (tid < 32) {
+template <unsigned int BLOCK_SIZE>
+__global__ void row_reduce_kernel(const float *__restrict__ input,
+                                  float *__restrict__ output, int cols) {
+  const int row = blockIdx.x;
+  const float *row_ptr = input + (size_t)row * cols;
 
-    if (blockSize >= 64)
-      sdata[tid] += sdata[tid + 32];
-    if (blockSize >= 32)
-      sdata[tid] += sdata[tid + 16];
-    if (blockSize >= 16)
-      sdata[tid] += sdata[tid + 8];
-    if (blockSize >= 8)
-      sdata[tid] += sdata[tid + 4];
-    if (blockSize >= 4)
-      sdata[tid] += sdata[tid + 2];
-    if (blockSize >= 2)
-      sdata[tid] += sdata[tid + 1];
+  float sum = 0.0f;
+  for (int i = threadIdx.x; i < cols; i += BLOCK_SIZE) {
+    sum += row_ptr[i];
   }
-  if (tid == 0)
-    g_odata[blockIdx.x] = sdata[0];
+
+  __shared__ float sdata[BLOCK_SIZE];
+  sdata[threadIdx.x] = sum;
+  __syncthreads();
+
+  if (BLOCK_SIZE >= 1024) {
+    if (threadIdx.x < 512) {
+      sdata[threadIdx.x] += sdata[threadIdx.x + 512];
+    }
+    __syncthreads();
+  }
+  if (BLOCK_SIZE >= 512) {
+    if (threadIdx.x < 256) {
+      sdata[threadIdx.x] += sdata[threadIdx.x + 256];
+    }
+    __syncthreads();
+  }
+  if (BLOCK_SIZE >= 256) {
+    if (threadIdx.x < 128) {
+      sdata[threadIdx.x] += sdata[threadIdx.x + 128];
+    }
+    __syncthreads();
+  }
+  if (BLOCK_SIZE >= 128) {
+    if (threadIdx.x < 64) {
+      sdata[threadIdx.x] += sdata[threadIdx.x + 64];
+    }
+    __syncthreads();
+  }
+
+  if (threadIdx.x < 32) {
+    float val = sdata[threadIdx.x] + sdata[threadIdx.x + 32];
+
+    for (int offset = 16; offset > 0; offset /= 2)
+      val += __shfl_down_sync(0xffffffff, val, offset);
+
+    if (threadIdx.x == 0) {
+      output[row * cols] = val;
+    }
+  }
+}
+
+__inline__ void row_reduce(const float *d_input, float *d_output, int rows,
+                           int cols) {
+  int block_size = 256;
+  if (cols <= 64)
+    block_size = 64;
+  else if (cols <= 128)
+    block_size = 128;
+  else if (cols <= 256)
+    block_size = 256;
+  else if (cols <= 512)
+    block_size = 512;
+  else
+    block_size = 256;
+
+  dim3 grid(rows);
+  dim3 block(block_size);
+
+  switch (block_size) {
+  case 1024:
+    row_reduce_kernel<1024><<<grid, block>>>(d_input, d_output, cols);
+    break;
+  case 512:
+    row_reduce_kernel<512><<<grid, block>>>(d_input, d_output, cols);
+    break;
+  case 256:
+    row_reduce_kernel<256><<<grid, block>>>(d_input, d_output, cols);
+    break;
+  case 128:
+    row_reduce_kernel<128><<<grid, block>>>(d_input, d_output, cols);
+    break;
+  case 64:
+    row_reduce_kernel<64><<<grid, block>>>(d_input, d_output, cols);
+    break;
+  default:
+    row_reduce_kernel<256><<<grid, block>>>(d_input, d_output, cols);
+    break;
+  }
 }
 
 __global__ void fill_diagonal(float *m, const int N) {
@@ -192,21 +230,21 @@ void LU_decompose2(float *alpha, float *beta, const float *a,
   int thread_blocks = cuda::ceil_div(N, threads);
   // unsigned long betaTime = 0;
   for (int d = 0; d < N * 2 - 1; d++) {
-    gpuErrchk(cudaDeviceSynchronize());
-    fill<<<1, 1>>>(sum_matrix, total_size);
+    /* printf("\nalpha %d\n", d);
+    print_cuda_matrix(alpha, N, total_size);
+    printf("\nbeta %d\n", d);
+    print_cuda_matrix(beta, N, total_size);
+    printf("\nsum_array %d\n", d + 1);
+    print_cuda_matrix(sum_array, N, total_size);
+    printf("\nsum_matrix %d\n", d + 1);
+    print_cuda_matrix(sum_matrix, N, total_size); */
     gpuErrchk(cudaDeviceSynchronize());
     // unsigned long before = get_time_nanoseconds();
     multiply<<<grid, block>>>(alpha, beta_t, sum_matrix, N, d + 1);
     find_diag<<<thread_blocks, threads>>>(alpha, beta_t, a, N, d, sum_array);
 
     gpuErrchk(cudaDeviceSynchronize());
-    for (int i = 0; i < N; i++) {
-      // int j = d < N ? d - i : N - 1 - i;
-      int j = d + 1 - i;
-      reduce6<1><<<thread_blocks, threads, threads * sizeof(float)>>>(
-          &sum_matrix[IDX(i, 0, N)], &sum_array[IDX(i, 0, N)],
-          i < j ? i - 1 : j - 1);
-    }
+    row_reduce(sum_matrix, sum_array, N, N);
   }
 
 #if DEBUG
