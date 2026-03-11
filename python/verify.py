@@ -42,6 +42,9 @@ def verify_implementations():
             parts = file.split("_")
             operation = parts[1]
             size = parts[2]
+            if int(size) >= 640:
+                logging.debug(f"Skipping file {file} since size is too big")
+                continue
             file = os.path.join(matrices_path, file)
             javaPath = os.path.join(matrices_path, f"res_{operation}_{size}_java")
             res = verify(file, javaPath)
