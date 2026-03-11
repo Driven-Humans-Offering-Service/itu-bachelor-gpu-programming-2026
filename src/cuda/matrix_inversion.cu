@@ -100,7 +100,7 @@ __global__ void row_reduce_kernel(const float *__restrict__ input,
       val += __shfl_down_sync(0xffffffff, val, offset);
 
     if (threadIdx.x == 0) {
-      output[row * cols] = val;
+      output[row] = val;
     }
   }
 }
@@ -168,7 +168,7 @@ __global__ void find_diag(float *alpha, float *beta, const float *a,
   int j = d < N ? d - y : N - 1 - y;
   if (i < 0 || j < 0 || i >= N || j >= N)
     return;
-  float sum = sum_array[IDX(i, 0, N)];
+  float sum = sum_array[i];
   if (j >= i) {
     if (i >= 1) {
       sum += alpha[IDX(i, i - 1, N)] * beta[IDX(j, i - 1, N)];
@@ -222,7 +222,7 @@ void LU_decompose2(float *alpha, float *beta, const float *a,
   float *sum_array;
   gpuErrchk(cudaMalloc(&beta_t, total_size * sizeof(float)));
   gpuErrchk(cudaMalloc(&sum_matrix, total_size * sizeof(float)));
-  gpuErrchk(cudaMalloc(&sum_array, total_size * sizeof(float)));
+  gpuErrchk(cudaMalloc(&sum_array, N * sizeof(float)));
 
   fill_diagonal<<<grid, block>>>(alpha, N);
 
