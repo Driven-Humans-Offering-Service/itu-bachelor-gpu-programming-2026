@@ -155,6 +155,24 @@ def main():
     elif args.verify:
         logging.debug("running the implementations")
         # run with resultoutput
+
+        langs = ["java", "cuda", "c"]
+        types = ["addition", "multiplication", "inversion"]
+        matrices_path = os.path.abspath(os.path.join(rootFolder, "./data/input"))
+        for file in os.listdir(matrices_path):
+            if not file.startswith("matrix"):
+                continue
+            file_split = file.split("_") 
+            if int(file_split[1]) == 1:
+                continue
+            size = int(file_split[2])
+            if size >= 640:
+                continue
+            for lang in langs:
+                for type in types:
+                    args = ["outputresult", f"./data/output/res_{size}_{lang}"]
+                    r.run_type(type, lang, size, args)
+
         logging.debug("finished running implementations")
         logging.debug("verifying implementations")
         v.verify_implementations()

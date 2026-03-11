@@ -27,7 +27,8 @@ def verify(filename1, filename2):
 
     for i in range(0, size):
         for j in range(0, size):
-            if abs(ma1[i][j] - ma2[i][j]) > 1:
+            difference = abs(ma1[i][j] - ma2[i][j])/(abs(ma1[i][j]) + abs(ma2[i][j]))
+            if difference > 10 ** (-5):
                 logging.debug(f"{ma1[i][j]} != {ma2[i][j]}")
                 return False
 

@@ -32,8 +32,15 @@ def run_lang_arg(files, test_file: str, arguments):
     for file in files:
         args = []
         args.append("--time")
+        skipNext = False
         for arg in arguments:
+            if skipNext:
+                skipNext = False
+                args.append(f"{arg}")
+                continue
             args.append(f"--{arg}")
+            if arg == "outputresult":
+                skipNext = True
         args.append(input_files[0])
         args.append(input_files[1])
         res = run_file(file, args)
