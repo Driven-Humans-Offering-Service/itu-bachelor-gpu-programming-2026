@@ -143,9 +143,9 @@ public class MatrixInversion {
             Matrix.printMatrix(u.m);
             Matrix.printMatrix(X);
         }
-        // int outputResult = hasArgument(args, "--outputresult");
-        // if (outputResult > -1) {
-        // Matrix.outputMatrix(result, args[outputResult + 1]);
-        // }
+        int outputResult = hasArgument(args, "--outputresult");
+        if (outputResult > -1) {
+            Matrix.outputMatrix(X, args[outputResult + 1]);
+        }
     }
 }
