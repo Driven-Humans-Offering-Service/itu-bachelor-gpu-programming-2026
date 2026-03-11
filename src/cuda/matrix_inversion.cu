@@ -53,6 +53,8 @@ inline void gpuAssert(cudaError_t code, const char *file, int line,
   }
 }
 
+unsigned long kernel_time;
+
 template <unsigned int BLOCK_SIZE>
 __global__ void row_reduce_kernel(const float *__restrict__ input,
                                   float *__restrict__ output, int cols) {
@@ -336,6 +338,10 @@ int run_cuda(Matrices *ma) {
 
   gpuErrchk(cudaMemcpy(d_m1, ma->m1, ma->total_size * sizeof(float),
                        cudaMemcpyHostToDevice));
+  cudaEvent_t start, stop;
+  gpuErrchk(cudaEventCreate(&start));
+  gpuErrchk(cudaEventCreate(&stop));
+  gpuErrchk(cudaEventRecord(start));
 
   dim3 block(32, 32);
   dim3 grid((ma->size + block.x - 1) / block.x,
@@ -354,6 +360,12 @@ int run_cuda(Matrices *ma) {
   gpuErrchk(cudaDeviceSynchronize());
 
   transpose_matrix<<<grid, block>>>(x, d_res, ma->size);
+
+  gpuErrchk(cudaEventRecord(stop));
+  gpuErrchk(cudaEventSynchronize(stop));
+  float ms = 0.0f;
+  gpuErrchk(cudaEventElapsedTime(&ms, start, stop));
+  kernel_time = ms * 1000000;
 
 #if DEBUG
   float *L, *U, *y1;
@@ -403,21 +415,12 @@ int main(int argc, char **argv) {
   Matrices *ma = load_matrices(path1, path2);
 
   unsigned long s = get_time_nanoseconds();
-  cudaEvent_t start, stop;
-  gpuErrchk(cudaEventCreate(&start));
-  gpuErrchk(cudaEventCreate(&stop));
-
-  gpuErrchk(cudaEventRecord(start));
   run_cuda(ma);
-  gpuErrchk(cudaEventRecord(stop));
-  gpuErrchk(cudaEventSynchronize(stop));
-  float runtime_ms = 0.0f;
-  gpuErrchk(cudaEventElapsedTime_v2(&runtime_ms, start, stop));
   unsigned long a = get_time_nanoseconds();
 
   if (displayRuntime)
     // printf("%lu\n", (unsigned long)(runtime_ms * 1e6));
-    printf("%lu\n", a - s);
+    printf("%lu\n%lu\n", a - s, kernel_time);
 
   if (print_to_file) {
     char *path = argv[print_to_file + 1];

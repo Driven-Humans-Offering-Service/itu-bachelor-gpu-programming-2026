@@ -25,6 +25,8 @@ inline void gpuAssert(cudaError_t code, const char *file, int line,
   }
 }
 
+unsigned long kernel_time;
+
 __global__ void matrix_add(const float *m1, const float *m2, float *res,
                            int size) {
 
@@ -47,6 +49,10 @@ int run_cuda(Matrices *ma) {
   gpuErrchk(cudaMemcpy(d_m2, ma->m2, ma->total_size * sizeof(float),
                        cudaMemcpyHostToDevice));
 
+  cudaEvent_t start, stop;
+  gpuErrchk(cudaEventCreate(&start));
+  gpuErrchk(cudaEventCreate(&stop));
+  gpuErrchk(cudaEventRecord(start));
   cudaDeviceProp prop;
 
   gpuErrchk(cudaGetDeviceProperties_v2(&prop, 0));
@@ -57,6 +63,11 @@ int run_cuda(Matrices *ma) {
   matrix_add<<<blocks, threads>>>(d_m1, d_m2, d_res, ma->total_size);
 
   gpuErrchk(cudaDeviceSynchronize());
+  gpuErrchk(cudaEventRecord(stop));
+  gpuErrchk(cudaEventSynchronize(stop));
+  float ms = 0.0f;
+  gpuErrchk(cudaEventElapsedTime(&ms, start, stop));
+  kernel_time = ms * 1000000;
 
   gpuErrchk(cudaMemcpy(ma->result, d_res, ma->total_size * sizeof(float),
                        cudaMemcpyDeviceToHost));
@@ -89,10 +100,10 @@ int main(int argc, char **argv) {
   float runtime_ms = 0.0f;
   gpuErrchk(cudaEventElapsedTime_v2(&runtime_ms, start, stop));
   unsigned long a = get_time_nanoseconds();
-  
+
   if (displayRuntime)
     // printf("%lu\n", (unsigned long)(runtime_ms * 1e6));
-    printf("%lu\n", a - s);
+    printf("%lu\n%lu\n", a - s, kernel_time);
 
   if (print_to_file) {
     char *path = argv[print_to_file + 1];

@@ -25,7 +25,7 @@ inline void gpuAssert(cudaError_t code, const char *file, int line,
   }
 }
 
-unsigned long runtime;
+unsigned long kernel_time;
 
 __global__ void matrix_mul(const float *m1, const float *m2, float *res,
                            int size) {
@@ -43,8 +43,6 @@ __global__ void matrix_mul(const float *m1, const float *m2, float *res,
 
 int run_cuda(Matrices *ma) {
 
-  unsigned long before = get_time_nanoseconds();
-
   float *d_m1, *d_m2, *d_res;
   gpuErrchk(cudaMalloc(&d_m1, ma->total_size * sizeof(float)));
   gpuErrchk(cudaMalloc(&d_m2, ma->total_size * sizeof(float)));
@@ -55,6 +53,10 @@ int run_cuda(Matrices *ma) {
   gpuErrchk(cudaMemcpy(d_m2, ma->m2, ma->total_size * sizeof(float),
                        cudaMemcpyHostToDevice));
 
+  cudaEvent_t start, stop;
+  gpuErrchk(cudaEventCreate(&start));
+  gpuErrchk(cudaEventCreate(&stop));
+  gpuErrchk(cudaEventRecord(start));
   cudaDeviceProp prop;
 
   gpuErrchk(cudaGetDeviceProperties_v2(&prop, 0));
@@ -66,6 +68,11 @@ int run_cuda(Matrices *ma) {
   matrix_mul<<<grid, block>>>(d_m1, d_m2, d_res, ma->size);
 
   gpuErrchk(cudaDeviceSynchronize());
+  gpuErrchk(cudaEventRecord(stop));
+  gpuErrchk(cudaEventSynchronize(stop));
+  float ms = 0.0f;
+  gpuErrchk(cudaEventElapsedTime(&ms, start, stop));
+  kernel_time = ms * 1000000;
 
   gpuErrchk(cudaMemcpy(ma->result, d_res, ma->total_size * sizeof(float),
                        cudaMemcpyDeviceToHost));
@@ -73,9 +80,6 @@ int run_cuda(Matrices *ma) {
   cudaFree(d_m1);
   cudaFree(d_m2);
   cudaFree(d_res);
-
-  unsigned long after = get_time_nanoseconds();
-  runtime = after - before;
 
   return 0;
 }
@@ -89,7 +93,9 @@ int main(int argc, char **argv) {
 
   Matrices *ma = load_matrices(path1, path2);
 
+  unsigned long s = get_time_nanoseconds();
   run_cuda(ma);
+  unsigned long a = get_time_nanoseconds();
 
   /* printf("\n\n\n");
   print_matrix(ma->m1, cuda::std::sqrt(ma->total_size));
@@ -99,7 +105,7 @@ int main(int argc, char **argv) {
   print_matrix(ma->result, cuda::std::sqrt(ma->total_size)); */
 
   if (displayRuntime)
-    printf("The runtime was: %lu ns\n", runtime);
+    printf("%lu\n%lu\n", a - s, kernel_time);
 
   if (print_to_file) {
     char *path = argv[print_to_file + 1];
