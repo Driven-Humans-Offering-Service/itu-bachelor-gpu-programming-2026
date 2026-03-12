@@ -26,4 +26,19 @@ def get_testfile_of_size(root, size: int):
             if found_size == size:
                 lst.append(os.path.join(dirpath, filename))
     return lst
+
+
+def get_files_for_lang_arg(lang):
+    global rootFolder
+    build_folder = ""
+    files = []
+    if lang == "all":
+        for tp in ["java","cuda","c"]:
+            build_folder = os.path.join(rootFolder, f"./build/{tp}")
+            files = get_files_containg(build_folder, type)
+    else:
+        build_folder = os.path.join(rootFolder, f"./build/{lang}")
+        files = get_files_containg(build_folder, type)
+    return files
+
 setup()
