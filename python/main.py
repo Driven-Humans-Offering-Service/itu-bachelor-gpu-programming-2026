@@ -60,7 +60,7 @@ def setupArguments():
         "-b",
         dest="benchmark",
         help="Whether or not to benchmark the different matrix operations",
-        nargs=1,
+        nargs="*",
     )
 
     _ = parser.add_argument(
@@ -180,7 +180,7 @@ def main():
 
     elif args.benchmark:
         logging.debug("running benchmark")
-        b.benchmark(args.benchmark[0])
+        b.benchmark(args.benchmark)
         logging.debug("done running benchmark")
 
     logging.debug("exiting main")
