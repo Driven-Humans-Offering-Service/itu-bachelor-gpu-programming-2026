@@ -21,7 +21,8 @@ def analyse_data(type, size, times, lang, cuda_kernel_times):
             write_times_to_file(f, cuda_kernel_times)
 
 
-def get_files(type):
+
+def get_files(type, iterations=1):
     builddir = os.path.abspath(os.path.join(rootFolder, "./build"))
     files = []
     match type:
@@ -97,7 +98,8 @@ def run_files(files):
             logging.debug(f"Finished data analysis on: {type}_{size}")
 
 
-def benchmark(what):
+def benchmark(args):
     logging.debug("Running files")
-    run_files(get_files(what))
+    #run_files(get_files(args[0]))
+    
     logging.debug("Done running files")
