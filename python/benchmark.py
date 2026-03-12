@@ -5,14 +5,20 @@ import statistics as s
 from run import run_file
 from utils import rootFolder
 
+def write_times_to_file(f, times):
+    strippeddata = list(map(lambda x: x.strip(), times))
+    timedata = list(map(int, strippeddata))
+    avg = s.mean(timedata)
+    f.write(f"{avg} " + " ".join(strippeddata))
 
-def analyse_data(type, size, times, lang):
+
+def analyse_data(type, size, times, lang, cuda_kernel_times):
     logging.debug(f"Creating time data file for: {type}_{size}")
     with open(f"{rootFolder}/data/time/bench_{type}_{size}_{lang}", "w") as f:
-        strippeddata = list(map(lambda x: x.strip(), times))
-        timedata = list(map(int, strippeddata))
-        avg = s.mean(timedata)
-        f.write(f"{avg} " + " ".join(strippeddata))
+        write_times_to_file(f, times)
+        if len(cuda_kernel_times) != 0:
+            f.write("\n")
+            write_times_to_file(f, cuda_kernel_times)
 
 
 def get_files(type):
@@ -70,17 +76,24 @@ def run_files(files):
         sorted_sizes = sorted(sizes, key=lambda sz: int(sz))
         for size in sorted_sizes:
             times = []
+            cuda_kernel_times = []
             logging.debug(f"Running for size: {size}")
+            type = os.path.splitext(os.path.basename(file))[0]
+            lang = file.split("/")[-2]
             for i in range(0, 50):
                 # logging.debug(f"Running {i}. iteration")
                 input0 = rootFolder + f"/data/input/matrix_0_{size}"
                 input1 = rootFolder + f"/data/input/matrix_1_{size}"
-                times.append(run_file(file, ["--time", input0, input1]))
+                res = run_file(file, ["--time", input0, input1])
+                if lang == "cuda":
+                    res_split = res.split("\n")
+                    times.append(res_split[0])
+                    cuda_kernel_times.append(res_split[1])
+                    continue
+                times.append(res)
 
-            type = os.path.splitext(os.path.basename(file))[0]
-            lang = file.split("/")[-2]
             logging.debug(f"Starting data analysis on: {type}_{size}")
-            analyse_data(type, size, times, lang)
+            analyse_data(type, size, times, lang, cuda_kernel_times)
             logging.debug(f"Finished data analysis on: {type}_{size}")
 
 
