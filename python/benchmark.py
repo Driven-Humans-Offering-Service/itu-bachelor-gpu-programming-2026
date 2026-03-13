@@ -39,12 +39,7 @@ def get_gpu():
 
     for line in result.stdout.strip().split("\n"):
         name, mem_total, mem_used, util = line.split(", ")
-        gpus.append({
-            "name": name,
-            "memory_total_mb": mem_total,
-            "memory_used_mb": mem_used,
-            "utilization_percent": util
-        })
+        gpus.append(name)
 
     return gpus
 
@@ -57,6 +52,7 @@ def analyse_data(type, size, times, lang, cuda_kernel_times, iteration):
     else:
         hardware = get_gpu()[0]
     
+    print(hardware)
     hardware = hardware.replace(" ", "ø")
     with open(f"{rootFolder}/data/time/bench_{type}_{size}_{lang}_{iteration}_{hardware}", "w") as f:
         write_times_to_file(f, times)
