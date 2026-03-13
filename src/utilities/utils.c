@@ -1,5 +1,6 @@
 #include <string.h>
 #include <time.h>
+#include "matrix.h"
 int contains_argument(int argc, char** argv, const char* arg){
     for (int i = 1; i < argc; i++) {
         if(strcmp(argv[i], arg) == 0) return i;
@@ -10,4 +11,7 @@ struct timespec ts;
 unsigned long get_time_nanoseconds() {
     clock_gettime(CLOCK_MONOTONIC, &ts);
     return ts.tv_sec * 1000000000 + ts.tv_nsec;
+}
+int shared_main(int argc, char **argv, int (*fptr)(Matrices*)) {
+    return 0
 }
