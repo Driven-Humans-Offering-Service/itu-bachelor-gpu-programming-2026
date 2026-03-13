@@ -6,6 +6,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.function.BiFunction;
 
 public class Matrix {
 
@@ -49,7 +50,7 @@ public class Matrix {
     }
 
     public static void outputMatrix(float[][] matrix, String path)
-        throws IOException {
+            throws IOException {
         File f = new File(path);
         BufferedWriter writer = new BufferedWriter(new FileWriter(f));
 
@@ -65,5 +66,39 @@ public class Matrix {
         }
 
         writer.close();
+    }
+
+    public static int hasArgument(String[] args, String arg) {
+        for (int i = 0; i < args.length; i++) {
+            if (args[i].equals(arg))
+                return i;
+        }
+        return -1;
+    }
+
+    public static void sharedMain(BiFunction<float[][], float[][], float[][]> main, String[] args) throws IOException {
+        long before_load = System.nanoTime();
+        Matrix m1 = new Matrix(args[args.length - 2]);
+        Matrix m2 = new Matrix(args[args.length - 1]);
+        long after_load = System.nanoTime();
+
+        long before = System.nanoTime();
+        float[][] result = main.apply(m1.m, m2.m);
+        long after = System.nanoTime();
+        long runtime = after - before;
+
+        if (hasArgument(args, "--time") >= 0) {
+            System.out.println(runtime);
+        }
+        if (hasArgument(args, "--loadtime") >= 0) {
+            System.out.println(after_load - before_load);
+        }
+        if (hasArgument(args, "--printResult") >= 0) {
+            Matrix.printMatrix(result);
+        }
+        int outputResult = hasArgument(args, "--outputresult");
+        if (outputResult > -1) {
+            Matrix.outputMatrix(result, args[outputResult + 1]);
+        }
     }
 }

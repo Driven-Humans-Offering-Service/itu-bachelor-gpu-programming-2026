@@ -27,23 +27,9 @@ public class MatrixMultiplication {
     }
 
     public static void main(String[] args) throws IOException {
-        Matrix m1 = new Matrix(args[args.length - 2]);
-        Matrix m2 = new Matrix(args[args.length - 1]);
 
-        long before = System.nanoTime();
-        float[][] result = multiplyMatricies(m1.m, m2.m);
-        long after = System.nanoTime();
-        long runtime = after - before;
-
-        if (Arrays.stream(args).anyMatch("--time"::equals)) {
-            System.out.println(runtime);
-        }
-        if (Arrays.stream(args).anyMatch("--printResult"::equals)) {
-            Matrix.printMatrix(result);
-        }
-        int outputResult = hasArgument(args, "--outputresult");
-        if (outputResult > -1) {
-            Matrix.outputMatrix(result, args[outputResult + 1]);
-        }
+        Matrix.sharedMain((m1, m2) -> {
+            return multiplyMatricies(m1, m2);
+        }, args);
     }
 }

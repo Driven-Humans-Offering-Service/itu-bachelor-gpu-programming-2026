@@ -125,27 +125,12 @@ public class MatrixInversion {
     }
 
     public static void main(String[] args) throws IOException {
-        Matrix matrix = new Matrix(args[args.length - 2]);
 
-        long before = System.nanoTime();
-        Matrix[] matrices = getLUDecomposition(matrix.m);
-        Matrix l = matrices[0];
-        Matrix u = matrices[1];
-        float[][] X = inverse(l.m, u.m);
-        long after = System.nanoTime();
-        long runtime = after - before;
-
-        if (Arrays.stream(args).anyMatch("--time"::equals)) {
-            System.out.println(runtime);
-        }
-        if (Arrays.stream(args).anyMatch("--printresult"::equals)) {
-            Matrix.printMatrix(l.m);
-            Matrix.printMatrix(u.m);
-            Matrix.printMatrix(X);
-        }
-        int outputResult = hasArgument(args, "--outputresult");
-        if (outputResult > -1) {
-            Matrix.outputMatrix(X, args[outputResult + 1]);
-        }
+        Matrix.sharedMain((m1, m2) -> {
+            Matrix[] matrices = getLUDecomposition(m1);
+            Matrix l = matrices[0];
+            Matrix u = matrices[1];
+            return inverse(l.m, u.m);
+        }, args);
     }
 }
