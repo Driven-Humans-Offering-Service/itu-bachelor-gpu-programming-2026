@@ -1,6 +1,8 @@
 import logging
 import os
 import statistics as s
+import platform
+import subprocess
 
 from run import run_file
 from utils import filter_files_by_iteration, filter_files_by_operation, get_files_for_lang_arg, rootFolder
@@ -11,10 +13,52 @@ def write_times_to_file(f, times):
     avg = s.mean(timedata)
     f.write(f"{avg} " + " ".join(strippeddata))
 
+def get_cpu():
+    result = subprocess.run(
+        'lscpu | grep "Model name"',
+        shell=True,
+        capture_output=True,
+        text=True
+    )
+
+    cpu_name = result.stdout.strip().split(":")[1].strip()
+    return cpu_name
+
+def get_gpu():
+    result = subprocess.run(
+        [
+            "nvidia-smi",
+            "--query-gpu=name,memory.total,memory.used,utilization.gpu",
+            "--format=csv,noheader,nounits",
+        ],
+        capture_output=True,
+        text=True
+    )
+
+    gpus = []
+
+    for line in result.stdout.strip().split("\n"):
+        name, mem_total, mem_used, util = line.split(", ")
+        gpus.append({
+            "name": name,
+            "memory_total_mb": mem_total,
+            "memory_used_mb": mem_used,
+            "utilization_percent": util
+        })
+
+    return gpus
+
 
 def analyse_data(type, size, times, lang, cuda_kernel_times, iteration):
     logging.debug(f"Creating time data file for: {type}_{size}_{iteration}")
-    with open(f"{rootFolder}/data/time/bench_{type}_{size}_{lang}_{iteration}", "w") as f:
+    hardware = ""
+    if len(cuda_kernel_times) == 0:
+        hardware = get_cpu()
+    else:
+        hardware = get_gpu()[0]
+    
+    hardware = hardware.replace(" ", "ø")
+    with open(f"{rootFolder}/data/time/bench_{type}_{size}_{lang}_{iteration}_{hardware}", "w") as f:
         write_times_to_file(f, times)
         if len(cuda_kernel_times) != 0:
             f.write("\n")
@@ -82,7 +126,7 @@ def run_files(files):
             logging.debug(f"Running for size: {size}")
             type = os.path.splitext(os.path.basename(file))[0]
             lang = file.split("/")[-2]
-            for i in range(0, 50):
+            for i in range(0, 1):
                 # logging.debug(f"Running {i}. iteration")
                 input0 = rootFolder + f"/data/input/matrix_0_{size}"
                 input1 = rootFolder + f"/data/input/matrix_1_{size}"
