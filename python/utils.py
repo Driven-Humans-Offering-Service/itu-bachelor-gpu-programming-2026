@@ -1,3 +1,4 @@
+from collections import defaultdict
 import os
 rootFolder = ""
 default_rand_seed = "Driven Humans Offering Service"
@@ -48,13 +49,17 @@ def filter_files_by_operation(files: list[str], op: str):
     return list(filter(lambda file: op in file.lower(), files))
 
 def filter_files_by_iteration(files: list[str], iterations: int):
-    m: dict[str, int] = {}
+    m = defaultdict(int)
     ending = {}
     new_files: list[str] = []
     for file in files:
         split = file.split("_")
         file_name = "_".join(split[:-1])
-        m[file_name] = int(split[-1].split(".")[0])
+        current_it = int(split[-1].split(".")[0])
+        current_max = m[file_name]
+        if current_it > current_max:
+            m[file_name] = current_it
+
         ending[file_name] = "." + split[-1].split(".")[1]
     for file in m:
         for i in range(0, iterations):

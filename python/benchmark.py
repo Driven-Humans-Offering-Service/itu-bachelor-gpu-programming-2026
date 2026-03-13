@@ -12,9 +12,9 @@ def write_times_to_file(f, times):
     f.write(f"{avg} " + " ".join(strippeddata))
 
 
-def analyse_data(type, size, times, lang, cuda_kernel_times):
-    logging.debug(f"Creating time data file for: {type}_{size}")
-    with open(f"{rootFolder}/data/time/bench_{type}_{size}_{lang}", "w") as f:
+def analyse_data(type, size, times, lang, cuda_kernel_times, iteration):
+    logging.debug(f"Creating time data file for: {type}_{size}_{iteration}")
+    with open(f"{rootFolder}/data/time/bench_{type}_{size}_{lang}_{iteration}", "w") as f:
         write_times_to_file(f, times)
         if len(cuda_kernel_times) != 0:
             f.write("\n")
@@ -73,6 +73,7 @@ def run_files(files):
         logging.debug(f"Running for file: {file}")
         lsinput = os.listdir(os.path.join(rootFolder, "./data/input"))
         different = filter(lambda s: "_0_" in s, lsinput)
+        iteration = os.path.basename(file).split(".")[0].split("_")[-1]
         sizes = map(lambda d: d.split("_")[-1], different)
         sorted_sizes = sorted(sizes, key=lambda sz: int(sz))
         for size in sorted_sizes:
@@ -94,7 +95,7 @@ def run_files(files):
                 times.append(res)
 
             logging.debug(f"Starting data analysis on: {type}_{size}")
-            analyse_data(type, size, times, lang, cuda_kernel_times)
+            analyse_data(type, size, times, lang, cuda_kernel_times, iteration)
             logging.debug(f"Finished data analysis on: {type}_{size}")
 
 
