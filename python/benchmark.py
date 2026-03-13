@@ -122,7 +122,7 @@ def run_files(files):
             logging.debug(f"Running for size: {size}")
             type = os.path.splitext(os.path.basename(file))[0]
             lang = file.split("/")[-2]
-            for i in range(0, 1):
+            for i in range(0, 50):
                 # logging.debug(f"Running {i}. iteration")
                 input0 = rootFolder + f"/data/input/matrix_0_{size}"
                 input1 = rootFolder + f"/data/input/matrix_1_{size}"
