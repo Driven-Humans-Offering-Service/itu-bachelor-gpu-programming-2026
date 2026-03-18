@@ -1,7 +1,7 @@
 import java.io.IOException;
 import java.util.Arrays;
 
-public class MatrixAddition {
+public class MatrixAddition_0 {
 
     public static float[][] addMatricies(
             float[][] matrix_1,
