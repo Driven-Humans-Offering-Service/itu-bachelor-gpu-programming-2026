@@ -1,44 +1,17 @@
-#include <stdio.h>
-#include "../utilities/matrix.h"
 #include "../utilities/utils.h"
 
-void add_matrices(float* res, float* m1, float* m2, int size);
+void add_matrices(Matrices* ma);
 
 
 int main(int argc, char** argv) {
-    char* path1 = argv[argc - 2];
-    char* path2 = argv[argc - 1];
-    int displayRuntime = contains_argument(argc, argv, "--time");
-    int print_to_file = contains_argument(argc, argv, "--outputresult");
-    int load_time = contains_argument(argc, argv, "--loadtime");
-
-    unsigned long before_load = get_time_nanoseconds();
-    Matrices* ma = load_matrices(path1, path2);
-    unsigned long after_load = get_time_nanoseconds();
-
-    int total_size = ma->total_size;
-    //printMatrix(matrix1, size);
-    //printMatrix(matrix2, size);
-    unsigned long before = get_time_nanoseconds();
-    add_matrices(ma->result, ma->m1, ma->m2, total_size);
-    unsigned long after = get_time_nanoseconds();
-    unsigned long runtime = after - before;
-    //printMatrix(result, size);
-    if(load_time) 
-        printf("load time: %lu\n", after_load - before_load);
-
-    if(displayRuntime) 
-        printf("%lu\n", runtime);
-
-    if(print_to_file){
-        char* path = argv[print_to_file+1];
-        output_matrix(ma, path);
-    }
-    free_matrices(ma);
-    return 0;
+    return shared_main(argc, argv, &add_matrices);
 }
 
-void add_matrices(float* res, float* m1, float* m2, int size) {
+void add_matrices(Matrices* ma) {
+    float* res = ma->result;
+    float* m1 = ma->m1;
+    float* m2 = ma->m2;
+    int size = ma->total_size;
     for (int i = 0; i < size; i++) {
         res[i] = m1[i] + m2[i];
     }

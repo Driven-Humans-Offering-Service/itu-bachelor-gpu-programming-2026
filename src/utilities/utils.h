@@ -6,7 +6,7 @@ extern "C" {
 
 int contains_argument(int argc, char **argv, const char *arg);
 unsigned long get_time_nanoseconds();
-int shared_main(int argc, char **argv, int (*fptr)(Matrices*));
+int shared_main(int argc, char **argv, void (*fptr)(Matrices *));
 
 #ifdef __cplusplus
 }
