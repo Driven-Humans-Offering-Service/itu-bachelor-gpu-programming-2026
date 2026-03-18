@@ -2,7 +2,7 @@
 #include "../utilities/utils.h"
 #include <cstdio>
 #include <cuda/cmath>
-#include <cuda/std/__cuda/cmath_nvfp16.h>
+
 #include <cuda_device_runtime_api.h>
 #include <cuda_runtime.h>
 #include <cuda_runtime_api.h>
