@@ -3,6 +3,12 @@
 #include "matrix.h"
 #ifdef __cplusplus
 #endif
+
+#ifdef CUDA_CODE
+unsigned long kernel_time;
+#endif
+
+
 int contains_argument(int argc, char** argv, const char* arg){
     for (int i = 1; i < argc; i++) {
         if(strcmp(argv[i], arg) == 0) return i;
@@ -36,8 +42,8 @@ int shared_main(int argc, char **argv, void (*fptr)(Matrices*)) {
 
     if(displayRuntime) {
         printf("%lu\n", runtime);
-        #ifdef __cplusplus
-            printf("%lu\n", kernel_time)
+        #ifdef CUDA_CODE
+            printf("%lu\n", kernel_time);
         #endif
     }
 
