@@ -78,9 +78,4 @@ def filter_files(folder, args):
     files = filter_files_by_iteration(files, int(iteration))
     return files
 
-
-
-
-        
-
 setup()

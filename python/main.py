@@ -3,9 +3,10 @@ import logging
 import os
 from pathlib import Path
 
+import visualization as vi
 import compile as c
 import matrix_generation as mg
-import verify as v
+import verify as ve
 import run as r
 import benchmark as b
 import clean as cl
@@ -48,8 +49,16 @@ def setupArguments():
     )
 
     _ = parser.add_argument(
+        "--visualize",
+        "-vi",
+        dest="visualize",
+        help="Whether or not to visualize the resulting matrices",
+        nargs="*",
+    )
+
+    _ = parser.add_argument(
         "--verify",
-        "-v",
+        "-ve",
         dest="verify",
         help="Whether or not to verify the resulting matrices against the java implementation",
         action="store_true",
@@ -149,7 +158,7 @@ def main():
         # run benchmrk with time and resultoutput
         logging.debug("done running benchmark")
         logging.debug("verifying implementations")
-        v.verify_implementations()
+        ve.verify_implementations()
         logging.debug("done verifying implementations")
 
     elif args.verify:
@@ -175,8 +184,13 @@ def main():
 
         logging.debug("finished running implementations")
         logging.debug("verifying implementations")
-        v.verify_implementations()
+        ve.verify_implementations()
         logging.debug("done verifying implementations")
+
+    elif args.visualize:
+        logging.debug("running visualization")
+        vi.visualise(args.visualize)
+        logging.debug("done running visualization")
 
     elif args.benchmark:
         logging.debug("running benchmark")
