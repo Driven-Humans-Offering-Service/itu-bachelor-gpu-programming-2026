@@ -1,47 +1,11 @@
-#include <stdio.h>
-#include "../utilities/matrix.h"
 #include "../utilities/utils.h"
 
 #define IDX(i,j,size) (((i) * (size)) + (j))
-void inverse_matrix(float* res, float* a, int size, int small_size);
+void inverse_matrix(Matrices* ma);
 
 
 int main(int argc, char** argv) {
-    char* path1 = argv[argc - 2];
-    char* path2 = argv[argc - 1];
-    int displayRuntime = contains_argument(argc, argv, "--time");
-    int print_to_file = contains_argument(argc, argv, "--outputresult");
-    int print_result = contains_argument(argc, argv, "--printresult");
-    int load_time = contains_argument(argc, argv, "--loadtime");
-
-    unsigned long before_load = get_time_nanoseconds();
-    Matrices* ma = load_matrices(path1, path2);
-    unsigned long after_load = get_time_nanoseconds();
-
-    int total_size = ma->total_size;
-    //printMatrix(matrix1, size);
-    //printMatrix(matrix2, size);
-    unsigned long before = get_time_nanoseconds();
-    inverse_matrix(ma->result, ma->m1, total_size, ma->size);
-    unsigned long after = get_time_nanoseconds();
-    unsigned long runtime = after - before;
-    //printMatrix(result, size);
-    if(load_time) 
-        printf("load time: %lu\n", after_load - before_load);
-
-    if(displayRuntime) 
-        printf("%lu\n", runtime);
-
-    if (print_result) {
-        print_matrix(ma->result, ma->size);
-    }
-
-    if(print_to_file){
-        char* path = argv[print_to_file+1];
-        output_matrix(ma, path);
-    }
-    free_matrices(ma);
-    return 0;
+    return shared_main(argc, argv, &inverse_matrix);
 }
 
 void transpose_matrix(float* m, int N){
@@ -125,7 +89,12 @@ void print_float_pointer(char* name, float* p, int N){
         printf("\n");
 }
 
-void inverse_matrix(float* res, float* a, int size, int small_size) {
+void inverse_matrix(Matrices* ma) {
+    float* res = ma->result;
+    float* a = ma->m1;
+    int size = ma->total_size;
+    int small_size = ma->size;
+    
     float* alpha = malloc(size*sizeof(float));
     float* beta = malloc(size*sizeof(float));
     float* E = calloc(size, sizeof(float));
