@@ -1,6 +1,8 @@
 #include <string.h>
 #include <time.h>
 #include "matrix.h"
+#ifdef __cplusplus
+#endif
 int contains_argument(int argc, char** argv, const char* arg){
     for (int i = 1; i < argc; i++) {
         if(strcmp(argv[i], arg) == 0) return i;
@@ -32,8 +34,12 @@ int shared_main(int argc, char **argv, void (*fptr)(Matrices*)) {
     if(load_time) 
         printf("load time: %lu\n", after_load - before_load);
 
-    if(displayRuntime) 
+    if(displayRuntime) {
         printf("%lu\n", runtime);
+        #ifdef __cplusplus
+            printf("%lu\n", kernel_time)
+        #endif
+    }
 
     if (print_result) {
         print_matrix(ma->result, ma->size);

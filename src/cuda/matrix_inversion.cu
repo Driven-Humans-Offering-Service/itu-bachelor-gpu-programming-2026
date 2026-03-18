@@ -1,4 +1,3 @@
-#include "../utilities/matrix.h"
 #include "../utilities/utils.h"
 #include <cstdio>
 #include <cstdlib>
@@ -52,8 +51,6 @@ inline void gpuAssert(cudaError_t code, const char *file, int line,
       exit(code);
   }
 }
-
-unsigned long kernel_time;
 
 template <unsigned int BLOCK_SIZE>
 __global__ void row_reduce_kernel(const float *__restrict__ input,
@@ -323,7 +320,7 @@ __global__ void findx(float *alpha, float *beta, float *b_full, float *x_full,
 }
 
 unsigned long runtime;
-int run_cuda(Matrices *ma) {
+void run_cuda(Matrices *ma) {
 
   unsigned long before = get_time_nanoseconds();
 
@@ -401,31 +398,6 @@ int run_cuda(Matrices *ma) {
 
   unsigned long after = get_time_nanoseconds();
   runtime = after - before;
-
-  return 0;
 }
 
-int main(int argc, char **argv) {
-
-  char *path1 = argv[argc - 2];
-  char *path2 = argv[argc - 1];
-  int displayRuntime = contains_argument(argc, argv, "--time");
-  int print_to_file = contains_argument(argc, argv, "--outputresult");
-
-  Matrices *ma = load_matrices(path1, path2);
-
-  unsigned long s = get_time_nanoseconds();
-  run_cuda(ma);
-  unsigned long a = get_time_nanoseconds();
-
-  if (displayRuntime)
-    // printf("%lu\n", (unsigned long)(runtime_ms * 1e6));
-    printf("%lu\n%lu\n", a - s, kernel_time);
-
-  if (print_to_file) {
-    char *path = argv[print_to_file + 1];
-    output_matrix(ma, path);
-  }
-  free_matrices(ma);
-  return 0;
-}
+int main(int argc, char **argv) { return shared_main(argc, argv, &run_cuda); }

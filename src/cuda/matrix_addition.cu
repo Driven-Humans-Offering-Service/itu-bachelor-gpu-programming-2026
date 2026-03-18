@@ -1,4 +1,3 @@
-#include "../utilities/matrix.h"
 #include "../utilities/utils.h"
 #include <cstdio>
 #include <cuda/cmath>
@@ -25,8 +24,6 @@ inline void gpuAssert(cudaError_t code, const char *file, int line,
   }
 }
 
-unsigned long kernel_time;
-
 __global__ void matrix_add(const float *m1, const float *m2, float *res,
                            int size) {
 
@@ -37,7 +34,7 @@ __global__ void matrix_add(const float *m1, const float *m2, float *res,
   }
 }
 
-int run_cuda(Matrices *ma) {
+void run_cuda(Matrices *ma) {
 
   float *d_m1, *d_m2, *d_res;
   gpuErrchk(cudaMalloc(&d_m1, ma->total_size * sizeof(float)));
@@ -75,40 +72,6 @@ int run_cuda(Matrices *ma) {
   cudaFree(d_m1);
   cudaFree(d_m2);
   cudaFree(d_res);
-
-  return 0;
 }
 
-int main(int argc, char **argv) {
-
-  char *path1 = argv[argc - 2];
-  char *path2 = argv[argc - 1];
-  int displayRuntime = contains_argument(argc, argv, "--time");
-  int print_to_file = contains_argument(argc, argv, "--outputresult");
-
-  Matrices *ma = load_matrices(path1, path2);
-
-  unsigned long s = get_time_nanoseconds();
-  cudaEvent_t start, stop;
-  gpuErrchk(cudaEventCreate(&start));
-  gpuErrchk(cudaEventCreate(&stop));
-
-  gpuErrchk(cudaEventRecord(start));
-  run_cuda(ma);
-  gpuErrchk(cudaEventRecord(stop));
-  gpuErrchk(cudaEventSynchronize(stop));
-  float runtime_ms = 0.0f;
-  gpuErrchk(cudaEventElapsedTime_v2(&runtime_ms, start, stop));
-  unsigned long a = get_time_nanoseconds();
-
-  if (displayRuntime)
-    // printf("%lu\n", (unsigned long)(runtime_ms * 1e6));
-    printf("%lu\n%lu\n", a - s, kernel_time);
-
-  if (print_to_file) {
-    char *path = argv[print_to_file + 1];
-    output_matrix(ma, path);
-  }
-  free_matrices(ma);
-  return 0;
-}
+int main(int argc, char **argv) { return shared_main(argc, argv, &run_cuda); }
