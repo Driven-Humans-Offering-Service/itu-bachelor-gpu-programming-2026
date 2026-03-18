@@ -1,0 +1,4 @@
+If:
+  PathMatch: .*\.cu$
+CompileFlags:
+  Add: [-DCUDA_CODE]
