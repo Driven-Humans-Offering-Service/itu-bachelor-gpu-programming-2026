@@ -2,7 +2,7 @@ import logging
 import os
 import subprocess
 
-from utils import get_files_containg, rootFolder
+from utils import filter_files, filter_files_by_iteration, filter_files_by_operation, get_files_containg, get_files_for_lang_arg, rootFolder
 
 
 def get_files_with_extention(files, extention):
@@ -74,30 +74,24 @@ def compile_cuda(file, util_files):
     print(cmd)
     return subprocess.Popen(cmd)
 
+def compile_files(files):
+    global rootFolder
+    srcPath = os.path.join(rootFolder, "./src")
+    c_util_files = get_files_containg(os.path.join(srcPath, "utilities"), ".c")
+    processes = []
+    for file in files:
+        file_lang = file.split("/")[-2]
+        if "java" == file_lang:
+            processes.append(compile_java(file))
+        elif "cuda" == file_lang:
+            processes.append(compile_cuda(file, c_util_files))
+        elif "c" == file_lang:
+            processes.append(compile_c(file, c_util_files))
+    for p in processes:
+        p.wait()
+
 
 def compile(args):
-    if len(args) >= 3:
-        print("Please only provide at most two arguments to compile")
-        exit(1)
-    if args == []:
-        args = ["all"]
-
-    srcFolder = os.path.join(rootFolder, "./src")
+    files = filter_files("src", args)
+    compile_files(files)
     
-    if len(args) == 1:
-        args.append("all")
-
-    match args[0]:
-        case "all":
-            compile_type(srcFolder, "addition", args[1])
-            compile_type(srcFolder, "multiplication", args[1])
-            compile_type(srcFolder, "inversion", args[1])
-        case "add":
-            compile_type(srcFolder, "addition", args[1])
-        case "multiply":
-            compile_type(srcFolder, "multiplication", args[1])
-        case "inverse":
-            compile_type(srcFolder, "inversion", args[1])
-        case _:
-            print("Please supply one of all, add, multiply, or inverse")
-            exit(1)

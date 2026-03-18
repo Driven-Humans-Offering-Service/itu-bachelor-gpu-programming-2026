@@ -29,23 +29,25 @@ def get_testfile_of_size(root, size: int):
     return lst
 
 
-def get_files_for_lang_arg(lang):
+def get_files_for_lang_arg(folder, lang):
     global rootFolder
-    build_folder = ""
     files = []
     if lang == "all":
         for tp in ["java","cuda","c"]:
-            build_folder = os.path.join(rootFolder, f"./build/{tp}")
-            files = get_files_containg(build_folder, "")
+            lang_folder = os.path.join(rootFolder, f"./{folder}/{tp}")
+            files += get_files_containg(lang_folder, "")
     else:
-        build_folder = os.path.join(rootFolder, f"./build/{lang}")
-        files = get_files_containg(build_folder, "")
+        lang_folder = os.path.join(rootFolder, f"./{folder}/{lang}")
+        files = get_files_containg(lang_folder, "")
     return files
 
 def filter_files_by_operation(files: list[str], op: str):
     op = op.lower()
     if op == "all":
-        return files
+        addition_files = filter_files_by_operation(files, "addition")
+        multiplication_files = filter_files_by_operation(files, "multiplication")
+        inversion_files = filter_files_by_operation(files, "inversion")
+        return addition_files + multiplication_files + inversion_files
     return list(filter(lambda file: op in file.lower(), files))
 
 def filter_files_by_iteration(files: list[str], iterations: int):
@@ -68,6 +70,13 @@ def filter_files_by_iteration(files: list[str], iterations: int):
                 break
             new_files.append(file + "_" + str(num) + ending[file])
     return new_files
+
+def filter_files(folder, args):
+    iteration = 1 if len(args) != 3 else args[2]
+    files = get_files_for_lang_arg(folder, args[0]) 
+    files = filter_files_by_operation(files, args[1])
+    files = filter_files_by_iteration(files, int(iteration))
+    return files
 
 
 

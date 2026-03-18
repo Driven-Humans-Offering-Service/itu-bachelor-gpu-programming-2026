@@ -5,7 +5,7 @@ import platform
 import subprocess
 
 from run import run_file
-from utils import filter_files_by_iteration, filter_files_by_operation, get_files_for_lang_arg, rootFolder
+from utils import filter_files, filter_files_by_iteration, filter_files_by_operation, get_files_for_lang_arg, rootFolder
 
 def write_times_to_file(f, times):
     strippeddata = list(map(lambda x: x.strip(), times))
@@ -142,13 +142,7 @@ def run_files(files):
 def benchmark(args):
     logging.debug("Running files")
     #run_files(get_files(args[0]))
-    iteration = 1 if len(args) != 3 else args[2]
-    files = get_files_for_lang_arg(args[0]) 
-    print(files)
-    files = filter_files_by_operation(files, args[1])
-    print(files)
-    files = filter_files_by_iteration(files, int(iteration))
-    print(files)
+    files = filter_files("build", args)
     run_files(files)
     
     logging.debug("Done running files")

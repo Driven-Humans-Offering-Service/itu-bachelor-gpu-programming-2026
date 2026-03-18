@@ -1,6 +1,6 @@
 import os
 import subprocess
-from utils import get_filename, get_files_containg, get_testfile_of_size, rootFolder
+from utils import filter_files, get_filename, get_files_containg, get_testfile_of_size, rootFolder
 
 
 def is_java_program(file: str):
@@ -60,20 +60,24 @@ def run_type(type, lang, size, args):
         files = get_files_containg(build_folder, type)
         run_lang_arg(files, size, args) 
 
+
 def run(args):
 
-    match args[0]:
-        case "all":
-            run_type("addition", args[1], args[2], args[3:])
-            run_type("multiplication", args[1], args[2], args[3:])
-            run_type("inversion", args[1], args[2], args[3:])
-        case "add":
-            run_type("addition", args[1], args[2], args[3:])
-        case "multiply":
-            run_type("multiplication", args[1], args[2], args[3:])
-        case "inverse":
-            run_type("inversion", args[1], args[2], args[3:])
-        case _:
-            print("Please supply one of all, add, multiply, or inverse")
-            exit(1)
+    files = filter_files("build", args)
+    run_lang_arg(files, args[3], args[4:])
+
+    # match args[0]:
+    #     case "all":
+    #         run_type("addition", args[1], args[2], args[3:])
+    #         run_type("multiplication", args[1], args[2], args[3:])
+    #         run_type("inversion", args[1], args[2], args[3:])
+    #     case "add":
+    #         run_type("addition", args[1], args[2], args[3:])
+    #     case "multiply":
+    #         run_type("multiplication", args[1], args[2], args[3:])
+    #     case "inverse":
+    #         run_type("inversion", args[1], args[2], args[3:])
+    #     case _:
+    #         print("Please supply one of all, add, multiply, or inverse")
+    #         exit(1)
         
