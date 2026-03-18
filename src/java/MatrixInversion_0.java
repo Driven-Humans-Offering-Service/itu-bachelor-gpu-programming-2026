@@ -1,7 +1,7 @@
 import java.io.IOException;
 import java.util.Arrays;
 
-public class MatrixInversion_1 {
+public class MatrixInversion_0 {
 
     public static int hasArgument(String[] args, String arg) {
         for (int i = 0; i < args.length; i++) {
