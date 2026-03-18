@@ -1,9 +1,9 @@
-// naive implementation
+// tranpose to improve locality
 
 import java.io.IOException;
 import java.util.Arrays;
 
-public class MatrixInversion_0 {
+public class MatrixInversion_1 {
 
     public static int hasArgument(String[] args, String arg) {
         for (int i = 0; i < args.length; i++) {
@@ -32,7 +32,7 @@ public class MatrixInversion_0 {
                 for (int k = 0; k < i; k++) {
                     sum += alpha[i][k] * beta[j][k];
                 }
-                beta[i][j] = a[i][j] - sum;
+                beta[j][i] = a[i][j] - sum;
             }
             for (int i = j + 1; i < N; i++) {
                 float sum = 0;
@@ -46,7 +46,19 @@ public class MatrixInversion_0 {
 
         }
 
+        transposeMatrix(beta);
+
         return new Matrix[] { l, u };
+    }
+
+    public static void transposeMatrix(float[][] m) {
+        for (int i = 0; i < m.length; i++) {
+            for (int j = 0; j < i; j++) {
+                float tmp = m[i][j];
+                m[i][j] = m[j][i];
+                m[j][i] = tmp;
+            }
+        }
     }
 
     public static float[] findY(float[][] alpha, float[] b) {
@@ -107,6 +119,8 @@ public class MatrixInversion_0 {
             float[] y = findY(alpha, E[i]);
             X[i] = findX(beta, y);
         }
+
+        transposeMatrix(X);
 
         return X;
 

@@ -1,3 +1,5 @@
+// swap loops to improve locality
+
 import java.io.IOException;
 import java.util.Arrays;
 
