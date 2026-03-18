@@ -17,6 +17,7 @@ int shared_main(int argc, char **argv, void (*fptr)(Matrices*)) {
     char* path2 = argv[argc - 1];
     int displayRuntime = contains_argument(argc, argv, "--time");
     int print_to_file = contains_argument(argc, argv, "--outputresult");
+    int print_result = contains_argument(argc, argv, "--printresult");
     int load_time = contains_argument(argc, argv, "--loadtime");
 
     unsigned long before_load = get_time_nanoseconds();
@@ -33,6 +34,10 @@ int shared_main(int argc, char **argv, void (*fptr)(Matrices*)) {
 
     if(displayRuntime) 
         printf("%lu\n", runtime);
+
+    if (print_result) {
+        print_matrix(ma->result, ma->size);
+    }
 
     if(print_to_file){
         char* path = argv[print_to_file+1];
