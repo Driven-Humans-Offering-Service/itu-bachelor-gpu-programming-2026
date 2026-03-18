@@ -1,3 +1,5 @@
+// make tmp pointer to reduce amount of work in innermost loops
+
 #include "../utilities/utils.h"
 
 #define IDX(i,j,size) (i * size + j)

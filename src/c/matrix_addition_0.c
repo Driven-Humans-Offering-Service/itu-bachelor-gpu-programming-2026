@@ -1,3 +1,5 @@
+// naive implementation
+
 #include "../utilities/utils.h"
 
 void add_matrices(Matrices* ma);

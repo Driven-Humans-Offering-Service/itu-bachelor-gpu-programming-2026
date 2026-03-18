@@ -1,3 +1,5 @@
+// introduce transpose to have better locality
+
 #include "../utilities/utils.h"
 
 #define IDX(i,j,size) (((i) * (size)) + (j))

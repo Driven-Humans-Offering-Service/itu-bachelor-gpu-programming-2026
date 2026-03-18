@@ -1,3 +1,5 @@
+// naive implementation
+
 #include "../utilities/utils.h"
 
 #define IDX(i,j,size) (i * size + j)
