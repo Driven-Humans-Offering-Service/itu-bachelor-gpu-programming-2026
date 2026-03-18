@@ -1,3 +1,4 @@
+// Naive multiplication
 #include "../utilities/utils.h"
 #include <cstdio>
 #include <cuda/cmath>
