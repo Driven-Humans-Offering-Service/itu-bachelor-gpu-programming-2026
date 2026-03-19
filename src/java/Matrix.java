@@ -93,7 +93,7 @@ public class Matrix {
         if (hasArgument(args, "--loadtime") >= 0) {
             System.out.println(after_load - before_load);
         }
-        if (hasArgument(args, "--printResult") >= 0) {
+        if (hasArgument(args, "--printresult") >= 0) {
             Matrix.printMatrix(result);
         }
         int outputResult = hasArgument(args, "--outputresult");
