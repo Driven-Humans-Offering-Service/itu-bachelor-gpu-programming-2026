@@ -1,16 +1,13 @@
 import os.path
 
-import numpy as np
-import matplotlib as mpl
 import matplotlib.pyplot as plt
+from utils import rootFolder
 
 from data import BenchmarkData
-from utils import rootFolder
 
 
 def visualise(args):
     filenames = args
-    global rootFolder
     data = {}
     for file in filenames:
         print(file)
@@ -21,34 +18,35 @@ def visualise(args):
         language = underscore_split[-3]
         size = int(underscore_split[-4])
         algorithm = get_algorithm(underscore_split[-6])
-        bm = BenchmarkData(hardware, iteration, algorithm, language)
+        bm = BenchmarkData(hardware, str(iteration), algorithm, language)
         bm_obj = data.get(bm.description(), bm)
         with open(filename_with_path, "r") as f:
-            time = float(f.readline().split(" ")[0])
+            time = float(f.readline().split(" ")[0])/10**9
             bm_obj.appendx(size)
             bm_obj.appendy(time)
-
-    sub_plots(data)
+        data[bm.description()] = bm_obj
+    plot(data)
 
 def get_algorithm(str):
-    if str.lower().contains("addition"):
+    if "addition" in str.lower():
         return "addition"
-    elif str.lower().contains("multiplication"):
+    elif "multiplication" in str.lower():
         return "multiplication"
-    elif str.lower().contains("inversion"):
+    elif "inversion" in str.lower():
         return "inversion"
     else:
         raise Exception("Unknown algorithm")
 
-def scatter_plot(xvalues, yvalues):
-    plt.scatter(yvalues, xvalues)
-    plt.show()
-
 colours = ["red", "green", "blue", "black", "cyan", "magenta", "yellow", "pink"]
 
-def sub_plots(data):
-
-    plt.subplot(1, 1, 1)
-    for hardware, (xvalues, yvalues), i in data:
-        plt.plot(xvalues, yvalues, color=colours[i], label=hardware)
+def plot(data):
+    i = 0
+    print(data)
+    for bm in data.values():
+        plt.plot(bm.x, bm.y, color=colours[i % len(colours)], label=bm.description())
+        i += 1
+    plt.xlabel("size")
+    plt.ylabel("time [s]")
+    plt.legend(loc="upper left")
+    plt.title("Benchmark")
     plt.show()
