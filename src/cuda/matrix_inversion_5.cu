@@ -1,6 +1,5 @@
 // Make row reduce kernels be started at once
 #include "../utilities/utils.h"
-#include <__clang_cuda_runtime_wrapper.h>
 #include <cstdio>
 #include <cstdlib>
 #include <cuda/cmath>
@@ -298,16 +297,6 @@ __global__ void findx(float *alpha, float *beta, float *b_full, float *x_full,
   float *x = &x_full[col];
   float *b = &b_full[col];
 
-  y[0] = b[0] / alpha[0];
-
-  for (int i = 1; i < N; i++) {
-    float sum = 0.0f;
-    for (int j = 0; j < i; j++) {
-      sum += alpha[IDX(i, j, N)] * y[j];
-    }
-    y[i] = (b[i] - sum) / alpha[IDX(i, i, N)];
-  }
-
   x[N - 1] = y[N - 1] / beta[IDX(N - 1, N - 1, N)];
 
   for (int i = N - 2; i >= 0; i--) {
@@ -389,6 +378,8 @@ void run_cuda(Matrices *ma) {
     add_new_row<<<grid, block>>>(sum_array, alpha, y, ma->size, i - 1);
     findy<<<thread_blocks, threads>>>(sum_array, alpha, y, ma->size, i, E);
   }
+
+  findx<<<thread_blocks, threads>>>(alpha, beta, E, x, y, ma->size);
 
   gpuErrchk(cudaDeviceSynchronize());
 
