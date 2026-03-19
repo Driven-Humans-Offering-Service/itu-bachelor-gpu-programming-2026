@@ -377,6 +377,8 @@ void run_cuda(Matrices *ma) {
   for (int i = 1; i < ma->size; i++) {
     add_new_row<<<grid, block>>>(sum_array, alpha, y, ma->size, i - 1);
     findy<<<thread_blocks, threads>>>(sum_array, alpha, y, ma->size, i, E);
+    printf("y:\n");
+    print_cuda_matrix(y, ma->size, ma->total_size);
   }
 
   findx<<<thread_blocks, threads>>>(alpha, beta, E, x, y, ma->size);
