@@ -35,13 +35,17 @@
             # Standard C/C++ build tools
             gcc
             gnumake
+
+            # System libraries needed by Python packages
+            zlib
           ];
 
           # This is the critical fix for "CUDA driver version is insufficient"
           # It forces the shell to look at the system's currently loaded driver libraries
           # first, ensuring they match the kernel module.
+          # Also includes GCC and zlib libraries needed by Python packages with C extensions.
           shellHook = ''
-            export LD_LIBRARY_PATH=/run/opengl-driver/lib:$LD_LIBRARY_PATH
+            export LD_LIBRARY_PATH=/run/opengl-driver/lib:${pkgs.gcc.cc.lib}/lib:${pkgs.zlib}/lib:$LD_LIBRARY_PATH
             export CUDA_PATH=${pkgs.cudaPackages.cudatoolkit}
             export EXTRA_CCFLAGS="-I/usr/include"
 
