@@ -286,32 +286,6 @@ void LU_decompose2(float *alpha, float *beta, const float *a,
   gpuErrchk(cudaFree(sum_matrix));
 }
 
-__global__ void findx(float *alpha, float *beta, float *b_full, float *x_full,
-                      float *y_full, const int N) {
-
-  int col = blockDim.x * blockIdx.x + threadIdx.x;
-
-  if (col > N)
-    return;
-  col = IDX(col, 0, N);
-
-  float *y = &y_full[col];
-  float *x = &x_full[col];
-  float *b = &b_full[col];
-
-  x[N - 1] = y[N - 1] / beta[IDX(N - 1, N - 1, N)];
-
-  for (int i = N - 2; i >= 0; i--) {
-
-    float sum = 0.0f;
-
-    for (int j = i + 1; j < N; j++) {
-      sum += beta[IDX(i, j, N)] * x[j];
-    }
-    x[i] = (y[i] - sum) / beta[IDX(i, i, N)];
-  }
-}
-
 __global__ void add_new_row(float *sum_array, float *alpha, float *y, int size,
                             int i) {
   int col = blockDim.x * blockIdx.x + threadIdx.x;
