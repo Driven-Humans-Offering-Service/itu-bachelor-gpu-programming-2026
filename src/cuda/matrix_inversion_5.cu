@@ -321,7 +321,7 @@ __global__ void add_new_row(float *sum_array, float *alpha, float *y, int size,
     return;
 
   sum_array[IDX(row, col, size)] +=
-      alpha[IDX(row, i, size)] * y[IDX(i, col, size)];
+      alpha[IDX(row, i, size)] * y[IDX(col, i, size)];
 }
 
 __global__ void findy(float *sum_array, float *alpha, float *y, int size, int i,
@@ -332,10 +332,10 @@ __global__ void findy(float *sum_array, float *alpha, float *y, int size, int i,
     return;
 
   float sum = i >= 1 ? (sum_array[IDX(i, col, size)] +
-                        alpha[IDX(i, i - 1, size)] * y[IDX(i - 1, col, size)])
+                        alpha[IDX(i, i - 1, size)] * y[IDX(col, i - 1, size)])
                      : 0;
 
-  y[IDX(i, col, size)] = (b[IDX(i, col, size)] - sum) / alpha[IDX(i, i, size)];
+  y[IDX(col, i, size)] = (b[IDX(i, col, size)] - sum) / alpha[IDX(i, i, size)];
 }
 
 unsigned long runtime;
@@ -382,6 +382,7 @@ void run_cuda(Matrices *ma) {
   for (int i = 1; i < ma->size; i++) {
     gpuErrchk(cudaDeviceSynchronize());
     add_new_row<<<grid, block>>>(sum_array, alpha, y, ma->size, i - 1);
+    gpuErrchk(cudaDeviceSynchronize());
     findy<<<thread_blocks, threads>>>(sum_array, alpha, y, ma->size, i, E);
     printf("sum for %d:\n", i);
     print_cuda_matrix(sum_array, ma->size, ma->total_size);
