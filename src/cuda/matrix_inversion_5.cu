@@ -312,21 +312,21 @@ __global__ void findx(float *alpha, float *beta, float *b_full, float *x_full,
 
 __global__ void add_new_row(float *sum_array, float *alpha, float *y, int size,
                             int i) {
-  int row = blockDim.x * blockIdx.x + threadIdx.x;
-  int col = blockDim.y * blockIdx.y + threadIdx.y;
+  int col = blockDim.x * blockIdx.x + threadIdx.x;
+  int row = blockDim.y * blockIdx.y + threadIdx.y;
 
   if (row >= size && col >= size)
     return;
-  if (row < i)
+  if (row <= i + 1)
     return;
 
   sum_array[IDX(row, col, size)] +=
-      alpha[IDX(row, i, size)] * y[IDX(row, col, size)];
+      alpha[IDX(row, i, size)] * y[IDX(i, col, size)];
 }
 
 __global__ void findy(float *sum_array, float *alpha, float *y, int size, int i,
                       float *b) {
-  int col = blockDim.y * blockIdx.y + threadIdx.y;
+  int col = blockDim.x * blockIdx.x + threadIdx.x;
 
   if (col >= size)
     return;
@@ -370,17 +370,26 @@ void run_cuda(Matrices *ma) {
 
   gpuErrchk(cudaDeviceSynchronize());
 
+  printf("Alpha\n");
+  print_cuda_matrix(alpha, ma->size, ma->total_size);
+  printf("Beta\n");
+  print_cuda_matrix(beta, ma->size, ma->total_size);
+
   int threads = 1024;
   int thread_blocks = cuda::ceil_div(ma->size, threads);
   // findx<<<thread_blocks, threads>>>(alpha, beta, E, x, y, ma->size);
   findy<<<thread_blocks, threads>>>(sum_array, alpha, y, ma->size, 0, E);
   for (int i = 1; i < ma->size; i++) {
+    gpuErrchk(cudaDeviceSynchronize());
     add_new_row<<<grid, block>>>(sum_array, alpha, y, ma->size, i - 1);
     findy<<<thread_blocks, threads>>>(sum_array, alpha, y, ma->size, i, E);
-    printf("y:\n");
+    printf("sum for %d:\n", i);
+    print_cuda_matrix(sum_array, ma->size, ma->total_size);
+    printf("y for %d:\n", i);
     print_cuda_matrix(y, ma->size, ma->total_size);
   }
 
+  gpuErrchk(cudaDeviceSynchronize());
   findx<<<thread_blocks, threads>>>(alpha, beta, E, x, y, ma->size);
 
   gpuErrchk(cudaDeviceSynchronize());
