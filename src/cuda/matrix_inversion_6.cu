@@ -401,11 +401,6 @@ void run_cuda(Matrices *ma) {
 
   gpuErrchk(cudaDeviceSynchronize());
 
-  printf("Alpha\n");
-  print_cuda_matrix(alpha, ma->size, ma->total_size);
-  printf("Beta\n");
-  print_cuda_matrix(beta, ma->size, ma->total_size);
-
   int threads = 1024;
   int thread_blocks = cuda::ceil_div(ma->size, threads);
   // findx<<<thread_blocks, threads>>>(alpha, beta, E, x, y, ma->size);
