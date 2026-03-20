@@ -414,7 +414,7 @@ void run_cuda(Matrices *ma) {
   fill<<<grid, block>>>(sum_array, ma->size, 0);
   gpuErrchk(cudaDeviceSynchronize());
   findx<<<thread_blocks, threads>>>(sum_array, beta, x, ma->size, 0, y);
-  for (int i = 1; i < ma->size; i++) {
+  for (int i = ma->size - 2; i >= 0; i--) {
     gpuErrchk(cudaDeviceSynchronize());
     add_new_row_bottom_up<<<grid, block>>>(sum_array, beta, x, ma->size, i + 1);
     findx<<<thread_blocks, threads>>>(sum_array, beta, x, ma->size, i, y);
