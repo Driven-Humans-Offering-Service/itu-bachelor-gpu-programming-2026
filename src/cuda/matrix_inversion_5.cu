@@ -1,4 +1,4 @@
-// Make row reduce kernels be started at once
+// Make it faster to find Y
 #include "../utilities/utils.h"
 #include <cstdio>
 #include <cstdlib>
@@ -382,12 +382,7 @@ void run_cuda(Matrices *ma) {
   for (int i = 1; i < ma->size; i++) {
     gpuErrchk(cudaDeviceSynchronize());
     add_new_row<<<grid, block>>>(sum_array, alpha, y, ma->size, i - 1);
-    gpuErrchk(cudaDeviceSynchronize());
     findy<<<thread_blocks, threads>>>(sum_array, alpha, y, ma->size, i, E);
-    printf("sum for %d:\n", i);
-    print_cuda_matrix(sum_array, ma->size, ma->total_size);
-    printf("y for %d:\n", i);
-    print_cuda_matrix(y, ma->size, ma->total_size);
   }
 
   gpuErrchk(cudaDeviceSynchronize());
