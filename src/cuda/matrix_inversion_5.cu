@@ -315,7 +315,7 @@ __global__ void add_new_row(float *sum_array, float *alpha, float *y, int size,
   int col = blockDim.x * blockIdx.x + threadIdx.x;
   int row = blockDim.y * blockIdx.y + threadIdx.y;
 
-  if (row >= size && col >= size)
+  if (row >= size || col >= size)
     return;
   if (row <= i + 1)
     return;
