@@ -291,7 +291,7 @@ __global__ void add_new_row(float *sum_array, float *alpha, float *y, int size,
   int col = blockDim.x * blockIdx.x + threadIdx.x;
   int row = blockDim.y * blockIdx.y + threadIdx.y;
 
-  if (row >= size && col >= size)
+  if (row >= size || col >= size)
     return;
   if (row <= i + 1)
     return;
@@ -305,9 +305,9 @@ __global__ void add_new_row_bottom_up(float *sum_array, float *beta, float *x,
   int col = blockDim.x * blockIdx.x + threadIdx.x;
   int row = blockDim.y * blockIdx.y + threadIdx.y;
 
-  if (row >= size && col >= size)
+  if (row >= size || col >= size)
     return;
-  if (row >= i + 1)
+  if (row >= i - 1)
     return;
 
   sum_array[IDX(row, col, size)] +=
@@ -321,12 +321,12 @@ __global__ void findx(float *sum_array, float *beta, float *x, int size, int i,
   if (col >= size)
     return;
 
-  float sum = i == size - 1
-                  ? (sum_array[IDX(i, col, size)] +
-                     beta[IDX(i, i + 1, size)] * x[IDX(i + 1, col, size)])
+  float sum = i <= size - 2
+                  ? sum_array[IDX(i, col, size)] +
+                        beta[IDX(i, i + 1, size)] * x[IDX(col, i + 1, size)]
                   : 0;
 
-  x[IDX(i, col, size)] = (y[IDX(col, i, size)] - sum) / beta[IDX(i, i, size)];
+  x[IDX(col, i, size)] = (y[IDX(col, i, size)] - sum) / beta[IDX(i, i, size)];
 }
 
 __global__ void findy(float *sum_array, float *alpha, float *y, int size, int i,
@@ -347,6 +347,9 @@ unsigned long runtime;
 void run_cuda(Matrices *ma) {
 
   unsigned long before = get_time_nanoseconds();
+  dim3 block(32, 32);
+  dim3 grid((ma->size + block.x - 1) / block.x,
+            (ma->size + block.y - 1) / block.y);
 
   float *d_m1, *d_res, *alpha, *beta, *E, *y, *x, *sum_array;
   gpuErrchk(cudaMalloc(&d_m1, ma->total_size * sizeof(float)));
@@ -360,14 +363,12 @@ void run_cuda(Matrices *ma) {
 
   gpuErrchk(cudaMemcpy(d_m1, ma->m1, ma->total_size * sizeof(float),
                        cudaMemcpyHostToDevice));
+  fill<<<grid, block>>>(sum_array, ma->size, 0);
+  gpuErrchk(cudaDeviceSynchronize());
   cudaEvent_t start, stop;
   gpuErrchk(cudaEventCreate(&start));
   gpuErrchk(cudaEventCreate(&stop));
   gpuErrchk(cudaEventRecord(start));
-
-  dim3 block(32, 32);
-  dim3 grid((ma->size + block.x - 1) / block.x,
-            (ma->size + block.y - 1) / block.y);
 
   fill_diagonal<<<grid, block>>>(E, ma->size);
 
@@ -387,7 +388,8 @@ void run_cuda(Matrices *ma) {
   gpuErrchk(cudaDeviceSynchronize());
   fill<<<grid, block>>>(sum_array, ma->size, 0);
   gpuErrchk(cudaDeviceSynchronize());
-  findx<<<thread_blocks, threads>>>(sum_array, beta, x, ma->size, 0, y);
+  findx<<<thread_blocks, threads>>>(sum_array, beta, x, ma->size, ma->size - 1,
+                                    y);
   for (int i = ma->size - 2; i >= 0; i--) {
     gpuErrchk(cudaDeviceSynchronize());
     add_new_row_bottom_up<<<grid, block>>>(sum_array, beta, x, ma->size, i + 1);
