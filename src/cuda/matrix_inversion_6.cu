@@ -326,7 +326,7 @@ __global__ void findx(float *sum_array, float *beta, float *x, int size, int i,
                      beta[IDX(i, i + 1, size)] * x[IDX(i + 1, col, size)])
                   : 0;
 
-  x[IDX(i, col, size)] = (y[IDX(i, col, size)] - sum) / beta[IDX(i, i, size)];
+  x[IDX(i, col, size)] = (y[IDX(col, i, size)] - sum) / beta[IDX(i, i, size)];
 }
 
 __global__ void findy(float *sum_array, float *alpha, float *y, int size, int i,
