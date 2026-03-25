@@ -71,7 +71,6 @@ def compile_cuda(file, util_files):
     cmd = get_cuda_and_c_command("nvcc", file, util_files, "cuda") 
     cmd.append("-DCUDA_CODE");
     cmd.append("-Xcompiler=-O3")
-    print(cmd)
     return subprocess.Popen(cmd)
 
 def compile_files(files):
