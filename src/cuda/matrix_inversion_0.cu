@@ -106,18 +106,14 @@ void LU_decompose(float *alpha, float *beta, const float *a,
 
   int threads = 1024;
   int thread_blocks = cuda::ceil_div(total_size, threads);
-  // unsigned long betaTime = 0;
   for (int j = 0; j < N; j++) {
     cudaDeviceSynchronize();
-    // unsigned long before = get_time_nanoseconds();
     find_beta<<<1, 1>>>(alpha, beta_t, a, N, j);
     cudaDeviceSynchronize();
-    // betaTime += get_time_nanoseconds() - before;
     find_alpha<<<thread_blocks, threads>>>(alpha, beta_t, a, N, j);
   }
 
   cudaDeviceSynchronize();
-  // printf("Beta time: %lu\n", betaTime);
   transpose_matrix<<<grid, block>>>(beta_t, beta, N);
   cudaFree(&beta_t);
 }
@@ -204,28 +200,8 @@ void run_cuda(Matrices *ma) {
   gpuErrchk(cudaEventElapsedTime(&ms, start, stop));
   kernel_time = ms * 1000000;
 
-  /* float *L, *U, *y1;
-  L = (float *)std::malloc(ma->total_size * sizeof(float));
-  U = (float *)std::malloc(ma->total_size * sizeof(float));
-  y1 = (float *)std::malloc(ma->total_size * sizeof(float)); */
-
-  /* gpuErrchk(cudaMemcpy(L, alpha, ma->total_size * sizeof(float),
-                       cudaMemcpyDeviceToHost));
-  gpuErrchk(cudaMemcpy(U, beta, ma->total_size * sizeof(float),
-                       cudaMemcpyDeviceToHost)); */
   gpuErrchk(cudaMemcpy(ma->result, d_res, ma->total_size * sizeof(float),
                        cudaMemcpyDeviceToHost));
-  /* gpuErrchk(cudaMemcpy(y1, y, ma->total_size * sizeof(float),
-                       cudaMemcpyDeviceToHost)); */
-
-  /* printf("L:\n");
-  print_matrix(L, ma->size);
-  printf("\nU:\n");
-  print_matrix(U, ma->size);
-  printf("\ny:\n");
-  print_matrix(y1, ma->size);
-  printf("\nx:\n");
-  print_matrix(ma->result, ma->size); */
 
   cudaFree(d_m1);
   cudaFree(y);
