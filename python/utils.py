@@ -72,7 +72,7 @@ def filter_files_by_iteration(files: list[str], iterations: int):
     return new_files
 
 def filter_files(folder, args):
-    iteration = 1 if len(args) != 3 else args[2]
+    iteration = 1 if len(args) < 3 else args[2]
     files = get_files_for_lang_arg(folder, args[0]) 
     files = filter_files_by_operation(files, args[1])
     files = filter_files_by_iteration(files, int(iteration))
