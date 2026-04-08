@@ -51,16 +51,19 @@ def compile_type(srcFolder, type, args):
 
 
 def compile_java(file):
-    return subprocess.Popen(["javac", "-d", "./build/java", file, "./src/java/Matrix.java" ])
+    build_path = os.path.join(rootFolder, "./build/java")
+    matrix_path = os.path.join(rootFolder, "./src/java/Matrix.java")
+    return subprocess.Popen(["javac", "-d", build_path, file, matrix_path ])
 
 def get_cuda_and_c_command(compiler, file, util_files, lang):
     outputName = os.path.splitext(os.path.basename(file))[0] + ".out"
+    outputPath = os.path.join(rootFolder, f"./build/{lang}/{outputName}")
     cmd = [compiler, "-O3"]
     cmd += util_files
     cmd.append(file)
     cmd.append("-lm")
     cmd.append("-o")
-    cmd.append(f"./build/{lang}/{outputName}")
+    cmd.append(outputPath)
     return cmd
 
 def compile_c(file, util_files):
