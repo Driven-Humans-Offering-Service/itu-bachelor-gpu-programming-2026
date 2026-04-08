@@ -115,6 +115,7 @@ void LU_decompose(float *alpha, float *beta, const float *a,
 
   cudaDeviceSynchronize();
   transpose_matrix<<<grid, block>>>(beta_t, beta, N);
+  cudaDeviceSynchronize();
   cudaFree(&beta_t);
 }
 

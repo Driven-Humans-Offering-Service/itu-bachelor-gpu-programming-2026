@@ -135,15 +135,12 @@ void LU_decompose2(float *alpha, float *beta, const float *a,
 
   int threads = 1024;
   int thread_blocks = cuda::ceil_div(N, threads);
-  // unsigned long betaTime = 0;
   for (int j = 0; j < N * 2; j++) {
     gpuErrchk(cudaDeviceSynchronize());
-    // unsigned long before = get_time_nanoseconds();
     find_diag<<<thread_blocks, threads>>>(alpha, beta_t, a, N, j);
   }
 
   gpuErrchk(cudaDeviceSynchronize());
-  // printf("Beta time: %lu\n", betaTime);
   transpose_matrix<<<grid, block>>>(beta_t, beta, N);
   gpuErrchk(cudaDeviceSynchronize());
   gpuErrchk(cudaFree(beta_t));
