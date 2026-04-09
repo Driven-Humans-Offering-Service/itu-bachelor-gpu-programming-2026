@@ -39,6 +39,7 @@
             # System libraries needed by Python packages
             zlib
             cudaPackages.nsight_compute
+            cudaPackages.nsight_systems
           ];
 
           # This is the critical fix for "CUDA driver version is insufficient"
