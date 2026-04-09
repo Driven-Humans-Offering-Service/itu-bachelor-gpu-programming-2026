@@ -11,7 +11,7 @@ def run_file(file, args):
     if is_java_program(file):
         cmd.append("java")
         cmd.append("-cp")
-        cmd.append("build/java")
+        cmd.append("../build/java")
         file_name = get_filename(file) 
         cmd.append(file_name)
     else:
