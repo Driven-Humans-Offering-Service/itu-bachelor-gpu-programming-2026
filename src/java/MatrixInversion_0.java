@@ -118,6 +118,10 @@ public class MatrixInversion_0 {
             Matrix[] matrices = getLUDecomposition(m1);
             Matrix l = matrices[0];
             Matrix u = matrices[1];
+
+            if (!u.isInvertible())
+                throw new ArithmeticException("Matrix is not inversible");
+
             return inverse(l.m, u.m);
         }, args);
     }

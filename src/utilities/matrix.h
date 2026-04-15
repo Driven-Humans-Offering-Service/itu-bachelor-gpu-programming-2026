@@ -25,6 +25,7 @@ void output_matrix(Matrices *ma, const char *file);
 
 Matrices *load_matrices(char *filename1, char *filename2);
 
+int isInvertible(float *beta, int n);
 #ifdef __cplusplus
 }
 #endif

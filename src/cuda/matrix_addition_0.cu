@@ -35,7 +35,7 @@ __global__ void matrix_add(const float *m1, const float *m2, float *res,
   }
 }
 
-void run_cuda(Matrices *ma) {
+int run_cuda(Matrices *ma) {
 
   float *d_m1, *d_m2, *d_res;
   gpuErrchk(cudaMalloc(&d_m1, ma->total_size * sizeof(float)));
@@ -73,6 +73,7 @@ void run_cuda(Matrices *ma) {
   cudaFree(d_m1);
   cudaFree(d_m2);
   cudaFree(d_res);
+  return 0;
 }
 
 int main(int argc, char **argv) { return shared_main(argc, argv, &run_cuda); }

@@ -20,7 +20,10 @@ unsigned long get_time_nanoseconds() {
     clock_gettime(CLOCK_MONOTONIC, &ts);
     return ts.tv_sec * 1000000000 + ts.tv_nsec;
 }
-int shared_main(int argc, char **argv, void (*fptr)(Matrices*)) {
+
+
+
+int shared_main(int argc, char **argv, int (*fptr)(Matrices*)) {
     char* path1 = argv[argc - 2];
     char* path2 = argv[argc - 1];
     int displayRuntime = contains_argument(argc, argv, "--time");
@@ -34,7 +37,12 @@ int shared_main(int argc, char **argv, void (*fptr)(Matrices*)) {
 
     int total_size = ma->total_size;
     unsigned long before = get_time_nanoseconds();
-    fptr(ma);
+    int res = fptr(ma);
+    if(res != 0){
+        fprintf(stderr, "Cant invert matrix");
+        free_matrices(ma);
+        return res;
+    }
     unsigned long after = get_time_nanoseconds();
     unsigned long runtime = after - before;
     if(load_time) 

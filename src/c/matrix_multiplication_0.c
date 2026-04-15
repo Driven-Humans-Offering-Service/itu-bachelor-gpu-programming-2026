@@ -4,14 +4,14 @@
 
 #define IDX(i,j,size) (i * size + j)
 
-void multiply_matrices(Matrices* ma);
+int multiply_matrices(Matrices* ma);
 
 
 int main(int argc, char** argv) {
     return shared_main(argc, argv, &multiply_matrices);
 }
 
-void multiply_matrices(Matrices* ma) {
+int multiply_matrices(Matrices* ma) {
     float* res = ma->result;
     float* m1 = ma->m1;
     float* m2 = ma->m2;
@@ -23,4 +23,5 @@ void multiply_matrices(Matrices* ma) {
             }
         }
     }
+    return 0;
 }

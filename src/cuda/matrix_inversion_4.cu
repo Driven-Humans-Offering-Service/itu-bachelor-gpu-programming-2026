@@ -144,6 +144,16 @@ __inline__ void row_reduce(const float *d_input, float *d_output, int rows,
   }
 }
 
+__global__ void isInvertibleCuda(float *beta, const int N, int *error) {
+  int row = blockDim.y * blockIdx.y + threadIdx.y;
+  int col = blockDim.x * blockIdx.x + threadIdx.x;
+  if (row < N && col < N && row == col) {
+    if (fabsf(beta[IDX(row, col, N)]) < 1e-6f) {
+      *error = 1;
+    }
+  }
+}
+
 __global__ void fill_diagonal(float *m, const int N) {
   int row = blockDim.y * blockIdx.y + threadIdx.y;
   int col = blockDim.x * blockIdx.x + threadIdx.x;
@@ -321,7 +331,7 @@ __global__ void findx(float *alpha, float *beta, float *b_full, float *x_full,
 }
 
 unsigned long runtime;
-void run_cuda(Matrices *ma) {
+int run_cuda(Matrices *ma) {
 
   unsigned long before = get_time_nanoseconds();
 
@@ -350,6 +360,25 @@ void run_cuda(Matrices *ma) {
   LU_decompose2(alpha, beta, d_m1, ma->total_size, ma->size, block, grid);
 
   gpuErrchk(cudaDeviceSynchronize());
+
+  int *d_error;
+  int h_error = 0;
+  gpuErrchk(cudaMalloc(&d_error, sizeof(int)));
+  gpuErrchk(cudaMemset(d_error, 0, sizeof(int)));
+  isInvertibleCuda<<<grid, block>>>(beta, ma->size, d_error);
+  gpuErrchk(cudaDeviceSynchronize());
+  gpuErrchk(cudaMemcpy(&h_error, d_error, sizeof(int), cudaMemcpyDeviceToHost));
+  cudaFree(d_error);
+  if (h_error) {
+    cudaFree(d_m1);
+    cudaFree(d_res);
+    cudaFree(alpha);
+    cudaFree(beta);
+    cudaFree(y);
+    cudaFree(x);
+    cudaFree(E);
+    return 1;
+  }
 
   int threads = 1024;
   int thread_blocks = cuda::ceil_div(ma->size, threads);
@@ -399,6 +428,7 @@ void run_cuda(Matrices *ma) {
 
   unsigned long after = get_time_nanoseconds();
   runtime = after - before;
+  return 0;
 }
 
 int main(int argc, char **argv) { return shared_main(argc, argv, &run_cuda); }

@@ -3,7 +3,7 @@
 #include "../utilities/utils.h"
 
 #define IDX(i,j,size) (((i) * (size)) + (j))
-void inverse_matrix(Matrices* ma);
+int inverse_matrix(Matrices* ma);
 
 
 int main(int argc, char** argv) {
@@ -78,7 +78,7 @@ void print_float_pointer(char* name, float* p, int N){
         printf("\n");
 }
 
-void inverse_matrix(Matrices* ma) {
+int inverse_matrix(Matrices* ma) {
     float* res = ma->result;
     float* a = ma->m1;
     int size = ma->total_size;
@@ -88,6 +88,12 @@ void inverse_matrix(Matrices* ma) {
     float* beta = malloc(size*sizeof(float));
     float* E = calloc(size, sizeof(float));
     LU_decompose(alpha, beta, a, small_size);
+    if(isInvertible(beta, small_size)){
+        free(alpha);
+        free(beta);
+        free(E);
+        return 1;
+    }
 
     populate_identity_matrix(E, small_size);
 
@@ -106,5 +112,5 @@ void inverse_matrix(Matrices* ma) {
     free(E);
     free(y);
     free(x);
-
+    return 0;
 }

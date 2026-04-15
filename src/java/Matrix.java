@@ -49,6 +49,15 @@ public class Matrix {
         System.out.println(sb.toString());
     }
 
+    public boolean isInvertible() {
+        for (int i = 0; i < m.length; i++) {
+            if (Math.abs(m[i][i]) < 1e-6f) { // near-zero threshold for floats
+                return false;
+            }
+        }
+        return true;
+    }
+
     public static void outputMatrix(float[][] matrix, String path)
             throws IOException {
         File f = new File(path);

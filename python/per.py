@@ -3,16 +3,24 @@ from io import BytesIO
 
 from utils import rootFolder
 
+def writeMatrix(list, size):
+    buffer = BytesIO()
+    buffer.write(struct.pack("<i", size))
+    for el in list:
+        buffer.write(struct.pack("<f", el))
+
+
+    with open(f"{rootFolder}/data/input/matrix_{0}_{size}", "wb") as f:
+        f.write(buffer.getvalue())
+    with open(f"{rootFolder}/data/input/matrix_{1}_{size}", "wb") as f:
+        f.write(buffer.getvalue())
+
 # row wise
 list = [5, 6, 9, 5, 7, 8, 4, 5, 3, 2, 3, 6, 1, 1, 2, 3]
 size = 4
+writeMatrix(list, size)
+list = [1,2,3,4,5,6,7,8,9]
+size = 3 
+writeMatrix(list, size)
 
 
-buffer = BytesIO()
-buffer.write(struct.pack("<i", size))
-for el in list:
-    buffer.write(struct.pack("<f", el))
-
-
-with open(f"{rootFolder}/data/input/matrix_{0}_{size}", "wb") as f:
-    f.write(buffer.getvalue())

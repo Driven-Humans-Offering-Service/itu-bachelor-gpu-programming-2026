@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define IDX(i, j, size) (((i) * (size)) + (j))
 #define checkScan(ans, msg)                                                         \
   {                                                                            \
     assertScan((ans), (msg), __FILE__, __LINE__);                                      \
@@ -128,4 +129,14 @@ void free_matrices(Matrices *ma) {
     free(ma->m2);
     free(ma->result);
     free(ma);
+}
+
+
+int isInvertible(float* beta, int n) {
+    for (int i = 0; i < n; i++) {
+        if(fabsf(beta[IDX(i,i,n)]) < 1e-6f) {
+            return 1;
+        }
+    }
+    return 0;
 }

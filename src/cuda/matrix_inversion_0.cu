@@ -60,6 +60,15 @@ __global__ void fill_diagonal(float *m, const int N) {
     m[IDX(row, col, N)] = 1;
   }
 }
+__global__ void isInvertibleCuda(float *beta, const int N, int *error) {
+  int row = blockDim.y * blockIdx.y + threadIdx.y;
+  int col = blockDim.x * blockIdx.x + threadIdx.x;
+  if (row < N && col < N && row == col) {
+    if (fabsf(beta[IDX(row, col, N)]) < 1e-6f) {
+      *error = 1;
+    }
+  }
+}
 
 __global__ void transpose_matrix(const float *m, float *res, const int N) {
 
@@ -96,11 +105,14 @@ __global__ void find_alpha(float *alpha, float *beta, const float *a,
   }
 }
 
-void LU_decompose(float *alpha, float *beta, const float *a,
-                  const int total_size, const int N, dim3 block, dim3 grid) {
+int LU_decompose(float *alpha, float *beta, const float *a,
+                 const int total_size, const int N, dim3 block, dim3 grid) {
 
   float *beta_t;
+  int *d_error;
   gpuErrchk(cudaMalloc(&beta_t, total_size * sizeof(float)));
+  gpuErrchk(cudaMalloc(&d_error, sizeof(int)));
+  gpuErrchk(cudaMemset(d_error, 0, sizeof(int)));
 
   fill_diagonal<<<grid, block>>>(alpha, N);
 
@@ -113,10 +125,15 @@ void LU_decompose(float *alpha, float *beta, const float *a,
     find_alpha<<<thread_blocks, threads>>>(alpha, beta_t, a, N, j);
   }
 
+  int h_error = 0;
+  gpuErrchk(cudaMemcpy(&h_error, d_error, sizeof(int), cudaMemcpyDeviceToHost));
+  cudaFree(d_error);
+
   cudaDeviceSynchronize();
   transpose_matrix<<<grid, block>>>(beta_t, beta, N);
   cudaDeviceSynchronize();
   cudaFree(&beta_t);
+  return h_error;
 }
 
 __global__ void findx(float *alpha, float *beta, float *b_full, float *x_full,
@@ -156,7 +173,7 @@ __global__ void findx(float *alpha, float *beta, float *b_full, float *x_full,
 }
 
 unsigned long runtime;
-void run_cuda(Matrices *ma) {
+int run_cuda(Matrices *ma) {
 
   unsigned long before = get_time_nanoseconds();
 
@@ -183,7 +200,14 @@ void run_cuda(Matrices *ma) {
 
   fill_diagonal<<<grid, block>>>(E, ma->size);
 
-  LU_decompose(alpha, beta, d_m1, ma->total_size, ma->size, block, grid);
+  int invertible =
+      LU_decompose(alpha, beta, d_m1, ma->total_size, ma->size, block, grid);
+  if (invertible) {
+    cudaFree(d_m1);
+    cudaFree(y);
+    cudaFree(d_res);
+    return invertible;
+  }
 
   gpuErrchk(cudaDeviceSynchronize());
 
@@ -210,6 +234,7 @@ void run_cuda(Matrices *ma) {
 
   unsigned long after = get_time_nanoseconds();
   runtime = after - before;
+  return 0;
 }
 
 int main(int argc, char **argv) { return shared_main(argc, argv, &run_cuda); }

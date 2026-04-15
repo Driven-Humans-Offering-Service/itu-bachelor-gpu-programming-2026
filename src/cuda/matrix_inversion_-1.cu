@@ -1,5 +1,6 @@
 // Make it faster to find X
 #include "../utilities/utils.h"
+#include <__clang_cuda_runtime_wrapper.h>
 #include <cstdio>
 #include <cstdlib>
 #include <cuda/cmath>
@@ -52,10 +53,18 @@ inline void gpuAssert(cudaError_t code, const char *file, int line,
       exit(code);
   }
 }
+__device__ bool isInvertible(float *beta, int n) {
+  for (int i = 0; i < n; i++) {
+    if (fabsf(beta[IDX(i, i, n)]) < 1e-6f) {
+      return false;
+    }
+  }
+  return true;
+}
 
 __global__ void inverse_matrix_kernel(float *a, float *res, float *alpha,
                                       float *beta, float *E, float *y, float *x,
-                                      int size, int N) {
+                                      int size, int N, int *error) {
   if (threadIdx.x != 0 || blockIdx.x != 0)
     return;
 
@@ -89,6 +98,11 @@ __global__ void inverse_matrix_kernel(float *a, float *res, float *alpha,
       beta[IDX(i, j, N)] = beta[IDX(j, i, N)];
       beta[IDX(j, i, N)] = tmp;
     }
+  }
+
+  if (!isInvertible(beta, N)) {
+    *error = 1;
+    return;
   }
 
   // populate identity matrix
@@ -135,11 +149,13 @@ __global__ void inverse_matrix_kernel(float *a, float *res, float *alpha,
   }
 }
 
-void inverse_matrix(Matrices *ma) {
+int inverse_matrix(Matrices *ma) {
   float *d_a, *d_res, *d_alpha, *d_beta, *d_E, *d_y, *d_x;
+  int *d_error;
   int size = ma->total_size;
   int small_size = ma->size;
 
+  cudaMalloc(&d_error, sizeof(int));
   cudaMalloc(&d_a, size * sizeof(float));
   cudaMalloc(&d_res, size * sizeof(float));
   cudaMalloc(&d_alpha, size * sizeof(float));
@@ -151,10 +167,12 @@ void inverse_matrix(Matrices *ma) {
   cudaMemcpy(d_a, ma->m1, size * sizeof(float), cudaMemcpyHostToDevice);
 
   inverse_matrix_kernel<<<1, 1>>>(d_a, d_res, d_alpha, d_beta, d_E, d_y, d_x,
-                                  size, small_size);
+                                  size, small_size, d_error);
   cudaDeviceSynchronize();
 
   cudaMemcpy(ma->result, d_res, size * sizeof(float), cudaMemcpyDeviceToHost);
+  int *error;
+  cudaMemcpy(&error, d_error, sizeof(int), cudaMemcpyDeviceToHost);
 
   cudaFree(d_a);
   cudaFree(d_res);
@@ -163,6 +181,7 @@ void inverse_matrix(Matrices *ma) {
   cudaFree(d_E);
   cudaFree(d_y);
   cudaFree(d_x);
+  return *error;
 }
 
 int main(int argc, char **argv) {
