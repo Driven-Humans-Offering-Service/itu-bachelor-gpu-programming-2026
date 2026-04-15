@@ -125,13 +125,20 @@ void LU_decompose2(float *alpha, float *beta, const float *a,
 
   int threads = 1024;
   int thread_blocks = cuda::ceil_div(N, threads);
+  cudaStream_t stream1, stream2;
+  cudaStreamCreate(&stream1);
+  cudaStreamCreate(&stream2);
   // unsigned long betaTime = 0;
   for (int j = 0; j < N * 2; j++) {
     gpuErrchk(cudaDeviceSynchronize());
     // unsigned long before = get_time_nanoseconds();
-    multiply<<<thread_blocks, threads>>>(alpha, beta_t, sum_matrix, N, j + 1);
-    find_diag<<<thread_blocks, threads>>>(alpha, beta_t, a, N, j, sum_matrix);
+    multiply<<<thread_blocks, threads, 0, stream1>>>(alpha, beta_t, sum_matrix,
+                                                     N, j + 1);
+    find_diag<<<thread_blocks, threads, 0, stream2>>>(alpha, beta_t, a, N, j,
+                                                      sum_matrix);
   }
+  cudaStreamDestroy(stream1);
+  cudaStreamDestroy(stream2);
 
 #if DEBUG
   gpuErrchk(cudaDeviceSynchronize());
