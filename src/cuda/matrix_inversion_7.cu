@@ -228,8 +228,9 @@ void LU_decompose2(float *alpha, float *beta, const float *a,
 
   fill_diagonal<<<grid, block>>>(alpha, N);
 
-  int threads = 256;
+  int threads = 32;
   int thread_blocks = cuda::ceil_div(N, threads);
+
   cudaStream_t stream1, stream2;
   cudaStreamCreate(&stream1);
   cudaStreamCreate(&stream2);
