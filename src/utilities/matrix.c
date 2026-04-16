@@ -120,28 +120,36 @@ void output_matrix(Matrices *ma, const char *path){
 
 Matrices* init_matrices(int size, int total_size) {
     Matrices* ma;
-    real_malloc(ma, sizeof(Matrices));
+    real_malloc((void**)&ma, sizeof(Matrices));
     ma->size = size;
     ma->total_size = total_size;
-    real_malloc(ma->m1, sizeof(float)*total_size);
-    real_malloc(ma->m2, sizeof(float)*total_size);
-    real_malloc(ma->result, sizeof(float)*total_size);
+    real_malloc((void**)&ma->m1, sizeof(float)*total_size);
+    real_malloc((void**)&ma->m2, sizeof(float)*total_size);
+    real_malloc((void**)&ma->result, sizeof(float)*total_size);
     return ma;
 }
 
-void real_malloc(void* ptr, int size) {
+void real_malloc(void** ptr, int size) {
 #ifdef CUDA_CODE
-    cudaMallocHost(&ptr, size);
+    cudaMallocHost(ptr, size);
 #else
-    ptr = malloc(size);
+    *ptr = malloc(size);
+#endif
+}
+
+void real_free(void* ptr) {
+#ifdef CUDA_CODE
+    cudaFreeHost(ptr);
+#else
+    free(ptr);
 #endif
 }
 
 void free_matrices(Matrices *ma) {
-    free(ma->m1);
-    free(ma->m2);
-    free(ma->result);
-    free(ma);
+    real_free(ma->m1);
+    real_free(ma->m2);
+    real_free(ma->result);
+    real_free(ma);
 }
 
 
