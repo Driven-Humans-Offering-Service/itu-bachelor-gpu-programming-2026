@@ -39,7 +39,7 @@ __global__ void matrix_add(const float *m1, const float *m2, float *res,
 
 int run_cuda(Matrices *ma) {
 
-  float *d_m1, *d_m2, *d_res;
+  float *d_m1, *d_m2, *d_res, m1, m2, res;
   gpuErrchk(cudaMalloc(&d_m1, ma->total_size * sizeof(float)));
   gpuErrchk(cudaMalloc(&d_m2, ma->total_size * sizeof(float)));
   gpuErrchk(cudaMalloc(&d_res, ma->total_size * sizeof(float)));

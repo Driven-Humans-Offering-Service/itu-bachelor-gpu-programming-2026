@@ -17,6 +17,8 @@ void free_matrices(Matrices *ma);
 
 Matrices *init_matrices(int size, int total_size);
 
+void real_malloc(void* ptr, int size);
+
 void read_matrix(FILE *file, float *m, int size);
 
 void print_matrix(float *m, int size);

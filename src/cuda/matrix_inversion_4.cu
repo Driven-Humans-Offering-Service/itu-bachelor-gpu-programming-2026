@@ -225,7 +225,8 @@ __global__ void fill(float *p, const int N) {
 
 void print_cuda_matrix(float *m, const int N, const int total_size) {
   gpuErrchk(cudaDeviceSynchronize());
-  float *m_host = (float *)std::malloc(total_size * sizeof(float));
+  float *m_host;
+  run_malloc(m_host, total_size*sizeof(float));
   gpuErrchk(cudaMemcpy(m_host, m, total_size * sizeof(float),
                        cudaMemcpyDeviceToHost));
   gpuErrchk(cudaDeviceSynchronize());
@@ -266,30 +267,13 @@ void LU_decompose2(float *alpha, float *beta, const float *a,
 
 #if DEBUG
   gpuErrchk(cudaDeviceSynchronize());
-  float *sum_matrix_host = (float *)std::malloc(total_size * sizeof(float));
+  float *sum_matrix_host;
+  real_malloc(sum_matrix_host, total_size * sizeof(float));
   gpuErrchk(cudaMemcpy(sum_matrix_host, sum_matrix, total_size * sizeof(float),
                        cudaMemcpyDeviceToHost));
   gpuErrchk(cudaDeviceSynchronize());
   printf("sum_matrix\n");
   print_matrix(sum_matrix_host, N);
-
-  /* float *tmp = (float *)malloc(1000 * sizeof(float));
-  for (int i = 1; i <= 1000; i++)
-    tmp[i - 1] = i;
-  float *tmp_d;
-  float *res_d;
-  float *res = (float *)malloc(sizeof(float));
-  gpuErrchk(cudaMalloc(&tmp_d, 1000 * sizeof(float)));
-  gpuErrchk(cudaMalloc(&res_d, sizeof(float)));
-  gpuErrchk(cudaDeviceSynchronize());
-  gpuErrchk(cudaMemcpy(tmp_d, tmp, 1000 * sizeof(float), cudaMemcpyDefault));
-  gpuErrchk(cudaDeviceSynchronize());
-  reduce6<1>
-      <<<thread_blocks, threads, threads * sizeof(float)>>>(tmp_d, res_d, 1000);
-  gpuErrchk(cudaDeviceSynchronize());
-  gpuErrchk(cudaMemcpy(res, res_d, sizeof(float), cudaMemcpyDeviceToHost));
-  gpuErrchk(cudaDeviceSynchronize());
-  printf("\nres:%f\n", *res); */
 
 #endif
 
@@ -405,10 +389,9 @@ int run_cuda(Matrices *ma) {
 
 #if DEBUG
   float *L, *U, *y1;
-  L = (float *)std::malloc(ma->total_size * sizeof(float));
-  U = (float *)std::malloc(ma->total_size * sizeof(float));
-  y1 = (float *)std::malloc(ma->total_size * sizeof(float));
-
+  real_malloc(L, ma->total_size * sizeof(float));
+  real_malloc(U, ma->total_size * sizeof(float));
+  real_malloc(y1, ma->total_size * sizeof(float));
   gpuErrchk(cudaMemcpy(L, alpha, ma->total_size * sizeof(float),
                        cudaMemcpyDeviceToHost));
   gpuErrchk(cudaMemcpy(U, beta, ma->total_size * sizeof(float),

@@ -157,7 +157,8 @@ void LU_decompose2(float *alpha, float *beta, const float *a,
 
 #if DEBUG
   gpuErrchk(cudaDeviceSynchronize());
-  float *sum_matrix_host = (float *)std::malloc(total_size * sizeof(float));
+  float *sum_matrix_host;
+  real_malloc(sum_matrix_host, total_size * sizeof(float));
   gpuErrchk(cudaMemcpy(sum_matrix_host, sum_matrix, total_size * sizeof(float),
                        cudaMemcpyDeviceToHost));
   gpuErrchk(cudaDeviceSynchronize());
@@ -277,9 +278,9 @@ int run_cuda(Matrices *ma) {
 
 #if DEBUG
   float *L, *U, *y1;
-  L = (float *)std::malloc(ma->total_size * sizeof(float));
-  U = (float *)std::malloc(ma->total_size * sizeof(float));
-  y1 = (float *)std::malloc(ma->total_size * sizeof(float));
+  real_malloc(L, ma->total_size * sizeof(float));
+  real_malloc(U, ma->total_size * sizeof(float));
+  real_malloc(y1, ma->total_size * sizeof(float));
 
   gpuErrchk(cudaMemcpy(L, alpha, ma->total_size * sizeof(float),
                        cudaMemcpyDeviceToHost));
