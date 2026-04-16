@@ -96,7 +96,7 @@ def verify1(args):
     for file in not_java_files:
         size = get_size_from_file(file)
         op = get_operation_from_file(file)
-        java_file = filter(lambda file: op in file and size in file, java_files)[0]
+        java_file = list(filter(lambda file: op in file and size in file, java_files))[0]
         verify(java_file, file)
 
 
