@@ -1,5 +1,6 @@
 import logging
 import os
+import math as m
 
 from run import run_file
 from utils import filter_files, get_iteration_from_file, get_operation_from_file, rootFolder
@@ -17,26 +18,25 @@ def read_matrix(filename):
     return matrix
 
 
-def verify(filename1, filename2):
-    ma1 = read_matrix(filename1)
-    ma2 = read_matrix(filename2)
+def verify(expected, actual):
+    exp = read_matrix(expected)
+    act = read_matrix(actual)
 
-    size = len(ma1)
-    if size != len(ma2):
+    size = len(exp)
+    if size != len(act):
         print("matrix sizes not equal")
         return False
 
     for i in range(0, size):
         for j in range(0, size):
             #difference = abs(ma1[i][j] - ma2[i][j])/(abs(ma1[i][j]) + abs(ma2[i][j]))
-            if ma2[i][j] == 0:
-                if ma1[i][j] != 0:
-                    logging.debug(f"{ma1[i][j]} != {ma2[i][j]}")
+            if act[i][j] == 0:
+                if exp[i][j] != 0:
+                    logging.debug(f"{exp[i][j]} != {act[i][j]}")
                     return False
                 continue
-            difference = ma1[i][j]-ma2[i][j]
-            if abs(difference) > 10 ** (-1):
-                logging.debug(f"{ma1[i][j]} != {ma2[i][j]}")
+            if not m.isclose(exp[i][j], act[i][j], rel_tol=1e-6, abs_tol=1e-9):
+                logging.debug(f"{exp[i][j]} != {act[i][j]}")
                 return False
 
     return True
@@ -61,9 +61,6 @@ def verify_implementations():
                 return False
     return True
 
-def verify_results():
-    result_path = os.path.abspath(os.path.join(rootFolder, "./data/output"))
-
 
 
 def run_files(files):
@@ -83,9 +80,20 @@ def run_files(files):
             outputFile = os.path.join(rootFolder, f"data/output/res_{operation}_{size}_{lang}_{iteration}")
             run_file(file, ["--outputresult", outputFile, input0, input1])
 
+def get_res_files():
+    res_path = os.path.abspath(os.path.join(rootFolder, "./data/output"))
+    return list(filter(lambda file: file.startswith("res_"), os.listdir(res_path)))
 
 def verify1(args):
     files = filter_files("build", args)
     run_files(files)
+    result_files = get_res_files()
+    java_files = filter(lambda file: file.contains("java"), result_files)
+    not_java_files = filter(lambda file: not file.contains("java"), result_files)
+    for file in not_java_files:
+        it = get_iteration_from_file(file)
+        op = get_operation_from_file(file)
+        java_file = filter(lambda file: file.contains(it) and file.contains(op), java_files)[0]
+        verify(java_file, file)
 
 
