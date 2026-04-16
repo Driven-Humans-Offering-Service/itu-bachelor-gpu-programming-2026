@@ -53,6 +53,7 @@ inline void gpuAssert(cudaError_t code, const char *file, int line,
   }
 }
 
+// 0 FLOPs per thread
 __global__ void isInvertibleCuda(float *beta, const int N, int *error) {
   int row = blockDim.y * blockIdx.y + threadIdx.y;
   int col = blockDim.x * blockIdx.x + threadIdx.x;
@@ -63,6 +64,7 @@ __global__ void isInvertibleCuda(float *beta, const int N, int *error) {
   }
 }
 
+// 0 FLOPs per thread
 __global__ void fill_diagonal(float *m, const int N) {
   int row = blockDim.y * blockIdx.y + threadIdx.y;
   int col = blockDim.x * blockIdx.x + threadIdx.x;
@@ -71,6 +73,7 @@ __global__ void fill_diagonal(float *m, const int N) {
   }
 }
 
+// 0 FLOPs per thread
 __global__ void transpose_matrix(const float *m, float *res, const int N) {
 
   int row = blockDim.y * blockIdx.y + threadIdx.y;
@@ -80,6 +83,7 @@ __global__ void transpose_matrix(const float *m, float *res, const int N) {
   }
 }
 
+// 2 * i + 1 (j >= i) or 2 * j + 3 (j < i) FLOPs per thread
 __global__ void find_diag(float *alpha, float *beta, const float *a,
                           const int N, const int x) {
   int y = blockDim.x * blockIdx.x + threadIdx.x;
@@ -103,6 +107,7 @@ __global__ void find_diag(float *alpha, float *beta, const float *a,
     alpha[IDX(i, j, N)] = (1 / beta[IDX(j, j, N)]) * (a[IDX(i, j, N)] - sum);
   }
 }
+// 1 FLOP per thread
 __global__ void multiply(float *alpha, float *beta, float *sum_matrix,
                          const int N, const int d) {
   int x = blockDim.x * blockIdx.x + threadIdx.x;
@@ -121,6 +126,7 @@ __global__ void multiply(float *alpha, float *beta, float *sum_matrix,
   }
 }
 
+// 0 FLOPs per thread
 __global__ void fill(float *p, const int N) {
   for (int i = 0; i < N; i++) {
     p[i] = 0;
@@ -155,6 +161,8 @@ void LU_decompose2(float *alpha, float *beta, const float *a,
   gpuErrchk(cudaDeviceSynchronize());
   gpuErrchk(cudaFree(beta_t));
 }
+// 1 + N * (N - 1) + 2 * (N - 1) + N * (N - 1) + 2 * (N - 1) + 1
+// 2 * N * N + 2 * N - 2 FLOPs per thread
 __global__ void findx(float *alpha, float *beta, float *b_full, float *x_full,
                       float *y_full, const int N) {
 

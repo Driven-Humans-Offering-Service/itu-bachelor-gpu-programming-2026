@@ -1,4 +1,5 @@
 // Naive multiplication
+// total FLOPs : total_size * 2 * size
 #include "../utilities/utils.h"
 #include <cstdio>
 #include <cuda/cmath>
@@ -26,6 +27,7 @@ inline void gpuAssert(cudaError_t code, const char *file, int line,
   }
 }
 
+// 2 * size FLOPs per thread
 __global__ void matrix_mul(const float *m1, const float *m2, float *res,
                            int size, int tile) {
   int bx = blockIdx.x;

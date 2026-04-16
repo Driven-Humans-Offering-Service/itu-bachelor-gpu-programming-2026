@@ -1,4 +1,5 @@
 // Naive implementation
+// total FLOPs : total_size
 #include "../utilities/utils.h"
 #include <cstdio>
 #include <cuda/cmath>
@@ -25,6 +26,7 @@ inline void gpuAssert(cudaError_t code, const char *file, int line,
   }
 }
 
+// 1 FLOP per thread
 __global__ void matrix_add(const float *m1, const float *m2, float *res,
                            int size) {
 

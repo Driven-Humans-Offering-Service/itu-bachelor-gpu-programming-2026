@@ -62,6 +62,8 @@ __device__ bool isInvertible(float *beta, int n) {
   return true;
 }
 
+// N * (N + 1) * (2 * N + 1) / 6 + N * (N - 1) * (2 * N + 5) / 6 + N * (2 * N * N + 2 * N - 2)
+// N * (8 * N * N + 9 * N - 8) / 3 FLOPs per thread
 __global__ void inverse_matrix_kernel(float *a, float *res, float *alpha,
                                       float *beta, float *E, float *y, float *x,
                                       int size, int N, int *error) {

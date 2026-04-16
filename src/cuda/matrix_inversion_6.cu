@@ -53,6 +53,7 @@ inline void gpuAssert(cudaError_t code, const char *file, int line,
   }
 }
 
+// ceil(cols / BLOCK_SIZE) + log2(BLOCK_SIZE) FLOPs per thread
 template <unsigned int BLOCK_SIZE>
 __global__ void row_reduce_kernel(const float *__restrict__ input,
                                   float *__restrict__ output, int cols) {
@@ -144,6 +145,7 @@ __inline__ void row_reduce(const float *d_input, float *d_output, int rows,
   }
 }
 
+// 0 FLOPs per thread
 __global__ void isInvertibleCuda(float *beta, const int N, int *error) {
   int row = blockDim.y * blockIdx.y + threadIdx.y;
   int col = blockDim.x * blockIdx.x + threadIdx.x;
@@ -154,6 +156,7 @@ __global__ void isInvertibleCuda(float *beta, const int N, int *error) {
   }
 }
 
+// 0 FLOPs per thread
 __global__ void fill_diagonal(float *m, const int N) {
   int row = blockDim.y * blockIdx.y + threadIdx.y;
   int col = blockDim.x * blockIdx.x + threadIdx.x;
@@ -162,6 +165,7 @@ __global__ void fill_diagonal(float *m, const int N) {
   }
 }
 
+// 0 FLOPs per thread
 __global__ void transpose_matrix(const float *m, float *res, const int N) {
 
   int row = blockDim.y * blockIdx.y + threadIdx.y;
@@ -171,6 +175,7 @@ __global__ void transpose_matrix(const float *m, float *res, const int N) {
   }
 }
 
+// 3 (j >= i) or 5 (j < i) FLOPs per thread
 __global__ void find_diag(float *alpha, float *beta, const float *a,
                           const int N, const int d, float *sum_array) {
   int y = blockDim.x * blockIdx.x + threadIdx.x;
@@ -192,6 +197,7 @@ __global__ void find_diag(float *alpha, float *beta, const float *a,
   }
 }
 
+// 1 FLOP per thread
 __global__ void multiply(float *alpha, float *beta, float *sum_matrix,
                          const int N, const int d) {
   int x = blockDim.x * blockIdx.x + threadIdx.x;
@@ -210,6 +216,7 @@ __global__ void multiply(float *alpha, float *beta, float *sum_matrix,
   }
 }
 
+// 0 FLOPs per thread
 __global__ void fill(float *p, const int N, const float num) {
   int x = blockDim.x * blockIdx.x + threadIdx.x;
   int y = blockDim.y * blockIdx.y + threadIdx.y;
@@ -296,6 +303,7 @@ void LU_decompose2(float *alpha, float *beta, const float *a,
   gpuErrchk(cudaFree(sum_matrix));
 }
 
+// 2 FLOPs per thread
 __global__ void add_new_row(float *sum_array, float *alpha, float *y, int size,
                             int i) {
   int col = blockDim.x * blockIdx.x + threadIdx.x;
@@ -310,6 +318,7 @@ __global__ void add_new_row(float *sum_array, float *alpha, float *y, int size,
       alpha[IDX(row, i, size)] * y[IDX(col, i, size)];
 }
 
+// 2 FLOPs per thread
 __global__ void add_new_row_bottom_up(float *sum_array, float *beta, float *x,
                                       int size, int i) {
   int col = blockDim.x * blockIdx.x + threadIdx.x;
@@ -324,6 +333,7 @@ __global__ void add_new_row_bottom_up(float *sum_array, float *beta, float *x,
       beta[IDX(row, i, size)] * x[IDX(col, i, size)];
 }
 
+// 4 (i <= N - 2) or 2 (i == N - 1) FLOPs per thread
 __global__ void findx(float *sum_array, float *beta, float *x, int size, int i,
                       float *y) {
   int col = blockDim.x * blockIdx.x + threadIdx.x;
@@ -339,6 +349,7 @@ __global__ void findx(float *sum_array, float *beta, float *x, int size, int i,
   x[IDX(col, i, size)] = (y[IDX(col, i, size)] - sum) / beta[IDX(i, i, size)];
 }
 
+// 4 (i >= 1) or 2 (i == 0) FLOPs per thread
 __global__ void findy(float *sum_array, float *alpha, float *y, int size, int i,
                       float *b) {
   int col = blockDim.x * blockIdx.x + threadIdx.x;

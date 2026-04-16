@@ -53,6 +53,7 @@ inline void gpuAssert(cudaError_t code, const char *file, int line,
   }
 }
 
+// 0 FLOPs per thread
 __global__ void fill_diagonal(float *m, const int N) {
   int row = blockDim.y * blockIdx.y + threadIdx.y;
   int col = blockDim.x * blockIdx.x + threadIdx.x;
@@ -60,6 +61,7 @@ __global__ void fill_diagonal(float *m, const int N) {
     m[IDX(row, col, N)] = 1;
   }
 }
+// 0 FLOPs per thread
 __global__ void isInvertibleCuda(float *beta, const int N, int *error) {
   int row = blockDim.y * blockIdx.y + threadIdx.y;
   int col = blockDim.x * blockIdx.x + threadIdx.x;
@@ -70,6 +72,7 @@ __global__ void isInvertibleCuda(float *beta, const int N, int *error) {
   }
 }
 
+// 0 FLOPs per thread
 __global__ void transpose_matrix(const float *m, float *res, const int N) {
 
   int row = blockDim.y * blockIdx.y + threadIdx.y;
@@ -79,6 +82,7 @@ __global__ void transpose_matrix(const float *m, float *res, const int N) {
   }
 }
 
+// j * j + 2 * j + 1 FLOPs per thread
 __global__ void find_beta(float *alpha, float *beta, const float *a,
                           const int N, const int j) {
   for (int i = 0; i <= j; i++) {
@@ -90,6 +94,7 @@ __global__ void find_beta(float *alpha, float *beta, const float *a,
   }
 }
 
+// 2 * j + 3 FLOPs per thread
 __global__ void find_alpha(float *alpha, float *beta, const float *a,
                            const int N, const int j) {
 
@@ -136,6 +141,8 @@ int LU_decompose(float *alpha, float *beta, const float *a,
   return h_error;
 }
 
+// 1 + N * (N - 1) + 2 * (N - 1) + N * (N - 1) + 2 * (N - 1) + 1
+// 2 * N * N + 2 * N - 2 FLOPs per thread
 __global__ void findx(float *alpha, float *beta, float *b_full, float *x_full,
                       float *y_full, const int N) {
 
