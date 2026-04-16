@@ -3,6 +3,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#ifdef CUDA_CODE
+#include <cuda_runtime.h>
+#endif
+
 #define IDX(i, j, size) (((i) * (size)) + (j))
 #define checkScan(ans, msg)                                                         \
   {                                                                            \
@@ -126,7 +130,7 @@ Matrices* init_matrices(int size, int total_size) {
 }
 
 void real_malloc(void* ptr, int size) {
-#ifdef __cplusplus
+#ifdef CUDA_CODE
     cudaMallocHost(&ptr, size);
 #else
     ptr = malloc(size);
