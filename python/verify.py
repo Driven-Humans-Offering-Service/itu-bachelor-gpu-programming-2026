@@ -84,6 +84,9 @@ def get_res_files():
     res_path = os.path.abspath(os.path.join(rootFolder, "./data/output"))
     return list(filter(lambda file: file.startswith("res_"), os.listdir(res_path)))
 
+def get_size_from_file(file):
+    return file.split("_")[-3]
+
 def verify1(args):
     files = filter_files("build", args)
     run_files(files)
@@ -91,9 +94,9 @@ def verify1(args):
     java_files = filter(lambda file: "java" in file, result_files)
     not_java_files = filter(lambda file: not "java" in file, result_files)
     for file in not_java_files:
-        it = get_iteration_from_file(file)
+        size = get_size_from_file(file)
         op = get_operation_from_file(file)
-        java_file = filter(lambda file: it in file and op in file, java_files)[0]
+        java_file = filter(lambda file: op in file and size in file, java_files)[0]
         verify(java_file, file)
 
 
