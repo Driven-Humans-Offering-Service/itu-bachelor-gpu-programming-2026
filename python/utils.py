@@ -78,4 +78,18 @@ def filter_files(folder, args):
     files = filter_files_by_iteration(files, int(iteration))
     return files
 
+def get_iteration_from_file(file):
+    return int(file.split(".")[-2].split("_")[-1])
+
+
+def get_operation_from_file(file):
+    if "inversion" in file.lower():
+        return "inversion"
+    if "addition" in file.lower():
+        return "addition"
+    if "multiplication" in file.lower():
+        return "multiplication"
+    print(f"unknown file tile: \n{file}")
+    exit(1)
+
 setup()

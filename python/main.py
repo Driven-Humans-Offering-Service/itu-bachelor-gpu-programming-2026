@@ -61,7 +61,7 @@ def setupArguments():
         "-ve",
         dest="verify",
         help="Whether or not to verify the resulting matrices against the java implementation",
-        action="store_true",
+        nargs="*",
     )
 
     _ = parser.add_argument(
@@ -163,6 +163,8 @@ def main():
 
     elif args.verify:
         logging.debug("running the implementations")
+        ve.verify1(args.verify)
+        return
         # run with resultoutput
 
         langs = ["java", "cuda", "c"]

@@ -1,7 +1,8 @@
 import logging
 import os
 
-from utils import rootFolder
+from run import run_file
+from utils import filter_files, get_iteration_from_file, get_operation_from_file, rootFolder
 
 
 def read_matrix(filename):
@@ -59,3 +60,32 @@ def verify_implementations():
             if not res:
                 return False
     return True
+
+def verify_results():
+    result_path = os.path.abspath(os.path.join(rootFolder, "./data/output"))
+
+
+
+def run_files(files):
+    matrices_path = os.path.abspath(os.path.join(rootFolder, "./data/input"))
+    for matrix in os.listdir(matrices_path):
+        _, num, size = matrix.split("_");
+        size = int(size)
+        num = int(num)
+        if size >= 640:
+            continue
+        input0 = rootFolder + f"/data/input/matrix_0_{size}"
+        input1 = rootFolder + f"/data/input/matrix_1_{size}"
+        for file in files:
+            lang = file.split("/")[-2]
+            operation = get_operation_from_file(file)
+            iteration = get_iteration_from_file(file)
+            outputFile = os.path.join(rootFolder, f"data/output/res_{operation}_{size}_{lang}_{iteration}")
+            run_file(file, ["--outputresult", outputFile, input0, input1])
+
+
+def verify1(args):
+    files = filter_files("build", args)
+    run_files(files)
+
+
