@@ -1,6 +1,5 @@
 // Row reduce every sum of multiplication, but start in a for loop
 #include "../utilities/utils.h"
-#include "../utilities/matrix.h"
 #include <cstdio>
 #include <cstdlib>
 #include <cuda/cmath>

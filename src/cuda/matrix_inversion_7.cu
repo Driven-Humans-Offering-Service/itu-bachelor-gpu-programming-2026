@@ -1,6 +1,5 @@
 // Make it faster to find X
 #include "../utilities/utils.h"
-#include "../utilities/matrix.h"
 #include <cstdio>
 #include <cstdlib>
 #include <cuda/cmath>
@@ -229,7 +228,7 @@ __global__ void fill(float *p, const int N, const float num) {
 void print_cuda_matrix(float *m, const int N, const int total_size) {
   gpuErrchk(cudaDeviceSynchronize());
   float *m_host;
-  run_malloc(m_host, total_size*sizeof(float));
+  real_malloc(m_host, total_size * sizeof(float));
   gpuErrchk(cudaMemcpy(m_host, m, total_size * sizeof(float),
                        cudaMemcpyDeviceToHost));
   gpuErrchk(cudaDeviceSynchronize());

@@ -1,6 +1,5 @@
 // Find LU on the diagonal
 #include "../utilities/utils.h"
-#include "../utilities/matrix.h"
 #include <cstdio>
 #include <cstdlib>
 #include <cuda/cmath>
