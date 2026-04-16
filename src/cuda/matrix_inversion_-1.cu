@@ -1,5 +1,6 @@
 // Make it faster to find X
 #include "../utilities/utils.h"
+#include "../utilities/matrix.h"
 #include <__clang_cuda_runtime_wrapper.h>
 #include <cstdio>
 #include <cstdlib>

@@ -1,5 +1,6 @@
 // Make it faster to find Y
 #include "../utilities/utils.h"
+#include "../utilities/matrix.h"
 #include <cstdio>
 #include <cstdlib>
 #include <cuda/cmath>

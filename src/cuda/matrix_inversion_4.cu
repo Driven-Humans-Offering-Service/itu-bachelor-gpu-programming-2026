@@ -1,5 +1,6 @@
 // Make row reduce kernels be started at once
 #include "../utilities/utils.h"
+#include "../utilities/matrix.h"
 #include <cstdio>
 #include <cstdlib>
 #include <cuda/cmath>

@@ -1,6 +1,7 @@
 // Naive implementation
 // total FLOPs : total_size
 #include "../utilities/utils.h"
+#include "../utilities/matrix.h"
 #include <cstdio>
 #include <cuda/cmath>
 
