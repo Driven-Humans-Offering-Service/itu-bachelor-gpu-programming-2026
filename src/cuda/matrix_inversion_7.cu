@@ -228,7 +228,7 @@ __global__ void fill(float *p, const int N, const float num) {
 void print_cuda_matrix(float *m, const int N, const int total_size) {
   gpuErrchk(cudaDeviceSynchronize());
   float *m_host;
-  real_malloc((void**)&m_host, total_size * sizeof(float));
+  real_malloc((void **)&m_host, total_size * sizeof(float));
   gpuErrchk(cudaMemcpy(m_host, m, total_size * sizeof(float),
                        cudaMemcpyDeviceToHost));
   gpuErrchk(cudaDeviceSynchronize());
@@ -275,7 +275,7 @@ void LU_decompose2(float *alpha, float *beta, const float *a,
 #if DEBUG
   gpuErrchk(cudaDeviceSynchronize());
   float *sum_matrix_host;
-  real_malloc((void**)&sum_matrix_host, total_size * sizeof(float));
+  real_malloc((void **)&sum_matrix_host, total_size * sizeof(float));
   gpuErrchk(cudaMemcpy(sum_matrix_host, sum_matrix, total_size * sizeof(float),
                        cudaMemcpyDeviceToHost));
   gpuErrchk(cudaDeviceSynchronize());
@@ -408,12 +408,17 @@ int run_cuda(Matrices *ma) {
 
   int threads = 1024;
   int thread_blocks = cuda::ceil_div(ma->size, threads);
+  cudaStream_t stream1, stream2;
+  cudaStreamCreate(&stream1);
+  cudaStreamCreate(&stream2);
   // findx<<<thread_blocks, threads>>>(alpha, beta, E, x, y, ma->size);
   findy<<<thread_blocks, threads>>>(sum_array, alpha, y, ma->size, 0, E);
   for (int i = 1; i < ma->size; i++) {
     gpuErrchk(cudaDeviceSynchronize());
-    add_new_row<<<grid, block>>>(sum_array, alpha, y, ma->size, i - 1);
-    findy<<<thread_blocks, threads>>>(sum_array, alpha, y, ma->size, i, E);
+    add_new_row<<<grid, block, 0, stream1>>>(sum_array, alpha, y, ma->size,
+                                             i - 1);
+    findy<<<thread_blocks, threads, 0, stream2>>>(sum_array, alpha, y, ma->size,
+                                                  i, E);
   }
   gpuErrchk(cudaDeviceSynchronize());
   fill<<<grid, block>>>(sum_array, ma->size, 0);
@@ -422,9 +427,13 @@ int run_cuda(Matrices *ma) {
                                     y);
   for (int i = ma->size - 2; i >= 0; i--) {
     gpuErrchk(cudaDeviceSynchronize());
-    add_new_row_bottom_up<<<grid, block>>>(sum_array, beta, x, ma->size, i + 1);
-    findx<<<thread_blocks, threads>>>(sum_array, beta, x, ma->size, i, y);
+    add_new_row_bottom_up<<<grid, block, 0, stream1>>>(sum_array, beta, x,
+                                                       ma->size, i + 1);
+    findx<<<thread_blocks, threads, 0, stream2>>>(sum_array, beta, x, ma->size,
+                                                  i, y);
   }
+  cudaStreamDestroy(stream1);
+  cudaStreamDestroy(stream2);
 
   gpuErrchk(cudaDeviceSynchronize());
 
@@ -438,9 +447,9 @@ int run_cuda(Matrices *ma) {
 
 #if DEBUG
   float *L, *U, *y1;
-  real_malloc((void**)&L, ma->total_size * sizeof(float));
-  real_malloc((void**)&U, ma->total_size * sizeof(float));
-  real_malloc((void**)&y1, ma->total_size * sizeof(float));
+  real_malloc((void **)&L, ma->total_size * sizeof(float));
+  real_malloc((void **)&U, ma->total_size * sizeof(float));
+  real_malloc((void **)&y1, ma->total_size * sizeof(float));
 
   gpuErrchk(cudaMemcpy(L, alpha, ma->total_size * sizeof(float),
                        cudaMemcpyDeviceToHost));
