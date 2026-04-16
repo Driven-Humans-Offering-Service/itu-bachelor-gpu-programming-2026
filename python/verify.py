@@ -88,12 +88,12 @@ def verify1(args):
     files = filter_files("build", args)
     run_files(files)
     result_files = get_res_files()
-    java_files = filter(lambda file: file.contains("java"), result_files)
-    not_java_files = filter(lambda file: not file.contains("java"), result_files)
+    java_files = filter(lambda file: "java" in file, result_files)
+    not_java_files = filter(lambda file: not "java" in file, result_files)
     for file in not_java_files:
         it = get_iteration_from_file(file)
         op = get_operation_from_file(file)
-        java_file = filter(lambda file: file.contains(it) and file.contains(op), java_files)[0]
+        java_file = filter(lambda file: it in file and op in file, java_files)[0]
         verify(java_file, file)
 
 
