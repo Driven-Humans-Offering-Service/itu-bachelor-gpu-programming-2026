@@ -1,6 +1,5 @@
 // Make it faster to find X
 #include "../utilities/utils.h"
-#include <__clang_cuda_runtime_wrapper.h>
 #include <cstdio>
 #include <cstdlib>
 #include <cuda/cmath>
@@ -53,7 +52,7 @@ inline void gpuAssert(cudaError_t code, const char *file, int line,
       exit(code);
   }
 }
-__device__ bool isInvertible(float *beta, int n) {
+__device__ bool isInvertible1(float *beta, int n) {
   for (int i = 0; i < n; i++) {
     if (fabsf(beta[IDX(i, i, n)]) < 1e-6f) {
       return false;
@@ -102,7 +101,7 @@ __global__ void inverse_matrix_kernel(float *a, float *res, float *alpha,
     }
   }
 
-  if (!isInvertible(beta, N)) {
+  if (!isInvertible1(beta, N)) {
     *error = 1;
     return;
   }
@@ -173,7 +172,7 @@ int inverse_matrix(Matrices *ma) {
   cudaDeviceSynchronize();
 
   cudaMemcpy(ma->result, d_res, size * sizeof(float), cudaMemcpyDeviceToHost);
-  int *error;
+  int error = 0;
   cudaMemcpy(&error, d_error, sizeof(int), cudaMemcpyDeviceToHost);
 
   cudaFree(d_a);
@@ -183,7 +182,7 @@ int inverse_matrix(Matrices *ma) {
   cudaFree(d_E);
   cudaFree(d_y);
   cudaFree(d_x);
-  return *error;
+  return error;
 }
 
 int main(int argc, char **argv) {
