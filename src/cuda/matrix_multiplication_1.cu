@@ -9,7 +9,7 @@
 #include <cuda_runtime_api.h>
 #include <driver_types.h>
 #include <stdlib.h>
-
+#define TILE 32
 #define IDX(i, j, size) (((i) * (size)) + (j))
 // Taken from
 // https://stackoverflow.com/questions/14038589/what-is-the-canonical-way-to-check-for-errors-using-the-cuda-runtime-api
@@ -29,7 +29,7 @@ inline void gpuAssert(cudaError_t code, const char *file, int line,
 
 // 2 * size FLOPs per thread
 __global__ void matrix_mul(const float *m1, const float *m2, float *res,
-                           int size, int tile) {
+                           int size) {
   int bx = blockIdx.x;
   int by = blockIdx.y;
 
@@ -41,15 +41,16 @@ __global__ void matrix_mul(const float *m1, const float *m2, float *res,
 
   extern __shared__ float smem[];
   float *m1s = smem;
-  float *m2s = smem + tile * tile;
+  float *m2s = smem + TILE * TILE;
 
   float value = 0;
-  for (int phase = 0; phase < size / tile; phase++) {
-    m1s[IDX(ty, tx, tile)] = m1[row * size + phase * tile + tx];
-    m2s[IDX(ty, tx, tile)] = m2[(phase * tile + ty) * size + col];
+  int ceil = cuda::ceil_div(size, TILE);
+  for (int phase = 0; phase < ceil; phase++) {
+    m1s[IDX(ty, tx, TILE)] = m1[row * size + phase * TILE + tx];
+    m2s[IDX(ty, tx, TILE)] = m2[(phase * TILE + ty) * size + col];
     __syncthreads();
-    for (int i = 0; i < tile; i++) {
-      value += m1s[IDX(ty, i, tile)] * m2s[IDX(i, tx, tile)];
+    for (int i = 0; i < TILE; i++) {
+      value += m1s[IDX(ty, i, TILE)] * m2s[IDX(i, tx, TILE)];
     }
     __syncthreads();
   }
@@ -76,12 +77,12 @@ int run_cuda(Matrices *ma) {
 
   gpuErrchk(cudaGetDeviceProperties_v2(&prop, 0));
 
-  dim3 block(256, 256);
+  dim3 block(TILE, TILE);
   dim3 grid((ma->size + block.x - 1) / block.x,
             (ma->size + block.y - 1) / block.y);
 
-  int shmemBytes = 2 * 32 * 32 * sizeof(float);
-  matrix_mul<<<grid, block, shmemBytes>>>(d_m1, d_m2, d_res, ma->size, block.x);
+  int shmemBytes = 2 * TILE * TILE * sizeof(float);
+  matrix_mul<<<grid, block, shmemBytes>>>(d_m1, d_m2, d_res, ma->size);
 
   gpuErrchk(cudaDeviceSynchronize());
   gpuErrchk(cudaEventRecord(stop));
