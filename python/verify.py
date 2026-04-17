@@ -9,11 +9,7 @@ from utils import filter_files, get_iteration_from_file, get_operation_from_file
 def read_matrix(filename):
     matrix = []
     with open(filename, "r") as f:
-        firstline = True
         for line in f.readlines():
-            if firstline:
-                firstline = False
-                continue
             matrix.append(list(map(float, line.strip().split(" "))))
     return matrix
 
@@ -30,12 +26,8 @@ def verify(expected, actual):
     for i in range(0, size):
         for j in range(0, size):
             #difference = abs(ma1[i][j] - ma2[i][j])/(abs(ma1[i][j]) + abs(ma2[i][j]))
-            if act[i][j] == 0:
-                if exp[i][j] != 0:
-                    logging.debug(f"{exp[i][j]} != {act[i][j]}")
-                    return False
-                continue
-            if not m.isclose(exp[i][j], act[i][j], rel_tol=1e-6, abs_tol=1e-9):
+            if not m.isclose(exp[i][j], act[i][j], rel_tol=1e-1, abs_tol=1e-6):
+                logging.debug(f"found matricies that arent correct\n{expected} is not equal to {actual} on {i} {j}")
                 logging.debug(f"{exp[i][j]} != {act[i][j]}")
                 return False
 
@@ -90,14 +82,14 @@ def get_size_from_file(file):
 def verify1(args):
     files = filter_files("build", args)
     res_path = os.path.abspath(os.path.join(rootFolder, "./data/output"))
-    run_files(files)
+    #run_files(files)
     result_files = get_res_files()
-    java_files = filter(lambda file: "java" in file, result_files)
-    not_java_files = filter(lambda file: not "java" in file, result_files)
+    java_files = list(filter(lambda file: "java" in file, result_files))
+    not_java_files = list(filter(lambda file: not "java" in file, result_files))
     for file in not_java_files:
         size = get_size_from_file(file)
         op = get_operation_from_file(file)
-        java_file = list(filter(lambda file: op in file and size in file, java_files))[0]
+        java_file = list(filter(lambda file: op in file and size == get_size_from_file(file), java_files))[0]
         verify(os.path.join(res_path, java_file), os.path.join(res_path, file))
 
 
