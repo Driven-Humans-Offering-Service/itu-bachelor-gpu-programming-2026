@@ -20,8 +20,12 @@ def generate_matrix(n, num):
 
 def generate_matrices(amount, seed):
     rand.seed(seed)
-    i = 20
-    for _ in range(0, amount):
-        generate_matrix(i, 0)
-        generate_matrix(i, 1)
-        i *= 2
+    lst = [20,40,80,160,320,640,1280,2560,5120,10000,15000,20000,25000,30000]
+    for el in lst:
+     generate_matrix(el, 0)
+     generate_matrix(el, 1)
+    # i = 20
+    # for _ in range(0, amount):
+    #     generate_matrix(i, 0)
+    #     generate_matrix(i, 1)
+    #     i *= 2
