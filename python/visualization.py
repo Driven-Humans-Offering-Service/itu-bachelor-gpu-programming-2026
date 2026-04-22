@@ -67,6 +67,8 @@ def plot(data):
         print(bm.y)
         plt.plot(bm.x, bm.y, color=colours[i % len(colours)], label=bm.description())
         i += 1
+    plt.yscale('log')
+    plt.xscale('log')
     plt.xlabel("size")
     plt.ylabel("time [s]")
     plt.legend(loc="upper left")
