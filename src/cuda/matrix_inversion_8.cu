@@ -1,4 +1,4 @@
-// Make it faster to find X
+// Correct cuda math
 #include "../utilities/utils.h"
 #include <cstdio>
 #include <cstdlib>
