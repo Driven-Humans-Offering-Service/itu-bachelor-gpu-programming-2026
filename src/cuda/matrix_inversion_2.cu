@@ -143,10 +143,8 @@ void LU_decompose2(float *alpha, float *beta, const float *a,
   cudaStream_t stream1, stream2;
   cudaStreamCreate(&stream1);
   cudaStreamCreate(&stream2);
-  // unsigned long betaTime = 0;
   for (int j = 0; j < N * 2; j++) {
     gpuErrchk(cudaDeviceSynchronize());
-    // unsigned long before = get_time_nanoseconds();
     multiply<<<thread_blocks, threads, 0, stream1>>>(alpha, beta_t, sum_matrix,
                                                      N, j + 1);
     find_diag<<<thread_blocks, threads, 0, stream2>>>(alpha, beta_t, a, N, j,
@@ -155,19 +153,7 @@ void LU_decompose2(float *alpha, float *beta, const float *a,
   cudaStreamDestroy(stream1);
   cudaStreamDestroy(stream2);
 
-#if DEBUG
   gpuErrchk(cudaDeviceSynchronize());
-  float *sum_matrix_host;
-  real_malloc((void**)&sum_matrix_host, total_size * sizeof(float));
-  gpuErrchk(cudaMemcpy(sum_matrix_host, sum_matrix, total_size * sizeof(float),
-                       cudaMemcpyDeviceToHost));
-  gpuErrchk(cudaDeviceSynchronize());
-  printf("sum_matrix\n");
-  print_matrix(sum_matrix_host, N);
-#endif
-
-  gpuErrchk(cudaDeviceSynchronize());
-  // printf("Beta time: %lu\n", betaTime);
   transpose_matrix<<<grid, block>>>(beta_t, beta, N);
   gpuErrchk(cudaDeviceSynchronize());
   gpuErrchk(cudaFree(beta_t));
@@ -278,9 +264,9 @@ int run_cuda(Matrices *ma) {
 
 #if DEBUG
   float *L, *U, *y1;
-  real_malloc((void**)&L, ma->total_size * sizeof(float));
-  real_malloc((void**)&U, ma->total_size * sizeof(float));
-  real_malloc((void**)&y1, ma->total_size * sizeof(float));
+  real_malloc((void **)&L, ma->total_size * sizeof(float));
+  real_malloc((void **)&U, ma->total_size * sizeof(float));
+  real_malloc((void **)&y1, ma->total_size * sizeof(float));
 
   gpuErrchk(cudaMemcpy(L, alpha, ma->total_size * sizeof(float),
                        cudaMemcpyDeviceToHost));

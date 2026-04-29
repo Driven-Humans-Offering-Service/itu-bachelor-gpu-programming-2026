@@ -1,4 +1,4 @@
-// Make it faster to find X
+// Better kernel launch params
 #include "../utilities/utils.h"
 #include <cstdio>
 #include <cstdlib>

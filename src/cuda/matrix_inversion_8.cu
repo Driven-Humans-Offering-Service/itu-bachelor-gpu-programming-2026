@@ -1,4 +1,4 @@
-// Use cuda functions for math
+// Correct cuda math
 #include "../utilities/utils.h"
 #include <cstdio>
 #include <cstdlib>
