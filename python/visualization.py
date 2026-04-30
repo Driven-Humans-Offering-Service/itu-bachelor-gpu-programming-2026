@@ -13,9 +13,10 @@ def visualise(args):
     name = args[0]
     filenames = args[1:]
     data = {}
+    kernel_data = {}
     files = get_files(filenames)
     for file in files:
-        print(file)
+        cuda_file = "cuda" in file
         filename_with_path = os.path.join(rootFolder, f"data/time/{file}")
         underscore_split = filename_with_path.split("_")
         hardware = " ".join(underscore_split[-1].split("ø"))
@@ -25,12 +26,26 @@ def visualise(args):
         algorithm = get_algorithm(underscore_split[-6])
         bm = BenchmarkData(hardware, str(iteration), algorithm, language)
         bm_obj = data.get(bm.description(), bm)
+        bm_obj_kernel = ""
+        bm_kernel = ""
+        if cuda_file:
+            bm_kernel = BenchmarkData(hardware, str(iteration), algorithm, language, True)
+            bm_obj_kernel = kernel_data.get(bm_kernel.description(), bm_kernel)
         with open(filename_with_path, "r") as f:
             time = float(f.readline().split(" ")[0])/10**9
             bm_obj.appendx(size)
             bm_obj.appendy(time)
+            if cuda_file:
+                time = float(f.readline().split(" ")[0])/10**9
+                bm_obj_kernel.appendx(size)
+                bm_obj_kernel.appendy(time)  
+
         data[bm.description()] = bm_obj
-    plot(data, name)
+        if cuda_file:
+            kernel_data[bm_kernel.description()] = bm_obj_kernel
+    plot(data.values(), name)
+    if len(kernel_data.values()) >= 1:
+        plot(kernel_data.values(), name, True)
 
 def get_files(regexes):
     dataPath = os.path.join(rootFolder, "data/time")
@@ -57,10 +72,9 @@ def get_algorithm(str):
         raise Exception("Unknown algorithm")
 
 
-def plot(data, name):
+def plot(values, name, cuda_time = False):
     fig, ax = plt.subplots(figsize=(12, 7))
     plt.style.use("bmh")
-    values = list(data.values())
     sorted_values = sorted(values, key=lambda x: (x.language, x.iteration))
     cmap = plt.get_cmap("tab10")
     colours = [cmap(i) for i in range(len(sorted_values))]
@@ -73,6 +87,8 @@ def plot(data, name):
     ax.set_xscale("log")
     ax.set_xlabel("Matrix size", fontsize=13)
     ax.set_ylabel("Time [s]", fontsize=13)
+    if cuda_time:
+        name = name + " - Kernel Time"
     ax.set_title(name, fontsize=16, fontweight="bold", pad=15)
     ax.legend(
         loc="upper left",
@@ -83,5 +99,6 @@ def plot(data, name):
     ax.grid(True, which="both", linestyle="--", linewidth=0.5, alpha=0.7)
     ax.tick_params(axis="both", labelsize=11)
     plt.tight_layout()
-    plt.savefig("fig.png", dpi=150, bbox_inches="tight")
+    filename = "fig.png" if not cuda_time else "fig-kernel.png"
+    plt.savefig(filename, dpi=150, bbox_inches="tight")
     plt.show()
