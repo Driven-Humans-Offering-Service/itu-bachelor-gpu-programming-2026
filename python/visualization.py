@@ -85,7 +85,7 @@ def plot(values, name, cuda_time = False):
                 linewidth=2, alpha=0.85)
     ax.set_yscale("log")
     ax.set_xscale("log")
-    ax.set_xlabel("Matrix size", fontsize=13)
+    ax.set_xlabel("Matrix side length", fontsize=13)
     ax.set_ylabel("Time [s]", fontsize=13)
     if cuda_time:
         name = name + " - Kernel Time"
