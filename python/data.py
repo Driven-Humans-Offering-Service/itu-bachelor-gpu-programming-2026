@@ -9,7 +9,7 @@ class BenchmarkData:
         self.y = []
 
     def description(self):
-        return self.hardware + self.iteration + self.algorithm + self.language
+        return self.hardware + " " + self.iteration +  " " + self.algorithm +  " " + self.language
 
     def appendx(self, x):
         self.x.append(x)

@@ -55,23 +55,32 @@ def get_algorithm(str):
     else:
         raise Exception("Unknown algorithm")
 
-colours = ["red", "green", "blue", "black", "cyan", "magenta", "yellow", "pink"]
 
 def plot(data):
-    i = 0
-    print(data)
-    for bm in data.values():
+    fig, ax = plt.subplots(figsize=(12, 7))
+    plt.style.use("bmh")
+    values = list(data.values())
+    sorted_values = sorted(values, key=lambda x: (x.language, x.iteration))
+    cmap = plt.get_cmap("tab10")
+    colours = [cmap(i) for i in range(len(sorted_values))]
+    for i, bm in enumerate(sorted_values):
         sorted_pairs = sorted(zip(bm.x, bm.y), key=lambda x: x[0])
         bm.x, bm.y = zip(*sorted_pairs)
-        print(bm.x)
-        print(bm.y)
-        plt.plot(bm.x, bm.y, color=colours[i % len(colours)], label=bm.description())
-        i += 1
-    plt.yscale('log')
-    plt.xscale('log')
-    plt.xlabel("size")
-    plt.ylabel("time [s]")
-    plt.legend(loc="upper left")
-    plt.title("Benchmark")
-    plt.savefig("fig.png")
+        ax.plot(bm.x, bm.y, color=colours[i], label=bm.description(),
+                linewidth=2, alpha=0.85)
+    ax.set_yscale("log")
+    ax.set_xscale("log")
+    ax.set_xlabel("Matrix size", fontsize=13)
+    ax.set_ylabel("Time [s]", fontsize=13)
+    ax.set_title("benchmark", fontsize=16, fontweight="bold", pad=15)
+    ax.legend(
+        loc="upper left",
+        borderaxespad=0,
+        fontsize=9,
+        framealpha=0.9,
+    )
+    ax.grid(True, which="both", linestyle="--", linewidth=0.5, alpha=0.7)
+    ax.tick_params(axis="both", labelsize=11)
+    plt.tight_layout()
+    plt.savefig("fig.png", dpi=150, bbox_inches="tight")
     plt.show()
