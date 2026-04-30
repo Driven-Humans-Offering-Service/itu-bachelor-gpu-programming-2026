@@ -10,7 +10,8 @@ from data import BenchmarkData
 
 
 def visualise(args):
-    filenames = args
+    name = args[0]
+    filenames = args[1:]
     data = {}
     files = get_files(filenames)
     for file in files:
@@ -29,7 +30,7 @@ def visualise(args):
             bm_obj.appendx(size)
             bm_obj.appendy(time)
         data[bm.description()] = bm_obj
-    plot(data)
+    plot(data, name)
 
 def get_files(regexes):
     dataPath = os.path.join(rootFolder, "data/time")
@@ -56,7 +57,7 @@ def get_algorithm(str):
         raise Exception("Unknown algorithm")
 
 
-def plot(data):
+def plot(data, name):
     fig, ax = plt.subplots(figsize=(12, 7))
     plt.style.use("bmh")
     values = list(data.values())
@@ -72,7 +73,7 @@ def plot(data):
     ax.set_xscale("log")
     ax.set_xlabel("Matrix size", fontsize=13)
     ax.set_ylabel("Time [s]", fontsize=13)
-    ax.set_title("benchmark", fontsize=16, fontweight="bold", pad=15)
+    ax.set_title(name, fontsize=16, fontweight="bold", pad=15)
     ax.legend(
         loc="upper left",
         borderaxespad=0,
