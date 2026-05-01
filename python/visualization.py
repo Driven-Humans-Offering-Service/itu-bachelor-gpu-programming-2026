@@ -74,7 +74,6 @@ def get_algorithm(str):
 
 def plot(values, name, cuda_time = False):
     fig, ax = plt.subplots(figsize=(12, 7))
-    plt.style.use("bmh")
     sorted_values = sorted(values, key=lambda x: (x.language, x.iteration))
     cmap = plt.get_cmap("tab10")
     colours = [cmap(i) for i in range(len(sorted_values))]
@@ -95,6 +94,7 @@ def plot(values, name, cuda_time = False):
         borderaxespad=0,
         fontsize=9,
         framealpha=0.9,
+        facecolor="#ededed",
     )
     ax.grid(True, which="both", linestyle="--", linewidth=0.5, alpha=0.7)
     ax.tick_params(axis="both", labelsize=11)
