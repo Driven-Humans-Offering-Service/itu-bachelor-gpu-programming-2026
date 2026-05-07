@@ -30,16 +30,14 @@ public class MatrixInversion_0 {
             for (int i = 0; i <= j; i++) {
                 float sum = 0.0f;
                 for (int k = 0; k < i; k++) {
-                    sum += alpha[i][k] * beta[j][k];
+                    sum += alpha[i][k] * beta[k][j];
                 }
                 beta[i][j] = a[i][j] - sum;
             }
             for (int i = j + 1; i < N; i++) {
                 float sum = 0;
-                var alpha_p = alpha[i];
-                var beta_p = beta[j];
                 for (int k = 0; k < j; k++) {
-                    sum += alpha_p[k] * beta_p[k];
+                    sum += alpha[i][k] * beta[k][j];
                 }
                 alpha[i][j] = (1 / beta[j][j]) * (a[i][j] - sum);
             }
@@ -105,7 +103,10 @@ public class MatrixInversion_0 {
 
         for (int i = 0; i < N; i++) {
             float[] y = findY(alpha, E[i]);
-            X[i] = findX(beta, y);
+            float[] x = findX(beta, y);
+            for (int j = 0; j < N; j++) {
+                X[j][i] = x[j];
+            }
         }
 
         return X;

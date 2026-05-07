@@ -19,16 +19,14 @@ void LU_decompose(float* alpha, float* beta, float* a, int N){
         for (int i = 0; i <= j; i++) {
             float sum = 0.0f;
             for (int k = 0; k < i; k++) {
-                sum += alpha[IDX(i,k,N)] * beta[IDX(j,k,N)];
+                sum += alpha[IDX(i,k,N)] * beta[IDX(k,j,N)];
             }
             beta[IDX(i,j,N)] = a[IDX(i,j,N)] - sum;
         }
         for (int i = j + 1; i < N; i++) {
             float sum = 0;
-            float* alpha_p = &alpha[IDX(i,0, N)];
-            float* beta_p = &beta[IDX(j,0,N)];
             for (int k = 0; k < j; k++) {
-                sum += alpha_p[k] * beta_p[k];
+                sum += alpha[IDX(i,k,N)] * beta[IDX(k,j,N)];
             }
             alpha[IDX(i,j,N)] = (1 / beta[IDX(j,j,N)]) * (a[IDX(i,j,N)] - sum);
         }
@@ -104,7 +102,7 @@ int inverse_matrix(Matrices* ma) {
         findY(y, alpha, &E[IDX(i, 0, small_size)], small_size);
         findX(x, beta, y, small_size);
         for (int j = 0; j < small_size; j++) {
-            res[IDX(i, j, small_size)] = x[j];
+            res[IDX(j, i, small_size)] = x[j];
         }
     }
     free(alpha);
