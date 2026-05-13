@@ -3,7 +3,7 @@ import logging
 import os
 from pathlib import Path
 
-import visualization as vi
+import visualization_osta_hpc as vi
 import compile as c
 import matrix_generation as mg
 import verify as ve
