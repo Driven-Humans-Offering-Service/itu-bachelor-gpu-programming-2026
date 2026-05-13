@@ -75,7 +75,7 @@ def get_algorithm(str):
 def plot(values, name, cuda_time = False):
     fig, ax = plt.subplots(figsize=(12, 7))
     sorted_values = sorted(values, key=lambda x: (x.language, x.iteration))
-    cmap = plt.get_cmap("tab10")
+    cmap = plt.get_cmap("tab20")
     colours = [cmap(i) for i in range(len(sorted_values))]
     for i, bm in enumerate(sorted_values):
         sorted_pairs = sorted(zip(bm.x, bm.y), key=lambda x: x[0])

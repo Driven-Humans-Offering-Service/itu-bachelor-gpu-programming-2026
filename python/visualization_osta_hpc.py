@@ -24,7 +24,7 @@ def visualise(args):
         language = underscore_split[-3]
         size = int(underscore_split[-4])
         algorithm = get_algorithm(underscore_split[-6])
-        bm = BenchmarkData(hardware)
+        bm = BenchmarkData(hardware, str(iteration), algorithm, language)
         bm_obj = data.get(bm.hardware, bm)
         bm_obj_kernel = ""
         bm_kernel = ""
@@ -74,6 +74,7 @@ def get_algorithm(str):
 
 def plot(values, name, cuda_time = False):
     fig, ax = plt.subplots(figsize=(12, 7))
+    print(values)
     sorted_values = sorted(values, key=lambda x: (x.language, x.iteration))
     cmap = plt.get_cmap("tab10")
     colours = [cmap(i) for i in range(len(sorted_values))]
