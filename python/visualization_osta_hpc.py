@@ -40,7 +40,7 @@ def visualise(args):
                 bm_obj_kernel.appendx(size)
                 bm_obj_kernel.appendy(time)  
 
-        data[bm.description()] = bm_obj
+        data[bm.hardware] = bm_obj
         if cuda_file:
             kernel_data[bm_kernel.description()] = bm_obj_kernel
     plot(data.values(), name)
@@ -83,8 +83,11 @@ def plot(values, name, cuda_time = False):
         bm.x, bm.y = zip(*sorted_pairs)
         ax.plot(bm.x, bm.y, color=colours[i], label=bm.description(),
                 linewidth=2, alpha=0.85)
+        ax.scatter(bm.x, bm.y, color=colours[i])
     #ax.set_yscale("log")
     #ax.set_xscale("log")
+    #plt.xlim(0, 10)
+    plt.ylim(-0.5, 35)
     ax.set_xlabel("Implementation iteration", fontsize=13)
     ax.set_ylabel("Time [s]", fontsize=13)
     if cuda_time:
